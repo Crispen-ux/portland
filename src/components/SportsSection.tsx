@@ -41,7 +41,7 @@ export default function SportsSection() {
           >
             <div className="rounded-3xl overflow-hidden shadow-premium-lg aspect-[4/5]">
               <img
-                src="https://images.unsplash.com/photo-1461896836934-bd45ba8a0b91?w=800&q=85&auto=format&fit=crop"
+                src="/Soccer.jpeg"
                 alt="Portland learners playing sports"
                 className="w-full h-full object-cover"
               />

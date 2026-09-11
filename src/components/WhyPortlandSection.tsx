@@ -9,7 +9,7 @@ const features = [
     title: "COMPUTERS",
     description: "Building digital skills for today's world.",
     image:
-      "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&q=80&auto=format&fit=crop",
+      "/School 3.jpeg",
   },
   {
     icon: Bot,
@@ -17,7 +17,7 @@ const features = [
     description:
       "Encouraging creativity, innovation and problem-solving.",
     image:
-      "https://images.unsplash.com/photo-1535378917042-10a22c95931a?w=600&q=80&auto=format&fit=crop",
+      "/Soccer.jpeg",
   },
   {
     icon: GraduationCap,
@@ -25,7 +25,7 @@ const features = [
     description:
       "Teachers committed to the growth and success of every learner.",
     image:
-      "https://images.unsplash.com/photo-1577896851231-70ef18881754?w=600&q=80&auto=format&fit=crop",
+      "/School 2.jpeg",
   },
   {
     icon: Trophy,
@@ -33,7 +33,7 @@ const features = [
     description:
       "Helping learners discover their talents, build confidence and work as a team.",
     image:
-      "https://images.unsplash.com/photo-1461896836934-bd45ba8a0b91?w=600&q=80&auto=format&fit=crop",
+      "/Soccer.jpeg",
   },
 ];
 

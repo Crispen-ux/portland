@@ -29,7 +29,7 @@ export default function AcademicsPage() {
       >
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1920&q=85&auto=format&fit=crop"
+            src="/School 3.jpeg"
             alt="Portland learners learning"
             className="w-full h-full object-cover"
           />
@@ -194,7 +194,7 @@ export default function AcademicsPage() {
             >
               <div className="rounded-3xl overflow-hidden shadow-premium-lg aspect-[4/3]">
                 <img
-                  src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=85&auto=format&fit=crop"
+                  src="/School 2.jpeg"
                   alt="Portland learners in computer lab"
                   className="w-full h-full object-cover"
                 />
@@ -230,7 +230,7 @@ export default function AcademicsPage() {
               }`}
             >
               <img
-                src="https://images.unsplash.com/photo-1461896836934-bd45ba8a0b91?w=800&q=85&auto=format&fit=crop"
+                src="/Soccer.jpeg"
                 alt="Portland learners playing sports"
                 className="w-full h-full object-cover"
               />
@@ -301,7 +301,7 @@ export default function AcademicsPage() {
             >
               <div className="rounded-3xl overflow-hidden shadow-premium-lg aspect-[4/3]">
                 <img
-                  src="https://images.unsplash.com/photo-1577896851231-70ef18881754?w=800&q=85&auto=format&fit=crop"
+                  src="/School 3.jpeg"
                   alt="Portland teacher with learners"
                   className="w-full h-full object-cover"
                 />

@@ -26,7 +26,7 @@ export default function EmotionalSection() {
           >
             <div className="relative rounded-3xl overflow-hidden shadow-premium-lg aspect-[4/5]">
               <img
-                src="https://images.unsplash.com/photo-1544717305-2782549b5136?w=800&q=85&auto=format&fit=crop"
+                src="/School 3.jpeg"
                 alt="Portland learner smiling confidently"
                 className="w-full h-full object-cover"
               />

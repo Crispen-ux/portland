@@ -30,7 +30,7 @@ export default function AboutPage() {
       >
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1920&q=85&auto=format&fit=crop"
+            src="/School 2.jpeg"
             alt="Portland Group of Schools"
             className="w-full h-full object-cover"
           />
@@ -112,14 +112,14 @@ export default function AboutPage() {
               <div className="space-y-4">
                 <div className="rounded-2xl overflow-hidden shadow-card aspect-[3/4]">
                   <img
-                    src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80&auto=format&fit=crop"
+                    src="/School 2.jpeg"
                     alt="Portland learner studying"
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                   />
                 </div>
                 <div className="rounded-2xl overflow-hidden shadow-card aspect-square">
                   <img
-                    src="https://images.unsplash.com/photo-1577896851231-70ef18881754?w=600&q=80&auto=format&fit=crop"
+                    src="/School 3.jpeg"
                     alt="Portland classroom"
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                   />
@@ -128,14 +128,14 @@ export default function AboutPage() {
               <div className="space-y-4 mt-8">
                 <div className="rounded-2xl overflow-hidden shadow-card aspect-square">
                   <img
-                    src="https://images.unsplash.com/photo-1604881988758-f76ad2f7aac1?w=600&q=80&auto=format&fit=crop"
+                    src="/Soccer.jpeg"
                     alt="Portland learners"
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                   />
                 </div>
                 <div className="rounded-2xl overflow-hidden shadow-card aspect-[3/4]">
                   <img
-                    src="https://images.unsplash.com/photo-1588072432836-e10032774350?w=600&q=80&auto=format&fit=crop"
+                    src="/School 1.jpeg"
                     alt="Portland teacher"
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                   />

@@ -10,7 +10,7 @@ export default function HeroSection() {
       {/* Background image */}
       <div className="absolute inset-0">
         <img
-          src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1920&q=85&auto=format&fit=crop"
+          src="/School 1.jpeg"
           alt="Happy Portland learners in classroom"
           className="w-full h-full object-cover"
         />
