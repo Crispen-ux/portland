@@ -34,7 +34,7 @@ export default function EmotionalSection() {
             </div>
             {/* Floating card */}
             <div className="absolute -bottom-6 -right-6 bg-white rounded-2xl p-5 shadow-card-hover max-w-[220px]">
-              <p className="text-4xl mb-2">🌟</p>
+              <p className="text-4xl mb-2" aria-hidden="true">🌟</p>
               <p className="text-portland-dark font-bold text-sm">
                 Every child has potential
               </p>

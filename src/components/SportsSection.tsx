@@ -68,7 +68,7 @@ export default function SportsSection() {
                     key={sport.name}
                     className="flex items-center gap-3 bg-portland-light rounded-xl px-4 py-3 hover:bg-portland-red/5 transition-colors group"
                   >
-                    <span className="text-xl">{sport.icon}</span>
+                    <span className="text-xl" aria-hidden="true">{sport.icon}</span>
                     <span className="font-medium text-portland-dark text-sm group-hover:text-portland-red transition-colors">
                       {sport.name}
                     </span>
@@ -89,7 +89,7 @@ export default function SportsSection() {
                     key={activity.name}
                     className="flex items-center gap-3 bg-portland-light rounded-xl px-4 py-3 hover:bg-portland-red/5 transition-colors group"
                   >
-                    <span className="text-xl">{activity.icon}</span>
+                    <span className="text-xl" aria-hidden="true">{activity.icon}</span>
                     <span className="font-medium text-portland-dark text-sm group-hover:text-portland-red transition-colors">
                       {activity.name}
                     </span>

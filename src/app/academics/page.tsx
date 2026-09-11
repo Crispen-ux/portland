@@ -255,7 +255,7 @@ export default function AcademicsPage() {
                       key={sport.name}
                       className="flex items-center gap-3 bg-portland-light rounded-xl px-4 py-3 hover:bg-portland-red/5 transition-colors group"
                     >
-                      <span className="text-xl">{sport.icon}</span>
+                      <span className="text-xl" aria-hidden="true">{sport.icon}</span>
                       <span className="font-medium text-portland-dark text-sm group-hover:text-portland-red transition-colors">
                         {sport.name}
                       </span>
@@ -275,7 +275,7 @@ export default function AcademicsPage() {
                       key={activity.name}
                       className="flex items-center gap-3 bg-portland-light rounded-xl px-4 py-3 hover:bg-portland-red/5 transition-colors group"
                     >
-                      <span className="text-xl">{activity.icon}</span>
+                      <span className="text-xl" aria-hidden="true">{activity.icon}</span>
                       <span className="font-medium text-portland-dark text-sm group-hover:text-portland-red transition-colors">
                         {activity.name}
                       </span>
@@ -326,7 +326,7 @@ export default function AcademicsPage() {
                 develop academically, socially and personally.
               </p>
               <p className="text-lg text-portland-gray leading-relaxed mt-4">
-                Use real photographs of Portland teachers wherever possible.
+                We are proud of the dedicated team of educators who make Portland a place where learners thrive.
               </p>
             </div>
           </div>
@@ -343,9 +343,9 @@ export default function AcademicsPage() {
                 : "opacity-0 translate-y-12"
             }`}
           >
-            <div className="text-8xl mb-6">🦊</div>
+            <div className="text-8xl mb-6" aria-hidden="true">🦊</div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-portland-dark mb-4">
-              MEET LANDY <span className="text-portland-red">🦊</span>
+              MEET LANDY <span className="text-portland-red" aria-hidden="true">🦊</span>
             </h2>
             <p className="text-portland-red font-semibold text-lg mb-4">
               THE PORTLAND FOX

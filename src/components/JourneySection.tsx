@@ -34,7 +34,7 @@ export default function JourneySection() {
             {/* Foundation */}
             <div className="relative text-center group">
               <div className="relative z-10 mx-auto w-20 h-20 bg-portland-cream rounded-full flex items-center justify-center mb-6 border-4 border-white shadow-card group-hover:scale-110 group-hover:bg-portland-red transition-all duration-300">
-                <span className="text-3xl group-hover:text-white transition-colors">
+                <span className="text-3xl group-hover:text-white transition-colors" aria-hidden="true">
                   🌱
                 </span>
               </div>
@@ -53,7 +53,7 @@ export default function JourneySection() {
             {/* Primary */}
             <div className="relative text-center group">
               <div className="relative z-10 mx-auto w-20 h-20 bg-portland-cream rounded-full flex items-center justify-center mb-6 border-4 border-white shadow-card group-hover:scale-110 group-hover:bg-portland-red transition-all duration-300">
-                <span className="text-3xl group-hover:text-white transition-colors">
+                <span className="text-3xl group-hover:text-white transition-colors" aria-hidden="true">
                   📚
                 </span>
               </div>
@@ -72,7 +72,7 @@ export default function JourneySection() {
             {/* High School */}
             <div className="relative text-center group">
               <div className="relative z-10 mx-auto w-20 h-20 bg-portland-cream rounded-full flex items-center justify-center mb-6 border-4 border-white shadow-card group-hover:scale-110 group-hover:bg-portland-red transition-all duration-300">
-                <span className="text-3xl group-hover:text-white transition-colors">
+                <span className="text-3xl group-hover:text-white transition-colors" aria-hidden="true">
                   🎓
                 </span>
               </div>

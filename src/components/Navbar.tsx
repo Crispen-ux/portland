@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { NAV_LINKS, SITE } from "@/lib/constants";
-import { Menu, X, GraduationCap } from "lucide-react";
+import { NAV_LINKS } from "@/lib/constants";
+import { Menu, X } from "lucide-react";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,11 +23,11 @@ export default function Navbar() {
           : "bg-white/80 backdrop-blur-md py-5"
       }`}
     >
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between" aria-label="Main navigation">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 bg-portland-red rounded-xl flex items-center justify-center shadow-lg shadow-portland-red/20 group-hover:shadow-portland-red/40 transition-shadow duration-300">
-            <GraduationCap className="w-6 h-6 text-white" />
+        <Link href="/" className="flex items-center gap-3 group" aria-label="Portland Group of Schools — Home">
+          <div className="w-10 h-10 bg-portland-red rounded-xl flex items-center justify-center shadow-lg shadow-portland-red/20 group-hover:shadow-portland-red/40 transition-shadow duration-300 overflow-hidden">
+            <img src="/logo.pdf" alt="" className="w-8 h-8 object-contain" aria-hidden="true" />
           </div>
           <div className="hidden sm:block">
             <p className="font-bold text-portland-dark text-sm leading-tight tracking-tight">
@@ -63,7 +63,9 @@ export default function Navbar() {
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="lg:hidden relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-portland-red/5 transition-colors"
-          aria-label="Toggle menu"
+          aria-label={isOpen ? "Close menu" : "Open menu"}
+          aria-expanded={isOpen}
+          aria-controls="mobile-menu"
         >
           {isOpen ? (
             <X className="w-5 h-5 text-portland-dark" />
@@ -75,6 +77,9 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       <div
+        id="mobile-menu"
+        role="navigation"
+        aria-label="Mobile navigation"
         className={`lg:hidden transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden ${
           isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
         }`}
