@@ -116,7 +116,7 @@ const KB: { keywords: string[]; answer: string; followUp?: string[] }[] = [
   },
   {
     keywords: ["bye", "goodbye", "see you", "later"],
-    answer: "Goodbye! We hope to welcome you and your child to Portland soon.\n\nRemember: We believe in your child!",
+    answer: "Goodbye! We hope to welcome you and your child to Portland soon.\n\nRemember: Where every child is known.",
     followUp: ["How do I enrol?"],
   },
   {
@@ -205,7 +205,6 @@ export default function ChatBot() {
     const query = text || input.trim();
     if (!query) return;
 
-    // Add user message
     const userMsg: Message = {
       id: Date.now().toString(),
       text: query,
@@ -215,7 +214,6 @@ export default function ChatBot() {
     setMessages((p) => [...p, userMsg]);
     setInput("");
 
-    // Simulate typing
     setIsTyping(true);
     setTimeout(() => {
       setIsTyping(false);
@@ -239,7 +237,7 @@ export default function ChatBot() {
         className={`fixed bottom-5 left-5 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110 ${
           isOpen
             ? "bg-portland-dark rotate-0"
-            : "bg-portland-red hover:bg-portland-red-dark animate-pulse-glow"
+            : "bg-portland-red hover:bg-portland-red-dark"
         }`}
         aria-label={isOpen ? "Close chat" : "Open chat assistant"}
       >
@@ -260,19 +258,19 @@ export default function ChatBot() {
       >
         <div className="bg-white rounded-2xl shadow-[0_10px_60px_rgba(0,0,0,0.15)] overflow-hidden border border-portland-mid/30">
           {/* Header */}
-          <div className="bg-gradient-to-r from-portland-red to-portland-red-dark px-5 py-4 flex items-center gap-3">
-            <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
+          <div className="bg-portland-dark px-5 py-4 flex items-center gap-3">
+            <div className="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1">
               <p className="font-bold text-white text-sm">Portland Assistant</p>
-              <p className="text-white/70 text-xs">Ask me anything about Portland</p>
+              <p className="text-white/50 text-xs">Ask me anything about Portland</p>
             </div>
             <div className="w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse" />
           </div>
 
           {/* Messages */}
-          <div className="h-[350px] overflow-y-auto px-4 py-4 space-y-4 scroll-smooth">
+          <div className="h-[350px] overflow-y-auto px-4 py-4 space-y-4 scroll-smooth" role="log" aria-live="polite" aria-label="Chat messages">
             {messages.map((msg) => (
               <div key={msg.id}>
                 <div
@@ -288,7 +286,6 @@ export default function ChatBot() {
                     {msg.text}
                   </div>
                 </div>
-                {/* Follow-up buttons */}
                 {msg.sender === "bot" && msg.followUp && msg.followUp.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2 ml-1">
                     {msg.followUp.map((q) => (

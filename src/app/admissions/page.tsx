@@ -21,22 +21,22 @@ import {
 const steps = [
   {
     icon: Search,
-    title: "ENQUIRE",
+    title: "Enquire",
     desc: "Contact our admissions team via WhatsApp or phone.",
   },
   {
     icon: Eye,
-    title: "VISIT",
+    title: "Visit",
     desc: "Come and experience Portland for yourself.",
   },
   {
     icon: FileText,
-    title: "APPLY",
+    title: "Apply",
     desc: "Complete the enrolment process and submit the required documents.",
   },
   {
     icon: PartyPopper,
-    title: "JOIN THE PORTLAND FAMILY",
+    title: "Join the Portland Family",
     desc: "Welcome to Portland! Your child's journey begins.",
   },
 ];
@@ -59,104 +59,96 @@ export default function AdmissionsPage() {
             src="/School 1.jpeg"
             alt="Portland Group of Schools admissions"
             className="w-full h-full object-cover"
+            loading="eager"
+            decoding="async"
           />
-          <div className="absolute inset-0 gradient-hero" />
+          <div className="absolute inset-0 bg-gradient-to-r from-portland-dark/90 via-portland-dark/70 to-portland-dark/40" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div
-            className={`transition-all duration-1000 ${
-              heroInView
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
+            className={`transition-all duration-700 ${
+              heroInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <p className="text-white/60 font-semibold text-sm uppercase tracking-widest mb-4">
+            <span className="text-eyebrow text-portland-red-light tracking-[0.2em] mb-4 block">
               Admissions
-            </p>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-4">
-              YOUR PORTLAND JOURNEY{" "}
-              <span className="text-portland-red-light">STARTS HERE.</span>
+            </span>
+            <h1 className="text-display text-white mb-6">
+              Your Portland Journey{" "}
+              <span className="text-portland-red-light">Starts Here.</span>
             </h1>
-            <p className="text-xl text-white/70 mb-2">
+            <p className="text-xl text-white/60 mb-2">
               Admissions are open
             </p>
-            <p className="text-white/50 text-lg">{SITE.grades}</p>
+            <p className="text-white/40 text-base">{SITE.grades}</p>
           </div>
         </div>
       </section>
 
       {/* Fees */}
-      <section ref={feesRef} className="py-20 lg:py-28">
+      <section ref={feesRef} className="py-24 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
-            className={`text-center mb-16 transition-all duration-1000 ${
-              feesInView
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
+            className={`text-center mb-16 transition-all duration-700 ${
+              feesInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-portland-dark mb-4">
-              OUR FEES
+            <span className="text-eyebrow text-portland-red tracking-[0.2em] mb-4 block">
+              Fees
+            </span>
+            <h2 className="text-editorial text-portland-dark">
+              Our Fees
             </h2>
-            <div className="w-20 h-1 bg-portland-red rounded-full mx-auto" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-12">
             {/* Grade RR - 7 */}
             <div
-              className={`card-premium text-center transition-all duration-700 ${
-                feesInView
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-12"
+              className={`bg-white rounded-2xl p-8 text-center border border-portland-mid/30 shadow-editorial transition-all duration-700 ${
+                feesInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
               }`}
             >
-              <p className="text-portland-gray text-sm uppercase tracking-wider mb-3 font-medium">
+              <p className="text-portland-gray text-xs uppercase tracking-widest mb-3 font-medium">
                 Grade RR – Grade 7
               </p>
               <p className="text-5xl sm:text-6xl font-extrabold text-portland-dark mb-2">
                 {SITE.fees.gradeRRto7}
-                <span className="text-lg text-portland-gray font-normal">
-                  /month
-                </span>
+                <span className="text-lg text-portland-gray font-normal">/month</span>
               </p>
             </div>
 
             {/* Grade 8 - 11 */}
             <div
-              className={`card-premium text-center transition-all duration-700 delay-100 ${
-                feesInView
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-12"
+              className={`bg-white rounded-2xl p-8 text-center border border-portland-mid/30 shadow-editorial transition-all duration-700 delay-100 ${
+                feesInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
               }`}
             >
-              <p className="text-portland-gray text-sm uppercase tracking-wider mb-3 font-medium">
+              <p className="text-portland-gray text-xs uppercase tracking-widest mb-3 font-medium">
                 Grade 8 – Grade 11
               </p>
               <p className="text-5xl sm:text-6xl font-extrabold text-portland-dark mb-2">
                 {SITE.fees.grade8to11}
-                <span className="text-lg text-portland-gray font-normal">
-                  /month
-                </span>
+                <span className="text-lg text-portland-gray font-normal">/month</span>
               </p>
             </div>
           </div>
 
           {/* Additional */}
           <div
-            className={`flex flex-wrap justify-center gap-6 mb-12 transition-all duration-1000 delay-300 ${
+            className={`flex flex-wrap justify-center gap-4 mb-12 transition-all duration-700 ${
               feesInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <div className="flex items-center gap-2 bg-portland-light rounded-xl px-6 py-3">
+            <div className="flex items-center gap-2 bg-portland-light rounded-xl px-5 py-2.5">
               <span className="text-portland-gray text-sm">Registration: </span>
-              <span className="text-portland-dark font-bold">
+              <span className="text-portland-dark font-semibold text-sm">
                 {SITE.fees.registration} once-off
               </span>
             </div>
-            <div className="flex items-center gap-2 bg-portland-light rounded-xl px-6 py-3">
+            <div className="flex items-center gap-2 bg-portland-light rounded-xl px-5 py-2.5">
               <span className="text-portland-gray text-sm">Sports Levy: </span>
-              <span className="text-portland-dark font-bold">
+              <span className="text-portland-dark font-semibold text-sm">
                 {SITE.fees.sportsLevy} per year
               </span>
             </div>
@@ -164,33 +156,33 @@ export default function AdmissionsPage() {
 
           {/* Uniform & Transport */}
           <div
-            className={`grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto transition-all duration-1000 delay-400 ${
+            className={`grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto transition-all duration-700 ${
               feesInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <div className="card-premium flex items-center gap-4">
-              <div className="w-14 h-14 bg-portland-red/8 rounded-2xl flex items-center justify-center shrink-0">
-                <Shirt className="w-7 h-7 text-portland-red" />
+            <div className="bg-white rounded-2xl p-6 border border-portland-mid/30 shadow-editorial flex items-center gap-4">
+              <div className="w-12 h-12 bg-portland-red/8 rounded-xl flex items-center justify-center shrink-0">
+                <Shirt className="w-6 h-6 text-portland-red" />
               </div>
               <div>
-                <h3 className="font-bold text-portland-dark mb-1">
-                  FREE SCHOOL UNIFORM
+                <h3 className="font-bold text-portland-dark mb-1 text-sm">
+                  Free School Uniform
                 </h3>
-                <p className="text-portland-gray text-sm">
+                <p className="text-portland-gray text-xs">
                   Every learner receives their school uniform FREE.
                 </p>
               </div>
             </div>
 
-            <div className="card-premium flex items-center gap-4">
-              <div className="w-14 h-14 bg-portland-red/8 rounded-2xl flex items-center justify-center shrink-0">
-                <Bus className="w-7 h-7 text-portland-red" />
+            <div className="bg-white rounded-2xl p-6 border border-portland-mid/30 shadow-editorial flex items-center gap-4">
+              <div className="w-12 h-12 bg-portland-red/8 rounded-xl flex items-center justify-center shrink-0">
+                <Bus className="w-6 h-6 text-portland-red" />
               </div>
               <div>
-                <h3 className="font-bold text-portland-dark mb-1">
-                  SCHOOL TRANSPORT
+                <h3 className="font-bold text-portland-dark mb-1 text-sm">
+                  School Transport
                 </h3>
-                <p className="text-portland-gray text-sm">
+                <p className="text-portland-gray text-xs">
                   Transport options available for families who require them.
                 </p>
               </div>
@@ -203,19 +195,19 @@ export default function AdmissionsPage() {
       <EnrolForm />
 
       {/* How to Enrol */}
-      <section ref={stepsRef} className="py-20 bg-portland-cream">
+      <section ref={stepsRef} className="py-24 bg-portland-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
-            className={`text-center mb-16 transition-all duration-1000 ${
-              stepsInView
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
+            className={`text-center mb-16 transition-all duration-700 ${
+              stepsInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-portland-dark mb-4">
-              HOW TO ENROL
+            <span className="text-eyebrow text-portland-red tracking-[0.2em] mb-4 block">
+              The Process
+            </span>
+            <h2 className="text-editorial text-portland-dark">
+              How to Enrol
             </h2>
-            <div className="w-20 h-1 bg-portland-red rounded-full mx-auto" />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
@@ -225,18 +217,16 @@ export default function AdmissionsPage() {
                 <div
                   key={step.title}
                   className={`text-center group transition-all duration-700 ${
-                    stepsInView
-                      ? "opacity-100 translate-y-0"
-                      : "opacity-0 translate-y-12"
+                    stepsInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
                   }`}
-                  style={{ animationDelay: `${i * 150}ms` }}
+                  style={{ transitionDelay: `${i * 100}ms` }}
                 >
                   {/* Step number */}
                   <div className="relative inline-block mb-5">
-                    <div className="w-16 h-16 bg-portland-red rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-portland-red/20">
-                      <Icon className="w-8 h-8 text-white" />
+                    <div className="w-14 h-14 bg-portland-red rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-portland-red/20">
+                      <Icon className="w-7 h-7 text-white" />
                     </div>
-                    <span className="absolute -top-2 -right-2 w-7 h-7 bg-portland-dark text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute -top-2 -right-2 w-6 h-6 bg-portland-dark text-white text-xs font-bold rounded-full flex items-center justify-center">
                       {i + 1}
                     </span>
                   </div>
@@ -254,30 +244,26 @@ export default function AdmissionsPage() {
       </section>
 
       {/* Contact */}
-      <section ref={contactRef} className="py-20 lg:py-28">
+      <section ref={contactRef} className="py-24 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
-            className={`text-center mb-16 transition-all duration-1000 ${
-              contactInView
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
+            className={`text-center mb-16 transition-all duration-700 ${
+              contactInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-portland-dark mb-4">
-              CONTACT PORTLAND
+            <span className="text-eyebrow text-portland-red tracking-[0.2em] mb-4 block">
+              Get in Touch
+            </span>
+            <h2 className="text-editorial text-portland-dark">
+              Contact Portland
             </h2>
-            <p className="text-portland-gray text-lg">
-              We&apos;re ready to hear from you.
-            </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Contact details */}
             <div
-              className={`transition-all duration-1000 ${
-                contactInView
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 -translate-x-12"
+              className={`transition-all duration-700 ${
+                contactInView ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-12"
               }`}
             >
               <div className="space-y-6 mb-8">
@@ -289,9 +275,7 @@ export default function AdmissionsPage() {
                     <h3 className="font-bold text-portland-dark mb-1">
                       Address
                     </h3>
-                    <p className="text-portland-gray">
-                      {SITE.address}
-                    </p>
+                    <p className="text-portland-gray">{SITE.address}</p>
                     <p className="text-portland-gray">
                       {SITE.addressLine2}, {SITE.city}
                     </p>
@@ -324,27 +308,25 @@ export default function AdmissionsPage() {
                   className="btn-primary flex-1 justify-center"
                 >
                   <MessageCircle className="w-5 h-5" />
-                  WHATSAPP US
+                  WhatsApp Us
                 </a>
                 <a
                   href={`tel:${SITE.phone}`}
                   className="btn-outline flex-1 justify-center"
                 >
                   <Phone className="w-5 h-5" />
-                  CALL US
+                  Call Us
                 </a>
               </div>
             </div>
 
             {/* Google Map */}
             <div
-              className={`transition-all duration-1000 delay-200 ${
-                contactInView
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 translate-x-12"
+              className={`transition-all duration-700 delay-200 ${
+                contactInView ? "opacity-100 translate-x-0" : "opacity-0 translate-x-12"
               }`}
             >
-              <div className="rounded-3xl overflow-hidden shadow-premium-lg aspect-[4/3]">
+              <div className="rounded-2xl overflow-hidden shadow-editorial-lg aspect-[4/3]">
                 <iframe
                   src="https://www.google.com/maps?q=188+Commissioner+Street,+Corner+Commissioner+and+Polly+Street,+Johannesburg&output=embed"
                   width="100%"

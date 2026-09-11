@@ -7,7 +7,7 @@ import {
   Bot,
   GraduationCap,
   Users,
-  Leaf,
+  Sprout,
   BookOpen,
   Rocket,
 } from "lucide-react";
@@ -32,28 +32,28 @@ export default function AcademicsPage() {
             src="/School 3.jpeg"
             alt="Portland learners learning"
             className="w-full h-full object-cover"
+            loading="eager"
+            decoding="async"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-portland-dark/90 via-portland-dark/70 to-portland-dark/40" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
-            className={`max-w-2xl transition-all duration-1000 ${
-              heroInView
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
+            className={`max-w-2xl transition-all duration-700 ${
+              heroInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <p className="text-portland-red font-semibold text-sm uppercase tracking-widest mb-4">
+            <span className="text-eyebrow text-portland-red-light tracking-[0.2em] mb-4 block">
               Academics & School Life
-            </p>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-4">
-              LEARNING FOR TODAY.{" "}
+            </span>
+            <h1 className="text-display text-white mb-6">
+              Learning for Today.{" "}
               <span className="text-gradient bg-gradient-to-r from-portland-red-light to-[#FF6B6B] bg-clip-text text-transparent">
-                PREPARING FOR TOMORROW.
+                Preparing for Tomorrow.
               </span>
             </h1>
-            <p className="text-xl text-white/70">
+            <p className="text-xl text-white/60">
               CAPS Curriculum | English-Medium | Grade RR–11
             </p>
           </div>
@@ -61,68 +61,61 @@ export default function AcademicsPage() {
       </section>
 
       {/* School Journey */}
-      <section ref={journeyRef} className="py-20 lg:py-28">
+      <section ref={journeyRef} className="py-24 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
-            className={`text-center mb-16 transition-all duration-1000 ${
-              journeyInView
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
+            className={`text-center mb-16 transition-all duration-700 ${
+              journeyInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-portland-dark mb-4">
-              OUR SCHOOL JOURNEY
+            <span className="text-eyebrow text-portland-red tracking-[0.2em] mb-4 block">
+              The Journey
+            </span>
+            <h2 className="text-editorial text-portland-dark">
+              Our School Journey
             </h2>
-            <div className="w-20 h-1 bg-portland-red rounded-full mx-auto" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                icon: Leaf,
-                title: "FOUNDATION",
+                icon: Sprout,
+                title: "Foundation",
                 grades: "Grade RR – Grade 3",
                 desc: "Building strong foundations for confident, curious and capable learners.",
-                color: "from-green-500 to-emerald-600",
               },
               {
                 icon: BookOpen,
-                title: "PRIMARY",
+                title: "Primary",
                 grades: "Grade 4 – Grade 7",
                 desc: "Strengthening academic knowledge, independence, discipline and confidence.",
-                color: "from-blue-500 to-indigo-600",
               },
               {
                 icon: Rocket,
-                title: "HIGH SCHOOL",
+                title: "High School",
                 grades: "Grade 8 – Grade 11",
                 desc: "Preparing learners for greater academic responsibility, future opportunities and life beyond school.",
-                color: "from-portland-red to-rose-600",
               },
             ].map((stage, i) => {
               const Icon = stage.icon;
               return (
                 <div
                   key={stage.title}
-                  className={`card-premium text-center group transition-all duration-700 ${
-                    journeyInView
-                      ? "opacity-100 translate-y-0"
-                      : "opacity-0 translate-y-12"
+                  className={`bg-portland-light/50 rounded-2xl p-8 text-center border border-portland-mid/30 hover:bg-white hover:shadow-editorial hover:border-portland-red/10 transition-all duration-500 ${
+                    journeyInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
                   }`}
-                  style={{ animationDelay: `${i * 150}ms` }}
+                  style={{ transitionDelay: `${i * 100}ms` }}
                 >
-                  <div
-                    className={`w-16 h-16 bg-gradient-to-br ${stage.color} rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
-                  >
-                    <Icon className="w-8 h-8 text-white" />
+                  <div className="w-14 h-14 bg-portland-red/8 rounded-2xl flex items-center justify-center mx-auto mb-5">
+                    <Icon className="w-7 h-7 text-portland-red" />
                   </div>
-                  <h3 className="text-xl font-bold text-portland-dark mb-2">
+                  <h3 className="text-lg font-bold text-portland-dark mb-1">
                     {stage.title}
                   </h3>
                   <p className="text-portland-red font-semibold text-sm mb-3">
                     {stage.grades}
                   </p>
-                  <p className="text-portland-gray leading-relaxed">
+                  <p className="text-portland-gray text-sm leading-relaxed">
                     {stage.desc}
                   </p>
                 </div>
@@ -133,18 +126,19 @@ export default function AcademicsPage() {
       </section>
 
       {/* Academics */}
-      <section ref={academicsRef} className="py-20 bg-portland-cream">
+      <section ref={academicsRef} className="py-24 bg-portland-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div
-              className={`transition-all duration-1000 ${
-                academicsInView
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 -translate-x-12"
+              className={`transition-all duration-700 ${
+                academicsInView ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-12"
               }`}
             >
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-portland-dark leading-tight mb-6">
-                ACADEMICS
+              <span className="text-eyebrow text-portland-red tracking-[0.2em] mb-4 block">
+                Academics
+              </span>
+              <h2 className="text-editorial text-portland-dark mb-6">
+                Building Strong Academic Foundations
               </h2>
               <p className="text-lg text-portland-gray leading-relaxed mb-8">
                 We are committed to building strong academic foundations
@@ -156,12 +150,12 @@ export default function AcademicsPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {/* Computers */}
-                <div className="card-premium group">
-                  <div className="w-12 h-12 bg-portland-red/8 rounded-xl flex items-center justify-center mb-4 group-hover:bg-portland-red group-hover:scale-110 transition-all duration-300">
-                    <Monitor className="w-6 h-6 text-portland-red group-hover:text-white transition-colors" />
+                <div className="bg-white rounded-2xl p-6 border border-portland-mid/30 shadow-editorial">
+                  <div className="w-10 h-10 bg-portland-red/8 rounded-xl flex items-center justify-center mb-4">
+                    <Monitor className="w-5 h-5 text-portland-red" />
                   </div>
                   <h3 className="font-bold text-portland-dark mb-2">
-                    COMPUTERS
+                    Computers
                   </h3>
                   <p className="text-portland-gray text-sm leading-relaxed">
                     Developing digital literacy and technology skills for
@@ -170,12 +164,12 @@ export default function AcademicsPage() {
                 </div>
 
                 {/* Robotics */}
-                <div className="card-premium group">
-                  <div className="w-12 h-12 bg-portland-red/8 rounded-xl flex items-center justify-center mb-4 group-hover:bg-portland-red group-hover:scale-110 transition-all duration-300">
-                    <Bot className="w-6 h-6 text-portland-red group-hover:text-white transition-colors" />
+                <div className="bg-white rounded-2xl p-6 border border-portland-mid/30 shadow-editorial">
+                  <div className="w-10 h-10 bg-portland-red/8 rounded-xl flex items-center justify-center mb-4">
+                    <Bot className="w-5 h-5 text-portland-red" />
                   </div>
                   <h3 className="font-bold text-portland-dark mb-2">
-                    ROBOTICS
+                    Robotics
                   </h3>
                   <p className="text-portland-gray text-sm leading-relaxed">
                     Encouraging innovation, creativity, problem-solving and
@@ -186,17 +180,17 @@ export default function AcademicsPage() {
             </div>
 
             <div
-              className={`transition-all duration-1000 delay-200 ${
-                academicsInView
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 translate-x-12"
+              className={`transition-all duration-700 delay-200 ${
+                academicsInView ? "opacity-100 translate-x-0" : "opacity-0 translate-x-12"
               }`}
             >
-              <div className="rounded-3xl overflow-hidden shadow-premium-lg aspect-[4/3]">
+              <div className="rounded-2xl overflow-hidden shadow-editorial-lg aspect-[4/3]">
                 <img
                   src="/School 2.jpeg"
-                  alt="Portland learners in computer lab"
+                  alt="Portland learners outside the school"
                   className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
             </div>
@@ -205,48 +199,46 @@ export default function AcademicsPage() {
       </section>
 
       {/* Sports & Activities */}
-      <section ref={sportsRef} className="py-20 lg:py-28">
+      <section ref={sportsRef} className="py-24 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
-            className={`text-center mb-16 transition-all duration-1000 ${
-              sportsInView
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
+            className={`text-center mb-16 transition-all duration-700 ${
+              sportsInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-portland-dark mb-4">
-              SPORTS & ACTIVITIES
+            <span className="text-eyebrow text-portland-red tracking-[0.2em] mb-4 block">
+              Beyond the Classroom
+            </span>
+            <h2 className="text-editorial text-portland-dark">
+              Sports & Activities
             </h2>
-            <div className="w-20 h-1 bg-portland-red rounded-full mx-auto" />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Image */}
             <div
-              className={`rounded-3xl overflow-hidden shadow-premium-lg aspect-[4/5] transition-all duration-1000 ${
-                sportsInView
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 -translate-x-12"
+              className={`rounded-2xl overflow-hidden shadow-editorial-lg aspect-[4/5] transition-all duration-700 ${
+                sportsInView ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-12"
               }`}
             >
               <img
                 src="/Soccer.jpeg"
-                alt="Portland learners playing sports"
+                alt="Portland learners playing soccer"
                 className="w-full h-full object-cover"
+                loading="lazy"
+                decoding="async"
               />
             </div>
 
             {/* Activities */}
             <div
-              className={`flex flex-col justify-center transition-all duration-1000 delay-200 ${
-                sportsInView
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 translate-x-12"
+              className={`flex flex-col justify-center transition-all duration-700 delay-200 ${
+                sportsInView ? "opacity-100 translate-x-0" : "opacity-0 translate-x-12"
               }`}
             >
               <div className="mb-10">
-                <h3 className="text-xl font-bold text-portland-dark mb-5 flex items-center gap-2">
-                  <span className="w-8 h-1 bg-portland-red rounded-full" />
+                <h3 className="text-lg font-bold text-portland-dark mb-5 flex items-center gap-3">
+                  <span className="w-8 h-[2px] bg-portland-red rounded-full" />
                   SPORTS
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
@@ -255,7 +247,7 @@ export default function AcademicsPage() {
                       key={sport.name}
                       className="flex items-center gap-3 bg-portland-light rounded-xl px-4 py-3 hover:bg-portland-red/5 transition-colors group"
                     >
-                      <span className="text-xl" aria-hidden="true">{sport.icon}</span>
+                      <span className="text-lg" aria-hidden="true">{sport.icon}</span>
                       <span className="font-medium text-portland-dark text-sm group-hover:text-portland-red transition-colors">
                         {sport.name}
                       </span>
@@ -265,8 +257,8 @@ export default function AcademicsPage() {
               </div>
 
               <div>
-                <h3 className="text-xl font-bold text-portland-dark mb-5 flex items-center gap-2">
-                  <span className="w-8 h-1 bg-portland-red rounded-full" />
+                <h3 className="text-lg font-bold text-portland-dark mb-5 flex items-center gap-3">
+                  <span className="w-8 h-[2px] bg-portland-red rounded-full" />
                   ACTIVITIES
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
@@ -275,7 +267,7 @@ export default function AcademicsPage() {
                       key={activity.name}
                       className="flex items-center gap-3 bg-portland-light rounded-xl px-4 py-3 hover:bg-portland-red/5 transition-colors group"
                     >
-                      <span className="text-xl" aria-hidden="true">{activity.icon}</span>
+                      <span className="text-lg" aria-hidden="true">{activity.icon}</span>
                       <span className="font-medium text-portland-dark text-sm group-hover:text-portland-red transition-colors">
                         {activity.name}
                       </span>
@@ -289,37 +281,35 @@ export default function AcademicsPage() {
       </section>
 
       {/* Dedicated Teachers */}
-      <section ref={teachersRef} className="py-20 bg-portland-cream">
+      <section ref={teachersRef} className="py-24 bg-portland-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div
-              className={`transition-all duration-1000 ${
-                teachersInView
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 -translate-x-12"
+              className={`transition-all duration-700 ${
+                teachersInView ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-12"
               }`}
             >
-              <div className="rounded-3xl overflow-hidden shadow-premium-lg aspect-[4/3]">
+              <div className="rounded-2xl overflow-hidden shadow-editorial-lg aspect-[4/3]">
                 <img
                   src="/School 3.jpeg"
-                  alt="Portland teacher with learners"
+                  alt="Portland teacher with learners in classroom"
                   className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
             </div>
 
             <div
-              className={`transition-all duration-1000 delay-200 ${
-                teachersInView
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 translate-x-12"
+              className={`transition-all duration-700 delay-200 ${
+                teachersInView ? "opacity-100 translate-x-0" : "opacity-0 translate-x-12"
               }`}
             >
-              <div className="w-14 h-14 bg-portland-red/8 rounded-2xl flex items-center justify-center mb-5">
-                <Users className="w-7 h-7 text-portland-red" />
+              <div className="w-12 h-12 bg-portland-red/8 rounded-xl flex items-center justify-center mb-5">
+                <Users className="w-6 h-6 text-portland-red" />
               </div>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-portland-dark leading-tight mb-6">
-                DEDICATED TEACHERS
+              <h2 className="text-editorial text-portland-dark mb-6">
+                Dedicated Teachers
               </h2>
               <p className="text-lg text-portland-gray leading-relaxed">
                 Our teachers play an important role in helping learners
@@ -334,21 +324,19 @@ export default function AcademicsPage() {
       </section>
 
       {/* Landy */}
-      <section ref={landyRef} className="py-20 lg:py-28">
+      <section ref={landyRef} className="py-24 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
-            className={`text-center max-w-3xl mx-auto transition-all duration-1000 ${
-              landyInView
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-12"
+            className={`text-center max-w-3xl mx-auto transition-all duration-700 ${
+              landyInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
             }`}
           >
             <div className="text-8xl mb-6" aria-hidden="true">🦊</div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-portland-dark mb-4">
-              MEET LANDY <span className="text-portland-red" aria-hidden="true">🦊</span>
+            <h2 className="text-editorial text-portland-dark mb-2">
+              Meet Landy
             </h2>
-            <p className="text-portland-red font-semibold text-lg mb-4">
-              THE PORTLAND FOX
+            <p className="text-eyebrow text-portland-red tracking-[0.2em] mb-4">
+              The Portland Fox
             </p>
             <p className="text-lg text-portland-gray leading-relaxed mb-6">
               Clever. Curious. Confident. Playful.

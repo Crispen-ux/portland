@@ -6,19 +6,18 @@ import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
 import ExitPopup from "@/components/ExitPopup";
-import PageTransition from "@/components/PageTransition";
 import ChatBot from "@/components/ChatBot";
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
-  title: "Portland Group of Schools | We Believe In Your Child",
+  title: "Portland Group of Schools | Where Every Child Is Known",
   description:
-    "Portland Group of Schools — a combined school in Johannesburg offering quality education from Grade RR to Grade 11. CAPS Curriculum. English-Medium. We believe in your child.",
+    "Portland Group of Schools — a combined school in Johannesburg offering quality education from Grade RR to Grade 11. CAPS Curriculum. English-Medium. Where every child is known.",
   keywords: [
     "Portland Group of Schools",
     "Johannesburg school",
@@ -28,9 +27,9 @@ export const metadata: Metadata = {
     "affordable private school Johannesburg",
   ],
   openGraph: {
-    title: "Portland Group of Schools | We Believe In Your Child",
+    title: "Portland Group of Schools | Where Every Child Is Known",
     description:
-      "Quality education from Grade RR to Grade 11. CAPS Curriculum. English-Medium. We believe in your child.",
+      "Quality education from Grade RR to Grade 11. CAPS Curriculum. English-Medium. Where every child is known.",
     type: "website",
   },
   icons: {
@@ -55,7 +54,7 @@ export default function RootLayout({
         <ScrollProgress />
         <Navbar />
         <main id="main-content" className="flex-1">
-          <PageTransition>{children}</PageTransition>
+          {children}
         </main>
         <Footer />
         <WhatsAppButton />

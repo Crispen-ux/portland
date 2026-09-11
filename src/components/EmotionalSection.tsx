@@ -3,73 +3,56 @@
 import { useInView } from "@/lib/useInView";
 
 export default function EmotionalSection() {
-  const [ref, inView] = useInView(0.15);
+  const [ref, inView] = useInView(0.1);
 
   return (
     <section
       ref={ref}
       className="relative py-24 lg:py-32 overflow-hidden bg-portland-cream"
     >
-      {/* Decorative elements */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-portland-red/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-portland-red/3 rounded-full blur-3xl" />
-
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Image */}
           <div
-            className={`relative transition-all duration-1000 ${
-              inView
-                ? "opacity-100 translate-x-0"
-                : "opacity-0 -translate-x-12"
+            className={`relative transition-all duration-700 ${
+              inView ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-12"
             }`}
           >
-            <div className="relative rounded-3xl overflow-hidden shadow-premium-lg aspect-[4/5]">
+            <div className="relative rounded-2xl overflow-hidden shadow-editorial-lg aspect-[4/5]">
               <img
                 src="/School 3.jpeg"
                 alt="Portland learner smiling confidently"
                 className="w-full h-full object-cover"
+                loading="lazy"
+                decoding="async"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-portland-dark/30 via-transparent to-transparent" />
-            </div>
-            {/* Floating card */}
-            <div className="absolute -bottom-6 -right-6 bg-white rounded-2xl p-5 shadow-card-hover max-w-[220px]">
-              <p className="text-4xl mb-2" aria-hidden="true">🌟</p>
-              <p className="text-portland-dark font-bold text-sm">
-                Every child has potential
-              </p>
-              <p className="text-portland-gray text-xs mt-1">
-                We help them discover it
-              </p>
+              <div className="absolute inset-0 bg-gradient-to-t from-portland-dark/20 via-transparent to-transparent" />
             </div>
           </div>
 
-          {/* Text */}
+          {/* Text — large editorial typography */}
           <div
-            className={`transition-all duration-1000 delay-200 ${
-              inView
-                ? "opacity-100 translate-x-0"
-                : "opacity-0 translate-x-12"
+            className={`transition-all duration-700 delay-200 ${
+              inView ? "opacity-100 translate-x-0" : "opacity-0 translate-x-12"
             }`}
           >
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-portland-dark leading-tight mb-6">
-              YOUR CHILD{" "}
-              <span className="text-gradient">DESERVES TO BE SEEN.</span>
+            <h2 className="text-editorial text-portland-dark mb-8">
+              Your child{" "}
+              <span className="text-gradient">deserves to be seen.</span>
             </h2>
-            <p className="text-lg text-portland-gray leading-relaxed mb-6">
-              At Portland, we believe every child has potential.
-            </p>
-            <p className="text-lg text-portland-gray leading-relaxed mb-6">
-              We don&apos;t only focus on what a learner knows. We care about{" "}
-              <strong className="text-portland-dark">
-                who they are becoming
-              </strong>
-              .
-            </p>
-            <p className="text-lg text-portland-gray leading-relaxed mb-8">
-              We want every learner to feel supported, challenged, respected
-              and encouraged to reach their potential.
-            </p>
+            <div className="space-y-4 mb-10">
+              <p className="text-lg text-portland-gray leading-relaxed">
+                At Portland, we believe every child has potential.
+              </p>
+              <p className="text-lg text-portland-gray leading-relaxed">
+                We don&apos;t only focus on what a learner knows. We care about{" "}
+                <strong className="text-portland-dark">who they are becoming</strong>.
+              </p>
+              <p className="text-lg text-portland-gray leading-relaxed">
+                Every learner should feel supported, challenged, respected
+                and encouraged to reach their potential.
+              </p>
+            </div>
 
             {/* Values preview */}
             <div className="grid grid-cols-2 gap-3">
@@ -77,10 +60,10 @@ export default function EmotionalSection() {
                 (word) => (
                   <div
                     key={word}
-                    className="flex items-center gap-2 bg-white rounded-xl px-4 py-3 shadow-card"
+                    className="flex items-center gap-3 bg-white rounded-xl px-4 py-3 shadow-editorial"
                   >
-                    <span className="w-2 h-2 bg-portland-red rounded-full shrink-0" />
-                    <span className="text-portland-dark font-semibold text-sm">
+                    <span className="w-1.5 h-1.5 bg-portland-red rounded-full shrink-0" />
+                    <span className="text-portland-dark font-medium text-sm">
                       {word}
                     </span>
                   </div>

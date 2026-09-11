@@ -1,5 +1,5 @@
 import HeroSection from "@/components/HeroSection";
-import StatsCounter from "@/components/StatsCounter";
+import TrustStrip from "@/components/TrustStrip";
 import WelcomeSection from "@/components/WelcomeSection";
 import EmotionalSection from "@/components/EmotionalSection";
 import PromiseSection from "@/components/PromiseSection";
@@ -15,7 +15,7 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
-      <StatsCounter />
+      <TrustStrip />
       <WelcomeSection />
       <EmotionalSection />
       <PromiseSection />

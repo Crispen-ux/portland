@@ -40,65 +40,57 @@ const TESTIMONIALS = [
 export default function Testimonials() {
   const [ref, inView] = useInView(0.1);
   const [current, setCurrent] = useState(0);
-  const [direction, setDirection] = useState(0);
 
   const next = useCallback(() => {
-    setDirection(1);
     setCurrent((p) => (p + 1) % TESTIMONIALS.length);
   }, []);
 
   const prev = useCallback(() => {
-    setDirection(-1);
     setCurrent((p) => (p - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
   }, []);
 
   useEffect(() => {
-    const timer = setInterval(next, 6000);
+    const timer = setInterval(next, 7000);
     return () => clearInterval(timer);
   }, [next]);
 
   const t = TESTIMONIALS[current];
 
   return (
-    <section ref={ref} className="relative py-20 lg:py-28 overflow-hidden">
-      <div className="absolute inset-0 bg-portland-cream" />
-      <div className="absolute top-0 left-0 w-96 h-96 bg-portland-red/5 rounded-full blur-3xl -translate-x-1/2" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-portland-red/5 rounded-full blur-3xl translate-x-1/2" />
-
+    <section ref={ref} className="relative py-24 lg:py-32 overflow-hidden bg-portland-cream">
       <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div
-          className={`text-center mb-14 transition-all duration-1000 ${
+          className={`text-center mb-14 transition-all duration-700 ${
             inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          <p className="text-portland-red font-semibold text-sm uppercase tracking-widest mb-4">
+          <span className="text-eyebrow text-portland-red tracking-[0.2em] mb-4 block">
             What Parents Say
-          </p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-portland-dark">
-            TRUSTED BY <span className="text-gradient">FAMILIES</span>
+          </span>
+          <h2 className="text-editorial text-portland-dark">
+            Trusted by{" "}
+            <span className="text-gradient">Families</span>
           </h2>
         </div>
 
-        {/* Testimonial card */}
+        {/* Testimonial card — editorial large quote */}
         <div
           className={`transition-all duration-700 ${
             inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
           }`}
         >
-          <div className="bg-white rounded-3xl p-8 sm:p-12 shadow-card-hover relative">
-            {/* Quote icon */}
+          <div className="bg-white rounded-2xl p-8 sm:p-12 shadow-editorial relative">
+            {/* Large quote mark */}
             <div className="absolute top-6 right-8 sm:top-8 sm:right-12">
-              <Quote className="w-12 h-12 text-portland-red/10" />
+              <Quote className="w-12 h-12 text-portland-red/8" />
             </div>
 
             {/* Content */}
             <div className="min-h-[180px] flex flex-col justify-center">
               <p
                 key={current}
-                className={`text-lg sm:text-xl text-portland-dark/80 leading-relaxed mb-8 transition-all duration-500 ${
-                  direction >= 0 ? "animate-fade-up" : "animate-fade-up"
-                }`}
+                className="text-xl sm:text-2xl text-portland-dark/80 leading-relaxed mb-8 animate-fade-up"
               >
                 &ldquo;{t.text}&rdquo;
               </p>
@@ -120,13 +112,10 @@ export default function Testimonials() {
                 {TESTIMONIALS.map((_, i) => (
                   <button
                     key={i}
-                    onClick={() => {
-                      setDirection(i > current ? 1 : -1);
-                      setCurrent(i);
-                    }}
-                    className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                    onClick={() => setCurrent(i)}
+                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
                       i === current
-                        ? "bg-portland-red w-8"
+                        ? "bg-portland-red w-6"
                         : "bg-portland-mid hover:bg-portland-red/30"
                     }`}
                     aria-label={`Go to testimonial ${i + 1}`}
