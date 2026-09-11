@@ -57,7 +57,7 @@ export default function CTASection() {
               rel="noopener noreferrer"
               className="btn-secondary text-lg !py-4 !px-10"
             >
-              💬 WHATSAPP US
+              WHATSAPP US
             </a>
           </div>
         </div>
