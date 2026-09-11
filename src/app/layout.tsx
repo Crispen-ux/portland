@@ -4,6 +4,10 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import ScrollProgress from "@/components/ScrollProgress";
+import ExitPopup from "@/components/ExitPopup";
+import PageTransition from "@/components/PageTransition";
+import ChatBot from "@/components/ChatBot";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -40,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} h-full`}>
+    <html lang="en" className={`${inter.variable} h-full scroll-smooth`}>
       <body className="min-h-full flex flex-col font-sans antialiased">
         <a
           href="#main-content"
@@ -48,12 +52,15 @@ export default function RootLayout({
         >
           Skip to content
         </a>
+        <ScrollProgress />
         <Navbar />
         <main id="main-content" className="flex-1">
-          {children}
+          <PageTransition>{children}</PageTransition>
         </main>
         <Footer />
         <WhatsAppButton />
+        <ExitPopup />
+        <ChatBot />
       </body>
     </html>
   );
