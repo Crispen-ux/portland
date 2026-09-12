@@ -47,15 +47,15 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = createParentSchema.parse(body);
 
-    const parent = await db.parentGuardian.create({
-      data: {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phone: data.phone,
-        ...(data.email && { email: data.email }),
-        relationship: data.relationship,
-      },
-    });
+    const createData: any = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      phone: data.phone,
+      relationship: data.relationship,
+    };
+    if (data.email) createData.email = data.email;
+
+    const parent = await db.parentGuardian.create({ data: createData });
 
     await auditLog({
       userId: user.id,

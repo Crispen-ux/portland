@@ -75,23 +75,25 @@ export async function POST(request: NextRequest) {
     // Calculate total from items
     const totalAmount = data.items.reduce((sum, item) => sum + item.amount * (item.quantity || 1), 0);
 
-    const invoice = await db.invoice.create({
-      data: {
-        studentId: data.studentId,
-        academicYearId: data.academicYearId,
-        ...(data.feeStructureId && { feeStructureId: data.feeStructureId }),
-        invoiceNumber: generateInvoiceNumber(),
-        totalAmount,
-        dueDate: data.dueDate ? new Date(data.dueDate) : null,
-        status: "PENDING",
-        items: {
-          create: data.items.map((item) => ({
-            description: item.description,
-            amount: item.amount,
-            quantity: item.quantity || 1,
-          })),
-        },
+    const createData: any = {
+      studentId: data.studentId,
+      academicYearId: data.academicYearId,
+      invoiceNumber: generateInvoiceNumber(),
+      totalAmount,
+      status: "PENDING",
+      items: {
+        create: data.items.map((item) => ({
+          description: item.description,
+          amount: item.amount,
+          quantity: item.quantity || 1,
+        })),
       },
+    };
+    if (data.feeStructureId) createData.feeStructureId = data.feeStructureId;
+    if (data.dueDate) createData.dueDate = new Date(data.dueDate);
+
+    const invoice = await db.invoice.create({
+      data: createData,
       include: {
         student: { select: { firstName: true, lastName: true } },
         items: true,

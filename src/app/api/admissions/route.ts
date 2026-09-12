@@ -57,20 +57,20 @@ export async function POST(request: NextRequest) {
     const source = SOURCES.includes(body.source?.toUpperCase()) ? body.source.toUpperCase() : "WEBSITE";
     const schoolVisitRequested = Boolean(body.schoolVisitRequested);
 
-    const admission = await db.admission.create({
-      data: {
-        parentName,
-        phone,
-        ...(email && { email }),
-        ...(childName && { childName }),
-        grade,
-        preferredContact,
-        schoolVisitRequested,
-        ...(message && { message }),
-        source: source as any,
-        status: "NEW",
-      },
-    });
+    const createData: any = {
+      parentName,
+      phone,
+      grade,
+      preferredContact,
+      schoolVisitRequested,
+      source: source as any,
+      status: "NEW",
+    };
+    if (email) createData.email = email;
+    if (childName) createData.childName = childName;
+    if (message) createData.message = message;
+
+    const admission = await db.admission.create({ data: createData });
 
     return NextResponse.json({
       success: true,

@@ -50,17 +50,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No school configured" }, { status: 400 });
     }
 
-    const staff = await db.staff.create({
-      data: {
-        schoolId: school.id,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        ...(data.userId && { userId: data.userId }),
-        ...(data.phone && { phone: data.phone }),
-        ...(data.position && { position: data.position }),
-        ...(data.staffNumber && { staffNumber: data.staffNumber }),
-      },
-    });
+    const createData: any = {
+      schoolId: school.id,
+      firstName: data.firstName,
+      lastName: data.lastName,
+    };
+    if (data.userId) createData.userId = data.userId;
+    if (data.phone) createData.phone = data.phone;
+    if (data.position) createData.position = data.position;
+    if (data.staffNumber) createData.staffNumber = data.staffNumber;
+
+    const staff = await db.staff.create({ data: createData });
 
     await auditLog({
       userId: user.id,

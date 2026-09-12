@@ -47,14 +47,16 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = createEnrolmentSchema.parse(body);
 
+    const createData: any = {
+      studentId: data.studentId,
+      academicYearId: data.academicYearId,
+      gradeId: data.gradeId,
+      status: data.status || "ACTIVE",
+    };
+    if (data.classId) createData.classId = data.classId;
+
     const enrolment = await db.enrolment.create({
-      data: {
-        studentId: data.studentId,
-        academicYearId: data.academicYearId,
-        gradeId: data.gradeId,
-        ...(data.classId && { classId: data.classId }),
-        status: data.status || "ACTIVE",
-      },
+      data: createData,
       include: {
         student: { select: { firstName: true, lastName: true } },
         grade: { select: { name: true } },
