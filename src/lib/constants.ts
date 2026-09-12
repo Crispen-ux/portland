@@ -22,6 +22,7 @@ export const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "About Us", href: "/about" },
   { label: "Academics & School Life", href: "/academics" },
+  { label: "Photos", href: "/photos" },
   { label: "Admissions", href: "/admissions" },
 ];
 
