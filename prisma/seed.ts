@@ -134,6 +134,21 @@ async function main() {
   });
   console.log("✅ Parent user:", parentUser.email);
 
+  // Create ParentGuardian record linked to user
+  const guardian = await prisma.parentGuardian.upsert({
+    where: { userId: parentUser.id },
+    update: {},
+    create: {
+      userId: parentUser.id,
+      firstName: "Demo",
+      lastName: "Parent",
+      phone: "+27 82 000 0002",
+      email: "parent@portlandschools.co.za",
+      relationship: "Mother",
+    },
+  });
+  console.log("✅ Guardian record:", guardian.firstName, guardian.lastName);
+
   // Create demo students
   const students = [];
   for (let i = 1; i <= 5; i++) {
@@ -155,12 +170,12 @@ async function main() {
   // Create parent-guardian links
   for (const student of students.slice(0, 2)) {
     await prisma.studentGuardian.upsert({
-      where: { id: `link-${student.id}-${parentUser.id}` },
+      where: { id: `link-${student.id}-${guardian.id}` },
       update: {},
       create: {
-        id: `link-${student.id}-${parentUser.id}`,
+        id: `link-${student.id}-${guardian.id}`,
         studentId: student.id,
-        guardianId: parentUser.id,
+        guardianId: guardian.id,
         isPrimary: true,
       },
     });
