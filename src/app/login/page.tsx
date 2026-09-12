@@ -1,5 +1,6 @@
 "use client";
 
+import "@neondatabase/auth-ui/css";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
