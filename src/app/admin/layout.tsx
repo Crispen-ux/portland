@@ -35,6 +35,11 @@ const NAV_ITEMS = [
     icon: Users,
   },
   {
+    label: "Invitations",
+    href: "/admin/invitations",
+    icon: Megaphone,
+  },
+  {
     label: "Students",
     href: "/admin/students",
     icon: GraduationCap,

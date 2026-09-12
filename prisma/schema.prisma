@@ -25,6 +25,7 @@ model User {
   student       Student?
   parentGuardian ParentGuardian?
   auditLogs     AuditLog[]
+  invitations   Invitation[]
 
   @@index([email])
   @@index([role])
@@ -497,4 +498,22 @@ model Notification {
   createdAt DateTime @default(now())
 
   @@index([userId, read])
+}
+
+// ─── Invitations ────────────────────────────────────────
+
+model Invitation {
+  id           String   @id @default(cuid())
+  email        String
+  role         String   // "TEACHER", "PARENT", "SCHOOL_ADMIN"
+  token        String   @unique
+  invitedById  String
+  invitedBy    User     @relation(fields: [invitedById], references: [id])
+  expiresAt    DateTime
+  acceptedAt   DateTime?
+  createdAt    DateTime @default(now())
+
+  @@index([email])
+  @@index([token])
+  @@index([expiresAt])
 }
