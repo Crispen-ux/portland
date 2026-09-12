@@ -5,7 +5,7 @@ import {
   Card, PageHeader, Button, Badge,
   EmptyState, LoadingState,
 } from "@/components/ui";
-import { Mail, Plus, Trash2, Copy, CheckCircle, AlertCircle, ExternalLink } from "lucide-react";
+import { Mail, Plus, Trash2, Copy, CheckCircle, AlertCircle, Send } from "lucide-react";
 
 interface Invitation {
   id: string;
@@ -87,6 +87,23 @@ export default function InvitationsPage() {
     setTimeout(() => setCopied(null), 2000);
   };
 
+  const handleSendEmail = async (invitationId: string) => {
+    try {
+      const res = await fetch("/api/email/invitation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ invitationId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setSuccess("Invitation email sent");
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (e: any) {
+      setError(e.message || "Failed to send email");
+      setTimeout(() => setError(""), 3000);
+    }
+  };
+
   const pending = invitations.filter((i) => !i.acceptedAt && new Date(i.expiresAt) > new Date());
   const accepted = invitations.filter((i) => i.acceptedAt);
   const expired = invitations.filter((i) => !i.acceptedAt && new Date(i.expiresAt) <= new Date());
@@ -143,6 +160,7 @@ export default function InvitationsPage() {
                   <div className="flex items-center gap-1 ml-4">
                     {!isAccepted && !isExpired && (
                       <>
+                        <button onClick={() => handleSendEmail(inv.id)} className="p-2 hover:bg-portland-light rounded-lg" title="Send email"><Send className="w-4 h-4 text-portland-red" /></button>
                         <button onClick={() => copyLink(inv.token)} className="p-2 hover:bg-portland-light rounded-lg" title="Copy invite link">
                           {copied === inv.token ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-portland-gray" />}
                         </button>

@@ -6,7 +6,7 @@ import {
   Table, TableHeader, TableBody, TableRow, TableCell,
   EmptyState, LoadingState,
 } from "@/components/ui";
-import { Plus, Search, DollarSign, Edit, Trash2, X, AlertCircle, CheckCircle, CreditCard, FileText } from "lucide-react";
+import { Plus, Search, DollarSign, Edit, Trash2, X, AlertCircle, CheckCircle, CreditCard, FileText, Mail } from "lucide-react";
 
 type Tab = "fees" | "invoices" | "payments";
 
@@ -216,6 +216,25 @@ function InvoicesTab({ setError, setSuccess }: { setError: (s: string) => void; 
     } catch { setError("Failed to delete"); setTimeout(() => setError(""), 3000); }
   };
 
+  const handleEmailInvoice = async (invoiceId: string) => {
+    const to = prompt("Enter recipient email address:");
+    if (!to) return;
+    try {
+      const res = await fetch("/api/email/invoice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ invoiceId, to }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setSuccess("Invoice emailed successfully");
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (e: any) {
+      setError(e.message || "Failed to send email");
+      setTimeout(() => setError(""), 3000);
+    }
+  };
+
   return (
     <>
       <Card className="mb-4">
@@ -270,6 +289,7 @@ function InvoicesTab({ setError, setSuccess }: { setError: (s: string) => void; 
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
                       <button onClick={() => setViewing(inv)} className="p-2 hover:bg-portland-light rounded-lg"><FileText className="w-4 h-4 text-portland-gray" /></button>
+                      <button onClick={() => handleEmailInvoice(inv.id)} className="p-2 hover:bg-portland-light rounded-lg" title="Email invoice"><Mail className="w-4 h-4 text-portland-red" /></button>
                       <button onClick={() => handleDelete(inv.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
                     </div>
                   </TableCell>
