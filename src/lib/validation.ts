@@ -158,3 +158,26 @@ export const updateEnrolmentSchema = z.object({
   classId: z.string().optional(),
   status: z.enum(["ACTIVE", "TRANSFERRED", "WITHDRAWN", "GRADUATED"]).optional(),
 });
+
+// ─── Attendance ─────────────────────────────────────────
+
+export const createAttendanceSchema = z.object({
+  classId: z.string().min(1, "Class is required"),
+  date: z.string().min(1, "Date is required"),
+});
+
+export const updateAttendanceRecordSchema = z.object({
+  studentId: z.string().min(1),
+  status: z.enum(["PRESENT", "ABSENT", "LATE", "EXCUSED"]),
+  reason: z.string().optional(),
+});
+
+export const saveAttendanceSchema = z.object({
+  classId: z.string().min(1),
+  date: z.string().min(1),
+  records: z.array(z.object({
+    studentId: z.string(),
+    status: z.enum(["PRESENT", "ABSENT", "LATE", "EXCUSED"]),
+    reason: z.string().optional(),
+  })),
+});
