@@ -19,6 +19,7 @@ import {
   Bell,
   Search,
   User,
+  FileText,
 } from "lucide-react";
 import { ROLE_LABELS } from "@/lib/auth/rbac";
 
@@ -37,6 +38,16 @@ const NAV_ITEMS = [
     label: "Students",
     href: "/admin/students",
     icon: GraduationCap,
+  },
+  {
+    label: "Parents",
+    href: "/admin/parents",
+    icon: Users,
+  },
+  {
+    label: "Enrolments",
+    href: "/admin/enrolments",
+    icon: FileText,
   },
   {
     label: "Staff",

@@ -117,3 +117,44 @@ export const createStaffSchema = z.object({
   position: z.string().optional(),
   staffNumber: z.string().optional(),
 });
+
+// ─── Students & Parents ─────────────────────────────────
+
+export const createStudentSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  dateOfBirth: z.string().optional(),
+  gender: z.string().optional(),
+  nationality: z.string().optional(),
+  idNumber: z.string().optional(),
+  studentNumber: z.string().optional(),
+});
+
+export const createParentSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  phone: z.string().min(1, "Phone number is required"),
+  email: z.string().email("Invalid email").optional().or(z.literal("")),
+  relationship: z.string().optional(),
+});
+
+export const linkGuardianSchema = z.object({
+  guardianId: z.string().min(1, "Guardian is required"),
+  isPrimary: z.boolean().optional(),
+});
+
+// ─── Enrolments ─────────────────────────────────────────
+
+export const createEnrolmentSchema = z.object({
+  studentId: z.string().min(1, "Student is required"),
+  academicYearId: z.string().min(1, "Academic year is required"),
+  gradeId: z.string().min(1, "Grade is required"),
+  classId: z.string().optional(),
+  status: z.enum(["ACTIVE", "TRANSFERRED", "WITHDRAWN", "GRADUATED"]).optional(),
+});
+
+export const updateEnrolmentSchema = z.object({
+  gradeId: z.string().optional(),
+  classId: z.string().optional(),
+  status: z.enum(["ACTIVE", "TRANSFERRED", "WITHDRAWN", "GRADUATED"]).optional(),
+});
