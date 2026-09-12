@@ -90,6 +90,21 @@ const NAV_ITEMS = [
     icon: Megaphone,
   },
   {
+    label: "Announcements",
+    href: "/admin/announcements",
+    icon: Megaphone,
+  },
+  {
+    label: "Analytics",
+    href: "/admin/analytics",
+    icon: LayoutDashboard,
+  },
+  {
+    label: "AI Insights",
+    href: "/admin/ai",
+    icon: Settings,
+  },
+  {
     label: "Settings",
     href: "/admin/settings",
     icon: Settings,
