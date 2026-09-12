@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useInView } from "@/lib/useInView";
 import { PHOTOS, CATEGORIES, type Category, type Photo } from "@/lib/photos";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, ChevronRightIcon } from "lucide-react";
+import Link from "next/link";
 
 export default function PhotosPage() {
   const [heroRef, heroInView] = useInView(0.1);
@@ -196,6 +197,34 @@ export default function PhotosPage() {
           </div>
         </div>
       )}
+
+      {/* Admissions CTA */}
+      <section className="py-20 bg-portland-light">
+        <div className="mx-auto max-w-3xl px-6 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-portland-dark mb-4">
+            See Yourself at Portland?
+          </h2>
+          <p className="text-portland-gray mb-8 max-w-lg mx-auto">
+            Interested in joining our school community? We&apos;d love to hear from
+            you.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/admissions"
+              className="inline-flex items-center justify-center gap-2 bg-portland-red hover:bg-portland-red-dark text-white font-semibold px-6 py-3 rounded-xl transition-colors"
+            >
+              Explore Admissions
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/school-fees"
+              className="inline-flex items-center justify-center gap-2 bg-white hover:bg-portland-light text-portland-dark font-semibold px-6 py-3 rounded-xl border border-portland-mid/30 transition-colors"
+            >
+              View Fees
+            </Link>
+          </div>
+        </div>
+      </section>
     </>
   );
 }

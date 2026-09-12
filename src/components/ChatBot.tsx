@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { SITE } from "@/lib/constants";
-import { matchIntent, generateResponse, type Intent } from "@/lib/chat-engine";
+import { matchIntent, generateResponse, getGradeGroup, type Intent } from "@/lib/chat-engine";
 import {
   MessageCircle,
   X,
@@ -43,11 +43,19 @@ function handleFollowUpAction(action: string): { type: "send"; text: string } | 
   if (lower.includes("get directions")) {
     return { type: "send", text: "Get me directions to Portland" };
   }
+  if (lower.includes("start admissions enquiry") || lower.includes("start an enquiry")) {
+    return { type: "link", url: "/admissions?source=ai-assistant" };
+  }
   if (lower.includes("start enquiry") || lower.includes("contact admissions")) {
-    return { type: "link", url: SITE.whatsappLink };
+    return { type: "link", url: "/admissions?source=ai-assistant" };
   }
 
   return { type: "send", text: action };
+}
+
+function isAdmissionsAction(action: string): boolean {
+  const lower = action.toLowerCase();
+  return lower.includes("enquiry") || lower.includes("enrol") || lower.includes("enroll") || lower.includes("admissions");
 }
 
 function isWhatsAppAction(action: string): boolean {
@@ -111,7 +119,22 @@ export default function ChatBot() {
       const { intent } = matchIntent(query);
       const { text, followUp } = generateResponse(intent, query, { lastIntent });
       setLastIntent(intent);
-      addBotMessage(text, followUp);
+
+      // If strong admissions intent, add admissions CTA
+      const isAdmissionsIntent =
+        intent === "enrol" ||
+        intent === "admissions" ||
+        (intent === "grade_specific" && lastIntent === "fees");
+
+      if (isAdmissionsIntent) {
+        // Extract grade from query for pre-selection
+        const gradeMatch = query.match(/grade\s*(rr|r|0|1|2|3|4|5|6|7|8|9|10|11)/i);
+        const gradeParam = gradeMatch ? `&grade=${encodeURIComponent("Grade " + gradeMatch[1].toUpperCase())}` : "";
+        const finalFollowUp = [`Start Admissions Enquiry`, ...followUp.filter((f) => !f.toLowerCase().includes("enrol"))];
+        addBotMessage(text, finalFollowUp);
+      } else {
+        addBotMessage(text, followUp);
+      }
     }, 500 + Math.random() * 600);
   };
 
@@ -120,7 +143,11 @@ export default function ChatBot() {
     if (!result) return;
 
     if (result.type === "link") {
-      window.open(result.url, "_blank", "noopener,noreferrer");
+      if (result.url.startsWith("/")) {
+        window.location.href = result.url;
+      } else {
+        window.open(result.url, "_blank", "noopener,noreferrer");
+      }
       return;
     }
 
@@ -196,6 +223,7 @@ export default function ChatBot() {
                     {msg.followUp.map((action) => {
                       const isWA = isWhatsAppAction(action);
                       const isCall = isCallAction(action);
+                      const isAdm = isAdmissionsAction(action);
                       return (
                         <button
                           key={action}
@@ -205,6 +233,8 @@ export default function ChatBot() {
                               ? "bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366]"
                               : isCall
                               ? "bg-portland-red/8 hover:bg-portland-red/15 text-portland-red"
+                              : isAdm
+                              ? "bg-portland-red hover:bg-portland-red-dark text-white"
                               : "bg-portland-red/8 hover:bg-portland-red/15 text-portland-red"
                           }`}
                         >

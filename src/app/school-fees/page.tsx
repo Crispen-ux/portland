@@ -150,7 +150,7 @@ export default function SchoolFeesPage() {
                 href="/admissions"
                 className="inline-flex items-center justify-center gap-2 bg-portland-red hover:bg-portland-red-dark text-white font-semibold px-6 py-3 rounded-xl transition-colors"
               >
-                Start an Enquiry
+                Start Admissions Enquiry
                 <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
