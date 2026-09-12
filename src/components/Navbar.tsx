@@ -20,13 +20,13 @@ export default function Navbar() {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
           ? "bg-white/95 backdrop-blur-xl shadow-[0_2px_30px_rgba(0,0,0,0.08)] py-3"
-          : "bg-white/80 backdrop-blur-md py-5"
+          : "bg-white/80 backdrop-blur-md py-4"
       }`}
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between" aria-label="Main navigation">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group" aria-label="Portland Group of Schools — Home">
-          <img src="/logo.png" alt="Portland Group of Schools" className="h-15 w-auto" />
+        <Link href="/" className="flex items-center gap-2.5 group shrink-0" aria-label="Portland Group of Schools — Home">
+          <img src="/logo.png" alt="Portland Group of Schools" className="h-12 w-auto" />
           <div className="hidden sm:block">
             <p className="font-bold text-portland-dark text-sm leading-tight tracking-tight">
               PORTLAND
@@ -38,12 +38,12 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden lg:flex items-center gap-1">
+        <div className="hidden lg:flex items-center gap-0.5">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="px-4 py-2 text-sm font-medium text-portland-dark/70 hover:text-portland-red rounded-lg hover:bg-portland-red/5 transition-all duration-300"
+              className="px-3 py-2 text-[13px] font-medium text-portland-dark/70 hover:text-portland-red rounded-lg hover:bg-portland-red/5 transition-all duration-300 whitespace-nowrap"
             >
               {link.label}
             </Link>
@@ -51,8 +51,8 @@ export default function Navbar() {
         </div>
 
         {/* Desktop CTA */}
-        <div className="hidden lg:flex items-center gap-3">
-          <Link href="/admissions" className="btn-primary text-sm !py-2.5 !px-6">
+        <div className="hidden lg:flex items-center ml-4 shrink-0">
+          <Link href="/admissions" className="btn-primary text-xs !py-2 !px-5">
             ENROL NOW
           </Link>
         </div>

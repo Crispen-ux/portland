@@ -20,9 +20,9 @@ export const SITE = {
 
 export const NAV_LINKS = [
   { label: "Home", href: "/" },
-  { label: "About Us", href: "/about" },
-  { label: "Academics & School Life", href: "/academics" },
-  { label: "School Fees", href: "/school-fees" },
+  { label: "About", href: "/about" },
+  { label: "Academics", href: "/academics" },
+  { label: "Fees", href: "/school-fees" },
   { label: "Admissions", href: "/admissions" },
   { label: "Photos", href: "/photos" },
   { label: "Contact", href: "/contact" },
