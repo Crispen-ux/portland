@@ -7,7 +7,6 @@ import { SITE } from "@/lib/constants";
 import Link from "next/link";
 import AdmissionsForm from "@/components/AdmissionsForm";
 import {
-  GraduationCap,
   Search,
   MessageSquare,
   Phone,
@@ -72,38 +71,41 @@ function AdmissionsContent() {
       {/* Hero */}
       <section
         ref={heroRef}
-        className="min-h-[100vh] flex items-center bg-portland-red"
+        className="relative min-h-[100vh] flex items-center overflow-hidden bg-portland-cream"
       >
-        <div className="mx-auto max-w-7xl px-6 w-full">
+        {/* Decorative accents */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-portland-red/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-portland-red/8 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div
             className={`max-w-2xl transition-all duration-700 ${
-              heroInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+              heroInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <div className="inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full text-sm font-medium text-white/80 mb-6">
-              <GraduationCap className="w-4 h-4" />
-              Admissions Open — {SITE.grades}
-            </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] text-white mb-6">
-              Start Your Child&apos;s Journey at Portland
+            <span className="text-eyebrow text-portland-red tracking-[0.2em] mb-4 block">
+              Admissions Open
+            </span>
+            <h1 className="text-display text-portland-dark mb-6">
+              Start Your Child&apos;s Journey at{" "}
+              <span className="text-gradient">Portland</span>
             </h1>
-            <p className="text-lg sm:text-xl text-white/80 max-w-xl leading-relaxed mb-8">
+            <p className="text-xl text-portland-gray mb-8">
               Interested in joining Portland Schools? Tell us a little about your
               child and our team will help you with the next steps.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <a
                 href="#enquiry-form"
-                className="inline-flex items-center justify-center gap-2 bg-white text-portland-red font-semibold px-6 py-3.5 rounded-xl hover:bg-white/90 transition-colors"
+                className="btn-primary"
               >
                 Start an Enquiry
-                <ChevronRight className="w-4 h-4" />
               </a>
               <a
                 href={SITE.whatsappLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 bg-[#25D366] text-white font-semibold px-6 py-3.5 rounded-xl hover:bg-[#1fb855] transition-colors"
+                className="btn-outline"
               >
                 <MessageSquare className="w-4 h-4" />
                 Chat on WhatsApp
