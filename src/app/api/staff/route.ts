@@ -53,12 +53,12 @@ export async function POST(request: NextRequest) {
     const staff = await db.staff.create({
       data: {
         schoolId: school.id,
-        userId: data.userId,
+        userId: data.userId || null,
         firstName: data.firstName,
         lastName: data.lastName,
-        phone: data.phone,
-        position: data.position,
-        staffNumber: data.staffNumber,
+        phone: data.phone || null,
+        position: data.position || null,
+        staffNumber: data.staffNumber || null,
       },
     });
 
