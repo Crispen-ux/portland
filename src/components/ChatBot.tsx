@@ -2,12 +2,14 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { SITE } from "@/lib/constants";
+import { matchIntent, generateResponse, type Intent } from "@/lib/chat-engine";
 import {
   MessageCircle,
   X,
   Send,
   GraduationCap,
   MessageSquare,
+  Phone,
 } from "lucide-react";
 
 interface Message {
@@ -18,161 +20,50 @@ interface Message {
   timestamp: Date;
 }
 
-const KB: { keywords: string[]; answer: string; followUp?: string[] }[] = [
-  {
-    keywords: ["fee", "fees", "cost", "price", "pay", "payment", "how much", "afford", "monthly", "annual"],
-    answer: "Portland fees are very affordable:\n\n• Grade RR – Grade 7: R800/month\n• Grade 8 – Grade 11: R900/month\n• Registration: R500 once-off\n• Sports Levy: R300/year\n\nFree school uniform is included!",
-    followUp: ["How do I enrol?", "What payment methods?"],
-  },
-  {
-    keywords: ["payment method", "payment methods", "how do i pay", "bank", "eft", "cash"],
-    answer: "Payment can be made via:\n\n• EFT / Bank transfer\n• Cash at the school office\n• Debit order arrangements\n\nPlease contact our finance office for bank details.",
-    followUp: ["What are the fees?", "How do I enrol?"],
-  },
-  {
-    keywords: ["enrol", "enrolment", "enroll", "enrollment", "admission", "admissions", "apply", "application", "register", "sign up", "join"],
-    answer: "Enrolling at Portland is easy!\n\n1. Contact us via WhatsApp or phone\n2. Visit the school to see our facilities\n3. Complete the application form\n4. Submit required documents\n\nAdmissions are open for Grade RR – Grade 11.",
-    followUp: ["What documents do I need?", "What are the fees?"],
-  },
-  {
-    keywords: ["document", "documents", "papers", "requirements", "what do i need", "bring"],
-    answer: "You'll need these documents:\n\n• Copy of birth certificate\n• Proof of immunization\n• Copies of both parents'/guardians' IDs\n• Latest school report (if applicable)\n• Transfer documents (if applicable)\n\nNo copies will be made at the school office.",
-    followUp: ["How do I enrol?", "Where are you located?"],
-  },
-  {
-    keywords: ["time", "hours", "when", "open", "close", "start", "finish", "school day", "operating", "morning", "afternoon"],
-    answer: "School hours:\n\n• Doors open: 7:00 AM\n• School starts: 7:30 AM\n• Primary ends: 2:30 PM\n• High School ends: 3:30 PM\n\nOffice hours: 7:00 AM – 4:00 PM",
-    followUp: ["Do you have transport?", "Where are you located?"],
-  },
-  {
-    keywords: ["transport", "bus", "taxi", "pick up", "drop off", "getting there", "commute", "ride"],
-    answer: "Yes, school transport is available!\n\nConvenient transport options are offered for families who need them. Contact us for routes and availability.",
-    followUp: ["What are the school hours?", "Where are you located?"],
-  },
-  {
-    keywords: ["location", "address", "where", "find", "map", "get there", "direction", "corner", "street"],
-    answer: "We're located at:\n\n188 Commissioner Street\nCorner Commissioner & Polly Street\nJohannesburg\n\nEasy to find in the heart of Johannesburg CBD!",
-    followUp: ["What are the school hours?", "How do I enrol?"],
-  },
-  {
-    keywords: ["sport", "sports", "activity", "activities", "club", "clubs", "extra mural", "extramural", "soccer", "netball", "chess", "athletics"],
-    answer: "We offer a variety of sports and activities:\n\n⚽ Sports: Soccer, Netball, Athletics, Female Soccer\n🎭 Activities: Chess, Dancing, Bible Study, Drama, Modelling\n\nPlus Robotics and Computer classes!",
-    followUp: ["What are the fees?", "Is there a sports levy?"],
-  },
-  {
-    keywords: ["sport levy", "sports levy", "extra cost", "additional cost"],
-    answer: "The Sports Levy is R300 per year.\n\nThis covers participation in all sports and extramural activities offered at Portland.",
-    followUp: ["What sports do you offer?", "What are the fees?"],
-  },
-  {
-    keywords: ["curriculum", "syllabus", "academics", "teach", "teaching", "education", "caps", "english", "learn", "learning"],
-    answer: "Portland follows the CAPS Curriculum (English-Medium) from Grade RR to Grade 11.\n\nWe also offer:\n• Computer literacy\n• Robotics\n• Dedicated, qualified teachers",
-    followUp: ["What sports do you offer?", "What are the fees?"],
-  },
-  {
-    keywords: ["uniform", "clothes", "clothing", "dress code", "attire", "wear"],
-    answer: "Great news — the school uniform is provided FREE!\n\nEvery learner receives their full school uniform at no additional cost.",
-    followUp: ["What are the fees?", "How do I enrol?"],
-  },
-  {
-    keywords: ["contact", "phone", "call", "whatsapp", "email", "reach", "number"],
-    answer: "You can reach us through:\n\n📱 WhatsApp: +27 82 815 4388\n📞 Phone: +27 82 815 4388\n📧 Email: info@portlandschools.co.za\n\nWe're ready to hear from you!",
-    followUp: ["Where are you located?", "How do I enrol?"],
-  },
-  {
-    keywords: ["grade", "grades", "age", "years old", "which grade", "my child", "little one", "old enough"],
-    answer: "Portland offers Grade RR through Grade 11.\n\n• Foundation Phase: Grade RR – Grade 3\n• Primary Phase: Grade 4 – Grade 7\n• High School: Grade 8 – Grade 11\n\nNot sure which grade? Contact us and we'll help!",
-    followUp: ["What are the fees?", "How do I enrol?"],
-  },
-  {
-    keywords: ["bully", "bullying", "safety", "safe", "discipline", "behaviour", "behavior", "conduct", "rules"],
-    answer: "Portland has a zero-tolerance approach to bullying.\n\nEvery child is safe, respected, and protected. We maintain a structured, values-driven environment where kindness, accountability, and dignity are non-negotiable.",
-    followUp: ["What are your values?", "How do I enrol?"],
-  },
-  {
-    keywords: ["value", "values", "ethos", "believe", "belief", "mission", "vision", "promise"],
-    answer: "Our core values are:\n\n• Respect\n• Responsibility\n• Excellence\n• Integrity\n• Kindness\n• Discipline\n\nWe believe true education nurtures character as much as competence.",
-    followUp: ["How do I enrol?", "What do you teach?"],
-  },
-  {
-    keywords: ["robot", "robotics", "computer", "computers", "technology", "tech", "coding", "stem"],
-    answer: "Portland offers exciting technology programmes:\n\n💻 Computers: Building digital literacy and tech skills\n🤖 Robotics: Encouraging innovation, creativity and problem-solving\n\nThese are included in our curriculum!",
-    followUp: ["What are the fees?", "What other activities do you offer?"],
-  },
-  {
-    keywords: ["teacher", "teachers", "staff", "qualified", "dedicated", "educators"],
-    answer: "Our teachers are dedicated and passionate!\n\nThey play an important role in helping learners develop academically, socially and personally. Every teacher is committed to the growth and success of every learner.",
-    followUp: ["What do you teach?", "How do I enrol?"],
-  },
-  {
-    keywords: ["hello", "hi", "hey", "good morning", "good afternoon", "good evening", "sup", "yo"],
-    answer: "Hello! Welcome to Portland Group of Schools.\n\nI'm here to help answer your questions about admissions, fees, school hours, and more.\n\nWhat would you like to know?",
-    followUp: ["What are the fees?", "How do I enrol?", "Where are you located?"],
-  },
-  {
-    keywords: ["thank", "thanks", "appreciate", "helpful"],
-    answer: "You're welcome! Is there anything else I can help you with?\n\nFeel free to WhatsApp us anytime at +27 82 815 4388.",
-    followUp: ["How do I enrol?", "What are the fees?"],
-  },
-  {
-    keywords: ["bye", "goodbye", "see you", "later"],
-    answer: "Goodbye! We hope to welcome you and your child to Portland soon.\n\nRemember: Where every child is known.",
-    followUp: ["How do I enrol?"],
-  },
-  {
-    keywords: ["lunch", "food", "meal", "canteen", "cafeteria", "eat", "break"],
-    answer: "Learners are welcome to bring their own lunch.\n\nPlease ensure your child has a packed lunch and water bottle for the day.",
-    followUp: ["What are the school hours?", "What are the fees?"],
-  },
-  {
-    keywords: ["term", "terms", "holiday", "holidays", "break", "calendar", "schedule", "semester"],
-    answer: "Portland follows the Department of Education's school calendar:\n\n• Term 1: January – March\n• Term 2: April – June\n• Term 3: July – September\n• Term 4: October – December\n\nExact dates are communicated at the start of each year.",
-    followUp: ["What are the school hours?", "How do I enrol?"],
-  },
-];
+const WELCOME_MESSAGE: Message = {
+  id: "welcome",
+  text: "Hi! I'm the Portland Assistant 👋\n\nHow can I help you today? I can tell you about our fees, admissions, school hours, activities, and more.",
+  sender: "bot",
+  followUp: ["School Fees", "How to Enrol", "School Hours", "Location", "Grades", "Activities"],
+  timestamp: new Date(),
+};
 
-function matchQuestion(input: string): { answer: string; followUp?: string[] } {
-  const lower = input.toLowerCase().trim();
-  let bestMatch = -1;
-  let bestScore = 0;
+function handleFollowUpAction(action: string): { type: "send"; text: string } | { type: "link"; url: string } | null {
+  const lower = action.toLowerCase();
 
-  for (let i = 0; i < KB.length; i++) {
-    const entry = KB[i];
-    let score = 0;
-    for (const keyword of entry.keywords) {
-      if (lower.includes(keyword)) {
-        score += keyword.length;
-      }
-    }
-    if (score > bestScore) {
-      bestScore = score;
-      bestMatch = i;
-    }
+  if (lower.includes("whatsapp")) {
+    return { type: "link", url: SITE.whatsappLink };
+  }
+  if (lower.includes("call")) {
+    return { type: "link", url: `tel:${SITE.phone}` };
+  }
+  if (lower.includes("book a visit") || lower.includes("school visit")) {
+    return { type: "link", url: SITE.whatsappLink };
+  }
+  if (lower.includes("get directions")) {
+    return { type: "send", text: "Get me directions to Portland" };
+  }
+  if (lower.includes("start enquiry") || lower.includes("contact admissions")) {
+    return { type: "link", url: SITE.whatsappLink };
   }
 
-  if (bestMatch >= 0 && bestScore > 0) {
-    return { answer: KB[bestMatch].answer, followUp: KB[bestMatch].followUp };
-  }
+  return { type: "send", text: action };
+}
 
-  return {
-    answer: "I'm not sure about that, but I can help you with:",
-    followUp: ["School Fees", "How to Enrol", "School Hours", "Location", "Sports & Activities"],
-  };
+function isWhatsAppAction(action: string): boolean {
+  return action.toLowerCase().includes("whatsapp");
+}
+
+function isCallAction(action: string): boolean {
+  return action.toLowerCase().includes("call");
 }
 
 export default function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      text: "Hello! I'm the Portland assistant. How can I help you today?",
-      sender: "bot",
-      followUp: ["School Fees", "How to Enrol", "School Hours", "Location"],
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([WELCOME_MESSAGE]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [lastIntent, setLastIntent] = useState<Intent | undefined>();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -217,9 +108,23 @@ export default function ChatBot() {
     setIsTyping(true);
     setTimeout(() => {
       setIsTyping(false);
-      const { answer, followUp } = matchQuestion(query);
-      addBotMessage(answer, followUp);
-    }, 600 + Math.random() * 800);
+      const { intent } = matchIntent(query);
+      const { text, followUp } = generateResponse(intent, query, { lastIntent });
+      setLastIntent(intent);
+      addBotMessage(text, followUp);
+    }, 500 + Math.random() * 600);
+  };
+
+  const handleFollowUp = (action: string) => {
+    const result = handleFollowUpAction(action);
+    if (!result) return;
+
+    if (result.type === "link") {
+      window.open(result.url, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    handleSend(result.text);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -256,9 +161,9 @@ export default function ChatBot() {
             : "opacity-0 translate-y-4 pointer-events-none"
         } bottom-24 left-5 sm:left-5 w-[calc(100vw-40px)] sm:w-[380px] max-h-[600px] sm:max-h-[500px]`}
       >
-        <div className="bg-white rounded-2xl shadow-[0_10px_60px_rgba(0,0,0,0.15)] overflow-hidden border border-portland-mid/30">
+        <div className="bg-white rounded-2xl shadow-[0_10px_60px_rgba(0,0,0,0.15)] overflow-hidden border border-portland-mid/30 flex flex-col max-h-[600px] sm:max-h-[500px]">
           {/* Header */}
-          <div className="bg-portland-dark px-5 py-4 flex items-center gap-3">
+          <div className="bg-portland-dark px-5 py-4 flex items-center gap-3 shrink-0">
             <div className="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
@@ -270,7 +175,7 @@ export default function ChatBot() {
           </div>
 
           {/* Messages */}
-          <div className="h-[350px] overflow-y-auto px-4 py-4 space-y-4 scroll-smooth" role="log" aria-live="polite" aria-label="Chat messages">
+          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scroll-smooth min-h-0" role="log" aria-live="polite" aria-label="Chat messages">
             {messages.map((msg) => (
               <div key={msg.id}>
                 <div
@@ -288,15 +193,27 @@ export default function ChatBot() {
                 </div>
                 {msg.sender === "bot" && msg.followUp && msg.followUp.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2 ml-1">
-                    {msg.followUp.map((q) => (
-                      <button
-                        key={q}
-                        onClick={() => handleSend(q)}
-                        className="px-3 py-1.5 bg-portland-red/8 hover:bg-portland-red/15 text-portland-red text-xs font-medium rounded-full transition-colors"
-                      >
-                        {q}
-                      </button>
-                    ))}
+                    {msg.followUp.map((action) => {
+                      const isWA = isWhatsAppAction(action);
+                      const isCall = isCallAction(action);
+                      return (
+                        <button
+                          key={action}
+                          onClick={() => handleFollowUp(action)}
+                          className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
+                            isWA
+                              ? "bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366]"
+                              : isCall
+                              ? "bg-portland-red/8 hover:bg-portland-red/15 text-portland-red"
+                              : "bg-portland-red/8 hover:bg-portland-red/15 text-portland-red"
+                          }`}
+                        >
+                          {isWA && <MessageSquare className="w-3 h-3 inline mr-1" />}
+                          {isCall && <Phone className="w-3 h-3 inline mr-1" />}
+                          {action}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -319,7 +236,7 @@ export default function ChatBot() {
           </div>
 
           {/* WhatsApp bridge */}
-          <div className="px-4 py-2 border-t border-portland-mid/30">
+          <div className="px-4 py-2 border-t border-portland-mid/30 shrink-0">
             <a
               href={SITE.whatsappLink}
               target="_blank"
@@ -332,7 +249,7 @@ export default function ChatBot() {
           </div>
 
           {/* Input */}
-          <div className="px-4 py-3 border-t border-portland-mid/30">
+          <div className="px-4 py-3 border-t border-portland-mid/30 shrink-0">
             <div className="flex items-center gap-2">
               <input
                 ref={inputRef}
