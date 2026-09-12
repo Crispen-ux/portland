@@ -41,14 +41,20 @@ export default function HeroSection() {
           </p>
 
           {/* School info line */}
-          <div className="animate-fade-up delay-300 mb-10">
+          <div className="animate-fade-up delay-300 mb-6">
             <p className="text-white/40 text-sm uppercase tracking-widest font-medium">
               {SITE.grades} · {SITE.curriculum}
             </p>
           </div>
 
+          {/* Free uniform hook */}
+          <div className="animate-fade-up delay-400 mb-10 inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm border border-white/10 rounded-full px-5 py-2.5">
+            <span className="text-green-400 text-sm font-bold">✓</span>
+            <span className="text-white/80 text-sm font-medium">Free School Uniform — included with every enrolment</span>
+          </div>
+
           {/* Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 animate-fade-up delay-400">
+          <div className="flex flex-col sm:flex-row gap-4 animate-fade-up delay-500">
             <Link href="/admissions" className="btn-primary text-base !py-4 !px-8 group">
               Begin Their Journey
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
