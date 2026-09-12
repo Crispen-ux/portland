@@ -1,0 +1,246 @@
+import { forwardRef } from "react";
+import { Loader2 } from "lucide-react";
+
+// ─── Button ─────────────────────────────────────────────
+
+type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger";
+type ButtonSize = "sm" | "md" | "lg";
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  loading?: boolean;
+  icon?: React.ReactNode;
+}
+
+const variantStyles: Record<ButtonVariant, string> = {
+  primary: "bg-portland-red text-white hover:bg-portland-red-dark shadow-sm",
+  secondary: "bg-portland-dark text-white hover:bg-portland-dark/90",
+  outline: "border border-portland-mid/50 text-portland-dark hover:bg-portland-light",
+  ghost: "text-portland-dark hover:bg-portland-light",
+  danger: "bg-red-600 text-white hover:bg-red-700",
+};
+
+const sizeStyles: Record<ButtonSize, string> = {
+  sm: "px-3 py-1.5 text-xs",
+  md: "px-4 py-2.5 text-sm",
+  lg: "px-6 py-3 text-base",
+};
+
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ variant = "primary", size = "md", loading, icon, children, className = "", disabled, ...props }, ref) => {
+    return (
+      <button
+        ref={ref}
+        disabled={disabled || loading}
+        className={`inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+        {...props}
+      >
+        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : icon}
+        {children}
+      </button>
+    );
+  }
+);
+Button.displayName = "Button";
+
+// ─── Card ───────────────────────────────────────────────
+
+interface CardProps {
+  children: React.ReactNode;
+  className?: string;
+  padding?: boolean;
+}
+
+export function Card({ children, className = "", padding = true }: CardProps) {
+  return (
+    <div className={`bg-white rounded-2xl border border-portland-mid/30 shadow-[0_2px_20px_rgba(0,0,0,0.04)] ${padding ? "p-6" : ""} ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+// ─── Input ──────────────────────────────────────────────
+
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label?: string;
+  error?: string;
+  hint?: string;
+}
+
+export const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ label, error, hint, className = "", ...props }, ref) => {
+    return (
+      <div className="space-y-1.5">
+        {label && (
+          <label className="block text-sm font-medium text-portland-dark">
+            {label}
+            {props.required && <span className="text-portland-red ml-0.5">*</span>}
+          </label>
+        )}
+        <input
+          ref={ref}
+          className={`w-full px-4 py-2.5 bg-portland-light rounded-xl text-sm text-portland-dark placeholder:text-portland-gray/50 focus:outline-none focus:ring-2 transition-all ${
+            error ? "ring-red-300 focus:ring-red-300" : "focus:ring-portland-red/20"
+          } ${className}`}
+          {...props}
+        />
+        {error && <p className="text-xs text-red-500">{error}</p>}
+        {hint && !error && <p className="text-xs text-portland-gray">{hint}</p>}
+      </div>
+    );
+  }
+);
+Input.displayName = "Input";
+
+// ─── Select ─────────────────────────────────────────────
+
+interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+  label?: string;
+  error?: string;
+  options: { value: string; label: string }[];
+  placeholder?: string;
+}
+
+export const Select = forwardRef<HTMLSelectElement, SelectProps>(
+  ({ label, error, options, placeholder, className = "", ...props }, ref) => {
+    return (
+      <div className="space-y-1.5">
+        {label && (
+          <label className="block text-sm font-medium text-portland-dark">
+            {label}
+            {props.required && <span className="text-portland-red ml-0.5">*</span>}
+          </label>
+        )}
+        <select
+          ref={ref}
+          className={`w-full px-4 py-2.5 bg-portland-light rounded-xl text-sm text-portland-dark focus:outline-none focus:ring-2 transition-all appearance-none ${
+            error ? "ring-red-300 focus:ring-red-300" : "focus:ring-portland-red/20"
+          } ${className}`}
+          {...props}
+        >
+          {placeholder && (
+            <option value="" disabled>
+              {placeholder}
+            </option>
+          )}
+          {options.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        {error && <p className="text-xs text-red-500">{error}</p>}
+      </div>
+    );
+  }
+);
+Select.displayName = "Select";
+
+// ─── Badge ──────────────────────────────────────────────
+
+type BadgeVariant = "default" | "success" | "warning" | "danger" | "info";
+
+interface BadgeProps {
+  children: React.ReactNode;
+  variant?: BadgeVariant;
+  className?: string;
+}
+
+const badgeStyles: Record<BadgeVariant, string> = {
+  default: "bg-portland-light text-portland-dark",
+  success: "bg-green-50 text-green-700",
+  warning: "bg-amber-50 text-amber-700",
+  danger: "bg-red-50 text-red-700",
+  info: "bg-blue-50 text-blue-700",
+};
+
+export function Badge({ children, variant = "default", className = "" }: BadgeProps) {
+  return (
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeStyles[variant]} ${className}`}>
+      {children}
+    </span>
+  );
+}
+
+// ─── Table ──────────────────────────────────────────────
+
+interface TableProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function Table({ children, className = "" }: TableProps) {
+  return (
+    <div className={`overflow-x-auto ${className}`}>
+      <table className="w-full text-sm">{children}</table>
+    </div>
+  );
+}
+
+export function TableHeader({ children }: { children: React.ReactNode }) {
+  return <thead className="border-b border-portland-mid/30">{children}</thead>;
+}
+
+export function TableBody({ children }: { children: React.ReactNode }) {
+  return <tbody className="divide-y divide-portland-mid/20">{children}</tbody>;
+}
+
+export function TableRow({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <tr className={`hover:bg-portland-light/50 transition-colors ${className}`}>{children}</tr>;
+}
+
+export function TableCell({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <td className={`px-4 py-3 ${className}`}>{children}</td>;
+}
+
+// ─── Empty State ────────────────────────────────────────
+
+interface EmptyStateProps {
+  icon?: React.ReactNode;
+  title: string;
+  description?: string;
+  action?: React.ReactNode;
+}
+
+export function EmptyState({ icon, title, description, action }: EmptyStateProps) {
+  return (
+    <div className="text-center py-12">
+      {icon && <div className="w-12 h-12 bg-portland-light rounded-xl flex items-center justify-center mx-auto mb-4">{icon}</div>}
+      <h3 className="text-lg font-semibold text-portland-dark mb-1">{title}</h3>
+      {description && <p className="text-sm text-portland-gray mb-4">{description}</p>}
+      {action}
+    </div>
+  );
+}
+
+// ─── Loading State ──────────────────────────────────────
+
+export function LoadingState({ message = "Loading..." }: { message?: string }) {
+  return (
+    <div className="flex items-center justify-center py-12">
+      <Loader2 className="w-6 h-6 text-portland-red animate-spin" />
+      <span className="ml-3 text-sm text-portland-gray">{message}</span>
+    </div>
+  );
+}
+
+// ─── Page Header ────────────────────────────────────────
+
+interface PageHeaderProps {
+  title: string;
+  description?: string;
+  action?: React.ReactNode;
+}
+
+export function PageHeader({ title, description, action }: PageHeaderProps) {
+  return (
+    <div className="flex items-start justify-between mb-8">
+      <div>
+        <h1 className="text-2xl font-bold text-portland-dark">{title}</h1>
+        {description && <p className="text-sm text-portland-gray mt-1">{description}</p>}
+      </div>
+      {action}
+    </div>
+  );
+}
