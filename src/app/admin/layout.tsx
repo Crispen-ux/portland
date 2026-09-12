@@ -70,6 +70,16 @@ const NAV_ITEMS = [
     icon: BookOpen,
   },
   {
+    label: "Assessments",
+    href: "/admin/assessments",
+    icon: FileText,
+  },
+  {
+    label: "Results",
+    href: "/admin/results",
+    icon: ClipboardCheck,
+  },
+  {
     label: "Finance",
     href: "/admin/finance",
     icon: DollarSign,

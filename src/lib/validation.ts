@@ -181,3 +181,27 @@ export const saveAttendanceSchema = z.object({
     reason: z.string().optional(),
   })),
 });
+
+// ─── Academics ─────────────────────────────────────────
+
+export const createAssessmentSchema = z.object({
+  academicYearId: z.string().min(1, "Academic year is required"),
+  subjectId: z.string().min(1, "Subject is required"),
+  title: z.string().min(1, "Title is required"),
+  type: z.enum(["TEST", "EXAM", "ASSIGNMENT", "PROJECT", "QUIZ"]).optional(),
+  totalMarks: z.coerce.number().min(1, "Total marks must be at least 1"),
+  date: z.string().optional(),
+});
+
+export const saveResultsSchema = z.object({
+  assessmentId: z.string().min(1),
+  results: z.array(z.object({
+    studentId: z.string(),
+    marks: z.coerce.number().min(0),
+    comment: z.string().optional(),
+  })),
+});
+
+export const updateResultStatusSchema = z.object({
+  status: z.enum(["DRAFT", "SUBMITTED", "APPROVED", "PUBLISHED"]),
+});
