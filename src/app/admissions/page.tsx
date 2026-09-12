@@ -52,13 +52,13 @@ export default function AdmissionsPage() {
       {/* Hero */}
       <section
         ref={heroRef}
-        className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden bg-portland-red"
+        className="relative min-h-[100vh] flex items-center overflow-hidden bg-portland-red"
       >
         {/* Decorative accents */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-portland-dark/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center">
           <div
             className={`transition-all duration-700 ${
               heroInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"

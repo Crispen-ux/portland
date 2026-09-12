@@ -12,7 +12,7 @@ export default function HeroSection() {
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-portland-red/5 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="max-w-3xl">
           {/* Eyebrow */}
           <div className="animate-fade-up mb-6">
