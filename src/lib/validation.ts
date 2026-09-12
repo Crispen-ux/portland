@@ -205,3 +205,34 @@ export const saveResultsSchema = z.object({
 export const updateResultStatusSchema = z.object({
   status: z.enum(["DRAFT", "SUBMITTED", "APPROVED", "PUBLISHED"]),
 });
+
+// ─── Finance ───────────────────────────────────────────
+
+export const createFeeStructureSchema = z.object({
+  academicYearId: z.string().min(1, "Academic year is required"),
+  gradeId: z.string().min(1, "Grade is required"),
+  name: z.string().min(1, "Fee name is required"),
+  amount: z.coerce.number().min(0, "Amount must be positive"),
+  frequency: z.enum(["ONCE_OFF", "MONTHLY", "TERM", "ANNUAL"]).optional(),
+  active: z.boolean().optional(),
+});
+
+export const createInvoiceSchema = z.object({
+  studentId: z.string().min(1, "Student is required"),
+  academicYearId: z.string().min(1, "Academic year is required"),
+  feeStructureId: z.string().optional(),
+  dueDate: z.string().optional(),
+  items: z.array(z.object({
+    description: z.string().min(1),
+    amount: z.coerce.number().min(0),
+    quantity: z.coerce.number().min(1).optional(),
+  })).min(1, "At least one item is required"),
+});
+
+export const recordPaymentSchema = z.object({
+  invoiceId: z.string().min(1),
+  amount: z.coerce.number().min(0.01, "Amount must be greater than 0"),
+  method: z.enum(["EFT", "CASH", "CARD", "DEBIT_ORDER", "OTHER"]).optional(),
+  reference: z.string().optional(),
+  notes: z.string().optional(),
+});
