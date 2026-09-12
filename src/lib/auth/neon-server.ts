@@ -1,6 +1,4 @@
-import { createNeonAuth } from "@neondatabase/auth/next/server";
-
-let _neonAuth: ReturnType<typeof createNeonAuth> | null = null;
+let _neonAuth: any = null;
 let _initFailed = false;
 
 export function getNeonAuth() {
@@ -15,6 +13,8 @@ export function getNeonAuth() {
   }
 
   try {
+    // Dynamic import to avoid module-level initialization
+    const { createNeonAuth } = require("@neondatabase/auth/next/server");
     _neonAuth = createNeonAuth({
       baseUrl,
       cookies: {
