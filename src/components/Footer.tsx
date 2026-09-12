@@ -22,8 +22,8 @@ export default function Footer() {
             {/* Brand */}
             <div className="lg:col-span-1">
               <Link href="/" className="flex items-center gap-3 mb-5" aria-label="Portland Group of Schools — Home">
-                <div className="w-10 h-10 bg-portland-red rounded-xl flex items-center justify-center">
-                  <span className="text-white font-extrabold text-lg tracking-tight">P</span>
+                <div className="w-10 h-10 bg-portland-red rounded-xl flex items-center justify-center overflow-hidden">
+                  <img src="/portland logo.png" alt="Portland Group of Schools" className="w-full h-full object-contain p-1" />
                 </div>
                 <div>
                   <p className="font-bold text-white text-sm leading-tight">PORTLAND</p>
