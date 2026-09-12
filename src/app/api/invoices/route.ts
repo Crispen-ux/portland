@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
       data: {
         studentId: data.studentId,
         academicYearId: data.academicYearId,
-        feeStructureId: data.feeStructureId || null,
+        ...(data.feeStructureId && { feeStructureId: data.feeStructureId }),
         invoiceNumber: generateInvoiceNumber(),
         totalAmount,
         dueDate: data.dueDate ? new Date(data.dueDate) : null,

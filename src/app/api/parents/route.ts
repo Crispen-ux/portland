@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
         firstName: data.firstName,
         lastName: data.lastName,
         phone: data.phone,
-        email: data.email || null,
+        ...(data.email && { email: data.email }),
         relationship: data.relationship,
       },
     });

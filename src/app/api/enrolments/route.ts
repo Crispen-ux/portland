@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
         studentId: data.studentId,
         academicYearId: data.academicYearId,
         gradeId: data.gradeId,
-        classId: data.classId || null,
+        ...(data.classId && { classId: data.classId }),
         status: data.status || "ACTIVE",
       },
       include: {
