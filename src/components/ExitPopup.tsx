@@ -64,8 +64,8 @@ export default function ExitPopup() {
 
         <div className="p-8 sm:p-10">
           {/* Icon */}
-          <div className="w-16 h-16 bg-portland-red/10 rounded-2xl flex items-center justify-center mx-auto mb-6 overflow-hidden">
-            <img src="/portland logo.png" alt="" className="w-12 h-12 object-contain" aria-hidden="true" />
+          <div className="flex justify-center mb-6">
+            <img src="/portland logo.png" alt="" className="h-16 w-auto" aria-hidden="true" />
           </div>
 
           {/* Content */}

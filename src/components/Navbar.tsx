@@ -26,9 +26,7 @@ export default function Navbar() {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between" aria-label="Main navigation">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group" aria-label="Portland Group of Schools — Home">
-          <div className="w-10 h-10 bg-portland-red rounded-xl flex items-center justify-center shadow-lg shadow-portland-red/20 group-hover:shadow-portland-red/40 transition-shadow duration-300 overflow-hidden">
-            <img src="/portland logo.png" alt="Portland Group of Schools" className="w-full h-full object-contain p-1" />
-          </div>
+          <img src="/portland logo.png" alt="Portland Group of Schools" className="h-10 w-auto" />
           <div className="hidden sm:block">
             <p className="font-bold text-portland-dark text-sm leading-tight tracking-tight">
               PORTLAND
