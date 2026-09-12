@@ -36,6 +36,7 @@ interface User {
   email: string;
   name: string | null;
   role: UserRole;
+  status: "INVITED" | "PENDING_ACTIVATION" | "ACTIVE" | "SUSPENDED" | "DISABLED";
   active: boolean;
   lastLoginAt: string | null;
   createdAt: string;
@@ -207,8 +208,17 @@ export default function UsersPage() {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={u.active ? "success" : "danger"}>
-                      {u.active ? "Active" : "Inactive"}
+                    <Badge variant={
+                      u.status === "ACTIVE" ? "success" :
+                      u.status === "INVITED" ? "info" :
+                      u.status === "PENDING_ACTIVATION" ? "warning" :
+                      "danger"
+                    }>
+                      {u.status === "ACTIVE" ? "Active" :
+                       u.status === "INVITED" ? "Invited" :
+                       u.status === "PENDING_ACTIVATION" ? "Pending" :
+                       u.status === "SUSPENDED" ? "Suspended" :
+                       "Disabled"}
                     </Badge>
                   </TableCell>
                   <TableCell>

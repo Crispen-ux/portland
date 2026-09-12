@@ -31,7 +31,12 @@ function LoginForm() {
       if (result?.error) {
         setError("Invalid email or password. Please try again.");
       } else {
-        router.push(callbackUrl);
+        // Use the callbackUrl if present (from middleware redirect), otherwise go to dashboard router
+        if (callbackUrl && callbackUrl !== "/admin") {
+          router.push(callbackUrl);
+        } else {
+          router.push("/api/auth/dashboard");
+        }
         router.refresh();
       }
     } catch {
@@ -75,7 +80,12 @@ function LoginForm() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#1A1A1A] mb-1.5">Password</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-sm font-medium text-[#1A1A1A]">Password</label>
+                <a href="/forgot-password" className="text-xs text-[#C41E3A] hover:text-[#A01830] transition-colors">
+                  Forgot password?
+                </a>
+              </div>
               <input
                 type="password"
                 value={password}

@@ -10,6 +10,9 @@ const PUBLIC_ROUTES = [
   "/photos",
   "/school-fees",
   "/login",
+  "/signup",
+  "/forgot-password",
+  "/reset-password",
   "/api/admissions",
 ];
 

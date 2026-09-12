@@ -29,7 +29,18 @@ export const {
           where: { email: credentials.email as string },
         });
 
-        if (!user || !user.active) return null;
+        if (!user) return null;
+
+        // Check account status
+        if (user.status === "SUSPENDED" || user.status === "DISABLED") {
+          return null;
+        }
+
+        if (user.status === "INVITED" || user.status === "PENDING_ACTIVATION") {
+          return null;
+        }
+
+        if (!user.active) return null;
 
         const isValid = await bcrypt.compare(
           credentials.password as string,
@@ -41,7 +52,9 @@ export const {
         // Update last login
         await db.user.update({
           where: { id: user.id },
-          data: { lastLoginAt: new Date() },
+          data: {
+            lastLoginAt: new Date(),
+          },
         });
 
         return {

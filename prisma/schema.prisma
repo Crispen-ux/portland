@@ -15,6 +15,7 @@ model User {
   name          String?
   passwordHash  String
   role          UserRole  @default(STUDENT)
+  status        UserStatus @default(ACTIVE)
   active        Boolean   @default(true)
   lastLoginAt   DateTime?
   createdAt     DateTime  @default(now())
@@ -26,9 +27,19 @@ model User {
   parentGuardian ParentGuardian?
   auditLogs     AuditLog[]
   invitations   Invitation[]
+  passwordResets PasswordResetToken[]
 
   @@index([email])
   @@index([role])
+  @@index([status])
+}
+
+enum UserStatus {
+  INVITED
+  PENDING_ACTIVATION
+  ACTIVE
+  SUSPENDED
+  DISABLED
 }
 
 enum UserRole {
@@ -40,6 +51,21 @@ enum UserRole {
   ADMISSIONS_OFFICER
   PARENT
   STUDENT
+}
+
+// ─── Password Reset ─────────────────────────────────────
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([userId])
 }
 
 // ─── School Structure ───────────────────────────────────
@@ -511,6 +537,7 @@ model Invitation {
   invitedBy    User     @relation(fields: [invitedById], references: [id])
   expiresAt    DateTime
   acceptedAt   DateTime?
+  usedAt       DateTime?  // Single-use: set when token is consumed
   createdAt    DateTime @default(now())
 
   @@index([email])

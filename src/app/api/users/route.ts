@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
         email: true,
         name: true,
         role: true,
+        status: true,
         active: true,
         lastLoginAt: true,
         createdAt: true,
