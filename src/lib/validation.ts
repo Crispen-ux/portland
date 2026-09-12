@@ -81,3 +81,39 @@ export const updateAdmissionStatusSchema = z.object({
   ]),
   notes: z.string().optional(),
 });
+
+// ─── School Structure ───────────────────────────────────
+
+export const createAcademicYearSchema = z.object({
+  name: z.string().min(1, "Year name is required"),
+  startYear: z.coerce.number().min(2020).max(2100),
+  endYear: z.coerce.number().min(2020).max(2100),
+  active: z.boolean().optional(),
+});
+
+export const createGradeSchema = z.object({
+  name: z.string().min(1, "Grade name is required"),
+  phase: z.string().optional(),
+  sortOrder: z.coerce.number().optional(),
+});
+
+export const createClassSchema = z.object({
+  name: z.string().min(1, "Class name is required"),
+  gradeId: z.string().min(1, "Grade is required"),
+  academicYearId: z.string().min(1, "Academic year is required"),
+  capacity: z.coerce.number().min(1).max(100).optional(),
+});
+
+export const createSubjectSchema = z.object({
+  name: z.string().min(1, "Subject name is required"),
+  code: z.string().optional(),
+});
+
+export const createStaffSchema = z.object({
+  userId: z.string().optional(),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  phone: z.string().optional(),
+  position: z.string().optional(),
+  staffNumber: z.string().optional(),
+});
