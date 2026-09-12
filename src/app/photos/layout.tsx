@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Photos | Portland Schools",
+  title: "Photos | Portland Schools Johannesburg",
   description:
-    "Explore life at Portland Schools through photos of our learners, classrooms, activities, sports, technology and school community.",
+    "Explore life at Portland Schools through photos — classrooms, sports, activities, and our Johannesburg school community.",
   openGraph: {
-    title: "Photos | Portland Schools",
+    title: "Photos | Portland Schools Johannesburg",
     description:
-      "Explore life at Portland Schools through photos of our learners, classrooms, activities, sports, technology and school community.",
+      "See our learners, classrooms, sports, activities, and school community in Johannesburg.",
     type: "website",
+    locale: "en_ZA",
+  },
+  alternates: {
+    canonical: "https://www.portlandschools.co.za/photos",
   },
 };
 
