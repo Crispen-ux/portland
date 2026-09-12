@@ -52,18 +52,11 @@ export default function AdmissionsPage() {
       {/* Hero */}
       <section
         ref={heroRef}
-        className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden"
+        className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden bg-portland-red"
       >
-        <div className="absolute inset-0">
-          <img
-            src="/School 1.jpeg"
-            alt="Portland Group of Schools admissions"
-            className="w-full h-full object-cover"
-            loading="eager"
-            decoding="async"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-portland-dark/90 via-portland-dark/70 to-portland-dark/40" />
-        </div>
+        {/* Decorative accents */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-portland-dark/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div
@@ -71,17 +64,17 @@ export default function AdmissionsPage() {
               heroInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <span className="text-eyebrow text-portland-red-light tracking-[0.2em] mb-4 block">
+            <span className="text-eyebrow text-white/70 tracking-[0.2em] mb-4 block">
               Admissions
             </span>
             <h1 className="text-display text-white mb-6">
               Your Portland Journey{" "}
-              <span className="text-portland-red-light">Starts Here.</span>
+              <span className="text-white/70">Starts Here.</span>
             </h1>
-            <p className="text-xl text-white/60 mb-2">
+            <p className="text-xl text-white/70 mb-2">
               Admissions are open
             </p>
-            <p className="text-white/40 text-base">{SITE.grades}</p>
+            <p className="text-white/50 text-base">{SITE.grades}</p>
           </div>
         </div>
       </section>

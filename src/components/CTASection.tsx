@@ -9,18 +9,10 @@ export default function CTASection() {
   const [ref, inView] = useInView(0.1);
 
   return (
-    <section ref={ref} className="relative py-24 lg:py-32 overflow-hidden">
-      {/* Background image */}
-      <div className="absolute inset-0">
-        <img
-          src="/Soccer.jpeg"
-          alt="Portland learners celebrating"
-          className="w-full h-full object-cover"
-          loading="lazy"
-          decoding="async"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-portland-dark/90 via-portland-dark/80 to-portland-dark/60" />
-      </div>
+    <section ref={ref} className="relative py-24 lg:py-32 overflow-hidden bg-portland-dark">
+      {/* Decorative accents */}
+      <div className="absolute top-0 right-1/4 w-96 h-96 bg-portland-red/8 rounded-full blur-3xl -translate-y-1/2" />
+      <div className="absolute bottom-0 left-0 w-72 h-72 bg-portland-red/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div
@@ -32,10 +24,10 @@ export default function CTASection() {
             We Believe In{" "}
             <span className="text-portland-red-light">Your Child.</span>
           </h2>
-          <p className="text-xl sm:text-2xl text-white/70 mb-3">
+          <p className="text-xl sm:text-2xl text-white/60 mb-3">
             Now let&apos;s build their future together.
           </p>
-          <p className="text-white/50 text-base mb-10">
+          <p className="text-white/40 text-base mb-10">
             Admissions are open for {SITE.grades}.
           </p>
 

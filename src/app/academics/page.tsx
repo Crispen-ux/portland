@@ -25,18 +25,11 @@ export default function AcademicsPage() {
       {/* Hero */}
       <section
         ref={heroRef}
-        className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden"
+        className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden bg-portland-dark"
       >
-        <div className="absolute inset-0">
-          <img
-            src="/School 3.jpeg"
-            alt="Portland learners learning"
-            className="w-full h-full object-cover"
-            loading="eager"
-            decoding="async"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-portland-dark/90 via-portland-dark/70 to-portland-dark/40" />
-        </div>
+        {/* Decorative accents */}
+        <div className="absolute top-0 left-1/3 w-96 h-96 bg-portland-red/8 rounded-full blur-3xl -translate-y-1/2" />
+        <div className="absolute bottom-0 right-0 w-72 h-72 bg-portland-red/5 rounded-full blur-3xl translate-x-1/2" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
