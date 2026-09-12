@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { NAV_LINKS } from "@/lib/constants";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogIn } from "lucide-react";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -51,7 +51,11 @@ export default function Navbar() {
         </div>
 
         {/* Desktop CTA */}
-        <div className="hidden lg:flex items-center ml-4 shrink-0">
+        <div className="hidden lg:flex items-center ml-4 shrink-0 gap-3">
+          <Link href="/login" className="flex items-center gap-1.5 text-[13px] font-medium text-portland-dark/70 hover:text-portland-red transition-colors">
+            <LogIn className="w-4 h-4" />
+            Portal Login
+          </Link>
           <Link href="/admissions" className="btn-primary text-xs !py-2 !px-5">
             ENROL NOW
           </Link>
@@ -97,6 +101,14 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            <Link
+              href="/login"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-2 px-4 py-3 text-base font-medium text-portland-dark/80 hover:text-portland-red hover:bg-portland-red/5 rounded-xl transition-all duration-300"
+            >
+              <LogIn className="w-4 h-4" />
+              Portal Login
+            </Link>
             <Link
               href="/admissions"
               onClick={() => setIsOpen(false)}
