@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import {
   LayoutDashboard,
   Users,
@@ -16,10 +16,11 @@ import {
   LogOut,
   Menu,
   X,
-  ChevronDown,
   Bell,
   Search,
+  User,
 } from "lucide-react";
+import { ROLE_LABELS } from "@/lib/auth/rbac";
 
 const NAV_ITEMS = [
   {
@@ -28,14 +29,19 @@ const NAV_ITEMS = [
     icon: LayoutDashboard,
   },
   {
+    label: "Users",
+    href: "/admin/users",
+    icon: Users,
+  },
+  {
     label: "Students",
     href: "/admin/students",
-    icon: Users,
+    icon: GraduationCap,
   },
   {
     label: "Staff",
     href: "/admin/staff",
-    icon: GraduationCap,
+    icon: Users,
   },
   {
     label: "Classes",
@@ -76,6 +82,8 @@ export default function AdminLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const user = session?.user as any;
 
   return (
     <div className="min-h-screen bg-portland-light">
@@ -131,6 +139,17 @@ export default function AdminLayout({
 
           {/* User section */}
           <div className="px-3 py-4 border-t border-white/10">
+            <Link
+              href="/admin/profile"
+              onClick={() => setSidebarOpen(false)}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all mb-1"
+            >
+              <User className="w-5 h-5" />
+              <div className="text-left">
+                <p className="text-sm">{user?.name || "User"}</p>
+                <p className="text-[10px] text-white/40">{ROLE_LABELS[user?.role as keyof typeof ROLE_LABELS] || user?.role}</p>
+              </div>
+            </Link>
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
               className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all"
@@ -168,12 +187,16 @@ export default function AdminLayout({
                 <Bell className="w-5 h-5 text-portland-dark" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-portland-red rounded-full" />
               </button>
-              <div className="flex items-center gap-2">
+              <Link href="/admin/profile" className="flex items-center gap-2">
                 <div className="w-8 h-8 bg-portland-red/10 rounded-full flex items-center justify-center">
-                  <span className="text-portland-red text-sm font-semibold">A</span>
+                  <span className="text-portland-red text-sm font-semibold">
+                    {(user?.name || "U").charAt(0).toUpperCase()}
+                  </span>
                 </div>
-                <span className="text-sm font-medium text-portland-dark hidden sm:block">Admin</span>
-              </div>
+                <span className="text-sm font-medium text-portland-dark hidden sm:block">
+                  {user?.name || "User"}
+                </span>
+              </Link>
             </div>
           </div>
         </header>
