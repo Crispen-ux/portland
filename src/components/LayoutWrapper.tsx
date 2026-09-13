@@ -9,12 +9,14 @@ import ScrollProgress from "@/components/ScrollProgress";
 import ExitPopup from "@/components/ExitPopup";
 
 const AUTH_ROUTES = ["/login", "/signup", "/forgot-password", "/reset-password"];
+const PORTAL_ROUTES = ["/admin", "/teacher", "/parent", "/student"];
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAuthPage = AUTH_ROUTES.some((route) => pathname.startsWith(route));
+  const isPortal = PORTAL_ROUTES.some((route) => pathname === route || pathname.startsWith(route + "/"));
 
-  if (isAuthPage) {
+  if (isAuthPage || isPortal) {
     return <>{children}</>;
   }
 
