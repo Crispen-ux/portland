@@ -148,7 +148,7 @@ export default function EnrolmentsPage() {
               {enrolments.map((e) => (
                 <TableRow key={e.id}>
                   <TableCell>
-                    <p className="font-medium text-portland-dark">{e.student.firstName} {e.student.lastName}</p>
+                    <p className="font-medium text-portland-dark">{e.student ? `${e.student.firstName} ${e.student.lastName}` : "—"}</p>
                     {e.student.studentNumber && <p className="text-xs text-portland-gray">{e.student.studentNumber}</p>}
                   </TableCell>
                   <TableCell><Badge variant="info">{e.grade.name}</Badge></TableCell>

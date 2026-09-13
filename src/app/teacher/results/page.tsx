@@ -83,7 +83,7 @@ export default function TeacherResultsPage() {
   const filteredResults = assessment?.results.filter((r) => {
     if (!search) return true;
     const q = search.toLowerCase();
-    return r.student.firstName.toLowerCase().includes(q) || r.student.lastName.toLowerCase().includes(q);
+    return r.student?.firstName?.toLowerCase().includes(q) || r.student?.lastName?.toLowerCase().includes(q);
   }) || [];
 
   const enteredCount = Object.keys(marks).filter((k) => marks[k].marks > 0).length;
@@ -146,7 +146,7 @@ export default function TeacherResultsPage() {
 
                   return (
                     <TableRow key={r.studentId}>
-                      <TableCell className="font-medium text-portland-dark">{r.student.firstName} {r.student.lastName}</TableCell>
+                      <TableCell className="font-medium text-portland-dark">{r.student ? `${r.student.firstName} ${r.student.lastName}` : "—"}</TableCell>
                       <TableCell>
                         <input type="number" value={m?.marks ?? ""} onChange={(e) => handleMarksChange(r.studentId, e.target.value)} min={0} max={assessment.totalMarks} className="w-20 border border-portland-mid/30 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-portland-red/20" />
                       </TableCell>

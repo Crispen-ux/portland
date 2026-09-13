@@ -439,7 +439,7 @@ export default function DocumentsPage() {
                       </TableCell>
                       <TableCell className="font-medium text-portland-dark">{doc.title}</TableCell>
                       <TableCell className="text-portland-dark">
-                        {doc.student.firstName} {doc.student.lastName}
+                        {doc.student ? `${doc.student.firstName} ${doc.student.lastName}` : "—"}
                       </TableCell>
                       <TableCell className="text-portland-gray text-sm">
                         {doc.academicYear?.name || "—"}

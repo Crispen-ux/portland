@@ -128,7 +128,7 @@ export default function ParentsPage() {
                       <div className="space-y-0.5">
                         {p.studentLinks.map((sl) => (
                           <div key={sl.id} className="flex items-center gap-1 text-xs">
-                            <span className="text-portland-dark">{sl.student.firstName} {sl.student.lastName}</span>
+                            <span className="text-portland-dark">{sl.student ? `${sl.student.firstName} ${sl.student.lastName}` : "—"}</span>
                             {sl.isPrimary && <Badge variant="success">Primary</Badge>}
                           </div>
                         ))}

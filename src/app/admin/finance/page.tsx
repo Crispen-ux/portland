@@ -255,7 +255,7 @@ function InvoicesTab({ setError, setSuccess }: { setError: (s: string) => void; 
   const handleExportInvoices = () => {
     const rows = invoices.map((inv) => ({
       "Invoice Number": inv.invoiceNumber,
-      "Student": `${inv.student.firstName} ${inv.student.lastName}`,
+      "Student": inv.student ? `${inv.student.firstName} ${inv.student.lastName}` : "—",
       "Total Amount": inv.totalAmount,
       "Paid": inv.totalPaid,
       "Balance": inv.balance,
@@ -349,7 +349,7 @@ function InvoicesTab({ setError, setSuccess }: { setError: (s: string) => void; 
                 <TableRow key={inv.id}>
                   <TableCell className="font-mono text-sm text-portland-dark">{inv.invoiceNumber}</TableCell>
                   <TableCell>
-                    <p className="font-medium text-portland-dark">{inv.student.firstName} {inv.student.lastName}</p>
+                    <p className="font-medium text-portland-dark">{inv.student ? `${inv.student.firstName} ${inv.student.lastName}` : "—"}</p>
                     {inv.student.studentNumber && <p className="text-xs text-portland-gray">{inv.student.studentNumber}</p>}
                   </TableCell>
                   <TableCell className="text-portland-dark">{formatCurrency(inv.totalAmount)}</TableCell>
@@ -457,7 +457,7 @@ function PaymentsTab({ setError, setSuccess }: { setError: (s: string) => void; 
         <EmptyState icon={<CreditCard className="w-6 h-6 text-portland-gray" />} title="No outstanding invoices" description="All invoices are paid or there are no invoices yet." />
       ) : (
         <div className="space-y-4">
-          <Select label="Select Invoice" value={selectedInvoice} onChange={(e) => { setSelectedInvoice(e.target.value); setAmount(""); }} options={invoices.map((i) => ({ value: i.id, label: `${i.invoiceNumber} — ${i.student.firstName} ${i.student.lastName} (${formatCurrency(i.balance)} outstanding)` }))} placeholder="Select an invoice" />
+          <Select label="Select Invoice" value={selectedInvoice} onChange={(e) => { setSelectedInvoice(e.target.value); setAmount(""); }} options={invoices.map((i) => ({ value: i.id, label: `${i.invoiceNumber} — ${i.student ? `${i.student.firstName} ${i.student.lastName}` : "Unknown"} (${formatCurrency(i.balance)} outstanding)` }))} placeholder="Select an invoice" />
 
           {selectedInv && (
             <div className="bg-portland-light rounded-xl p-4">
@@ -607,7 +607,7 @@ function InvoiceDetailModal({ invoice, onClose, setError, setSuccess }: { invoic
         </div>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div><p className="text-xs text-portland-gray">Student</p><p className="text-sm font-medium">{invoice.student.firstName} {invoice.student.lastName}</p></div>
+            <div><p className="text-xs text-portland-gray">Student</p><p className="text-sm font-medium">{invoice.student ? `${invoice.student.firstName} ${invoice.student.lastName}` : "—"}</p></div>
             <div><p className="text-xs text-portland-gray">Status</p><Badge variant={STATUS_COLORS[invoice.status] as any}>{invoice.status}</Badge></div>
           </div>
           <div className="grid grid-cols-3 gap-4 bg-portland-light rounded-xl p-4">
@@ -749,8 +749,8 @@ function RecurringTab({ setError, setSuccess }: { setError: (s: string) => void;
               {recurring.map((r) => (
                 <TableRow key={r.id}>
                   <TableCell>
-                    <p className="font-medium text-portland-dark">{r.student.firstName} {r.student.lastName}</p>
-                    {r.student.studentNumber && <p className="text-xs text-portland-gray">{r.student.studentNumber}</p>}
+                    <p className="font-medium text-portland-dark">{r.student ? `${r.student.firstName} ${r.student.lastName}` : "—"}</p>
+                    {r.student?.studentNumber && <p className="text-xs text-portland-gray">{r.student.studentNumber}</p>}
                   </TableCell>
                   <TableCell>
                     <p className="text-sm text-portland-dark">{r.feeStructure.name}</p>

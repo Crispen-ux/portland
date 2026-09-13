@@ -226,7 +226,7 @@ export default function AttendancePage() {
               {attendance.records.map((r) => (
                 <div key={r.studentId} className="flex items-center gap-4 px-4 py-3 hover:bg-portland-light/50">
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-portland-dark text-sm">{r.student.firstName} {r.student.lastName}</p>
+                    <p className="font-medium text-portland-dark text-sm">{r.student ? `${r.student.firstName} ${r.student.lastName}` : "—"}</p>
                     {r.student.studentNumber && <p className="text-xs text-portland-gray">{r.student.studentNumber}</p>}
                   </div>
                   <div className="flex items-center gap-1">

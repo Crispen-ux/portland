@@ -127,7 +127,7 @@ function ResultsContent() {
   const filteredResults = assessment?.results.filter((r) => {
     if (!search) return true;
     const q = search.toLowerCase();
-    return r.student.firstName.toLowerCase().includes(q) || r.student.lastName.toLowerCase().includes(q) || (r.student.studentNumber || "").toLowerCase().includes(q);
+    return r.student?.firstName?.toLowerCase().includes(q) || r.student?.lastName?.toLowerCase().includes(q) || (r.student?.studentNumber || "").toLowerCase().includes(q);
   }) || [];
 
   const enteredCount = Object.keys(marks).filter((k) => marks[k].marks > 0).length;
@@ -233,7 +233,7 @@ function ResultsContent() {
                   return (
                     <TableRow key={r.studentId}>
                       <TableCell className="font-medium text-portland-dark">
-                        {r.student.firstName} {r.student.lastName}
+                        {r.student ? `${r.student.firstName} ${r.student.lastName}` : "—"}
                         {r.status !== "DRAFT" && <Badge variant="success" className="ml-2">{r.status}</Badge>}
                       </TableCell>
                       <TableCell className="text-portland-gray text-sm font-mono">{r.student.studentNumber || "—"}</TableCell>
