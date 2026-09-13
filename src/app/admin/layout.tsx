@@ -141,6 +141,11 @@ const NAV_ITEMS = [
     href: "/admin/settings",
     icon: Settings,
   },
+  {
+    label: "Audit Log",
+    href: "/admin/audit",
+    icon: FileText,
+  },
 ];
 
 export default function AdminLayout({

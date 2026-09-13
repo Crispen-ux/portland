@@ -6,7 +6,7 @@ import {
   Table, TableHeader, TableBody, TableRow, TableCell,
   EmptyState, LoadingState, ConfirmModal, useToast,
 } from "@/components/ui";
-import { Plus, Search, DollarSign, Edit, Trash2, X, AlertCircle, CheckCircle, CreditCard, FileText, Mail, Repeat } from "lucide-react";
+import { Plus, Search, DollarSign, Edit, Trash2, X, AlertCircle, CheckCircle, CreditCard, FileText, Mail, Repeat, Bell } from "lucide-react";
 
 type Tab = "fees" | "invoices" | "payments" | "recurring";
 
@@ -204,6 +204,8 @@ function InvoicesTab({ setError, setSuccess }: { setError: (s: string) => void; 
   const [showCreate, setShowCreate] = useState(false);
   const [viewing, setViewing] = useState<Invoice | null>(null);
   const [confirmDeleteInvoice, setConfirmDeleteInvoice] = useState<string | null>(null);
+  const [sendingReminders, setSendingReminders] = useState(false);
+  const [overdueCount, setOverdueCount] = useState(0);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -218,6 +220,36 @@ function InvoicesTab({ setError, setSuccess }: { setError: (s: string) => void; 
   }, [page, search, statusFilter]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  // Fetch overdue count
+  useEffect(() => {
+    fetch("/api/invoices/reminders")
+      .then((r) => r.json())
+      .then((d) => setOverdueCount(d.total || 0))
+      .catch(() => {});
+  }, []);
+
+  const handleSendReminders = async () => {
+    if (!confirm(`Send payment reminders to all ${overdueCount} overdue invoices?`)) return;
+    setSendingReminders(true);
+    try {
+      const res = await fetch("/api/invoices/reminders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setSuccess(`Reminders sent: ${data.sent} of ${data.total} invoices`);
+      setTimeout(() => setSuccess(""), 4000);
+      fetchData();
+    } catch (e: any) {
+      setError(e.message || "Failed to send reminders");
+      setTimeout(() => setError(""), 3000);
+    } finally {
+      setSendingReminders(false);
+    }
+  };
 
   const handleDelete = async (id: string) => {
     setConfirmDeleteInvoice(null);
@@ -267,6 +299,17 @@ function InvoicesTab({ setError, setSuccess }: { setError: (s: string) => void; 
             />
           </div>
           <Button onClick={() => setShowCreate(true)} icon={<Plus className="w-4 h-4" />} size="sm">New Invoice</Button>
+          {overdueCount > 0 && (
+            <Button
+              variant="outline"
+              onClick={handleSendReminders}
+              disabled={sendingReminders}
+              icon={<Bell className="w-4 h-4" />}
+              size="sm"
+            >
+              {sendingReminders ? "Sending..." : `Remind (${overdueCount})`}
+            </Button>
+          )}
         </div>
       </Card>
 

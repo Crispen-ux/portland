@@ -8,7 +8,7 @@ import {
 } from "@/components/ui";
 import {
   FileText, Download, Trash2, Plus, Filter,
-  AlertCircle, CheckCircle, ExternalLink, X,
+  AlertCircle, CheckCircle, ExternalLink, X, Layers,
 } from "lucide-react";
 
 // ─── Types ──────────────────────────────────────────────
@@ -24,6 +24,12 @@ interface AcademicYear {
   id: string;
   name: string;
   isCurrent: boolean;
+}
+
+interface Class {
+  id: string;
+  name: string;
+  grade: { name: string };
 }
 
 interface Document {
@@ -87,6 +93,15 @@ export default function DocumentsPage() {
   const [studentId, setStudentId] = useState("");
   const [academicYearId, setAcademicYearId] = useState("");
 
+  // Bulk generate state
+  const [bulkMode, setBulkMode] = useState(false);
+  const [bulkType, setBulkType] = useState("REPORT_CARD");
+  const [bulkClassId, setBulkClassId] = useState("");
+  const [bulkYearId, setBulkYearId] = useState("");
+  const [bulkGenerating, setBulkGenerating] = useState(false);
+  const [bulkResult, setBulkResult] = useState<{ generated: number; errors: number; total: number } | null>(null);
+  const [classes, setClasses] = useState<Class[]>([]);
+
   const fetchStudents = useCallback(async () => {
     try {
       const res = await fetch("/api/students");
@@ -104,9 +119,22 @@ export default function DocumentsPage() {
       const years = data.academicYears || data.years || [];
       setAcademicYears(years);
       const current = years.find((y: AcademicYear) => y.isCurrent);
-      if (current) setAcademicYearId(current.id);
+      if (current) {
+        setAcademicYearId(current.id);
+        setBulkYearId(current.id);
+      }
     } catch {
       setError("Failed to load academic years");
+    }
+  }, []);
+
+  const fetchClasses = useCallback(async () => {
+    try {
+      const res = await fetch("/api/classes");
+      const data = await res.json();
+      setClasses(data.classes || []);
+    } catch {
+      // silent
     }
   }, []);
 
@@ -128,11 +156,11 @@ export default function DocumentsPage() {
   useEffect(() => {
     const init = async () => {
       setLoading(true);
-      await Promise.all([fetchStudents(), fetchAcademicYears(), fetchDocuments()]);
+      await Promise.all([fetchStudents(), fetchAcademicYears(), fetchDocuments(), fetchClasses()]);
       setLoading(false);
     };
     init();
-  }, [fetchStudents, fetchAcademicYears, fetchDocuments]);
+  }, [fetchStudents, fetchAcademicYears, fetchDocuments, fetchClasses]);
 
   useEffect(() => {
     fetchDocuments();
@@ -182,6 +210,37 @@ export default function DocumentsPage() {
     setConfirmDelete(null);
   };
 
+  const handleBulkGenerate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBulkGenerating(true);
+    setBulkResult(null);
+    setError("");
+
+    try {
+      const body: any = { type: bulkType };
+      if (bulkClassId) body.classId = bulkClassId;
+      if (bulkYearId) body.academicYearId = bulkYearId;
+
+      const res = await fetch("/api/documents/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to generate documents");
+
+      setBulkResult({ generated: data.generated, errors: data.errors, total: data.total });
+      toast(`Generated ${data.generated} documents successfully`);
+      fetchDocuments();
+    } catch (e: any) {
+      setError(e.message || "Failed to generate documents");
+      setTimeout(() => setError(""), 4000);
+    } finally {
+      setBulkGenerating(false);
+    }
+  };
+
   return (
     <div>
       <PageHeader
@@ -208,12 +267,75 @@ export default function DocumentsPage() {
         <>
           {/* ── Generate Document ──────────────────────────── */}
           <Card className="mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 rounded-xl bg-portland-red/10">
-                <Plus className="w-5 h-5 text-portland-red" />
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-portland-red/10">
+                  <Plus className="w-5 h-5 text-portland-red" />
+                </div>
+                <h2 className="text-lg font-semibold text-portland-dark">
+                  {bulkMode ? "Bulk Generate Documents" : "Generate Document"}
+                </h2>
               </div>
-              <h2 className="text-lg font-semibold text-portland-dark">Generate Document</h2>
+              <button
+                type="button"
+                onClick={() => { setBulkMode(!bulkMode); setBulkResult(null); }}
+                className="text-sm text-portland-red hover:underline font-medium"
+              >
+                {bulkMode ? "Single Generate" : "Bulk Generate"}
+              </button>
             </div>
+
+            {bulkMode ? (
+              <form onSubmit={handleBulkGenerate} className="space-y-4">
+                {bulkResult && (
+                  <div className={`p-4 rounded-xl border ${bulkResult.errors > 0 ? "bg-amber-50 border-amber-200" : "bg-green-50 border-green-200"}`}>
+                    <p className="text-sm font-medium">
+                      {bulkResult.generated} of {bulkResult.total} documents generated successfully
+                      {bulkResult.errors > 0 && <span className="text-amber-600"> · {bulkResult.errors} errors</span>}
+                    </p>
+                  </div>
+                )}
+                <div className="flex flex-wrap gap-4">
+                  <div className="w-44">
+                    <Select
+                      label="Document Type"
+                      value={bulkType}
+                      onChange={(e) => setBulkType(e.target.value)}
+                      options={DOCUMENT_TYPES.filter((t) => ["REPORT_CARD", "TRANSCRIPT", "STATEMENT", "RECEIPT"].includes(t.value))}
+                      required
+                    />
+                  </div>
+                  <div className="w-56">
+                    <Select
+                      label="Class (optional)"
+                      value={bulkClassId}
+                      onChange={(e) => setBulkClassId(e.target.value)}
+                      options={[
+                        { value: "", label: "All students" },
+                        ...classes.map((c) => ({ value: c.id, label: `${c.grade.name} - ${c.name}` })),
+                      ]}
+                    />
+                  </div>
+                  <div className="w-44">
+                    <Select
+                      label="Academic Year"
+                      value={bulkYearId}
+                      onChange={(e) => setBulkYearId(e.target.value)}
+                      options={academicYears.map((y) => ({ value: y.id, label: y.name + (y.isCurrent ? " (Current)" : "") }))}
+                      placeholder="Select year"
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <Button type="submit" disabled={bulkGenerating} icon={<Layers className="w-4 h-4" />}>
+                      {bulkGenerating ? "Generating..." : "Generate All"}
+                    </Button>
+                  </div>
+                </div>
+                <p className="text-xs text-portland-gray">
+                  Generates documents for all enrolled students matching the criteria. Maximum 200 per batch.
+                </p>
+              </form>
+            ) : (
             <form onSubmit={handleGenerate} className="flex flex-wrap items-end gap-4">
               <div className="w-44">
                 <Select
@@ -253,6 +375,7 @@ export default function DocumentsPage() {
                 {generating ? "Generating..." : "Generate"}
               </Button>
             </form>
+            )}
           </Card>
 
           {/* ── Documents List ─────────────────────────────── */}

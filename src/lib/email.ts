@@ -245,7 +245,49 @@ export async function announcementEmail({ title, content, target, publishedAt }:
   return wrapEmail(school, "New Announcement", contentHtml);
 }
 
-export async function passwordResetEmail({ name, resetUrl }: { name?: string; resetUrl: string }) {
+// ─── Overdue Invoice Reminder ──────────────────────────
+
+export async function overdueInvoiceReminderEmail({ studentName, invoiceNumber, totalAmount, balance, dueDate, parentName, daysOverdue, paymentLink }: {
+  studentName: string;
+  invoiceNumber: string;
+  totalAmount: number;
+  balance: number;
+  dueDate: string;
+  parentName: string;
+  daysOverdue: number;
+  paymentLink: string;
+}) {
+  const school = await getSchool();
+
+  const urgencyColor = daysOverdue > 30 ? "#DC2626" : daysOverdue > 14 ? "#EA580C" : "#D97706";
+
+  const content = `
+    <p>Dear ${esc(parentName)},</p>
+    <p>This is a friendly reminder that the following invoice is <strong style="color:${urgencyColor};">${daysOverdue} days overdue</strong>.</p>
+    <div style="background:#F9FAFB;border-radius:12px;padding:20px;margin:24px 0;border-left:4px solid ${urgencyColor};">
+      <table style="width:100%;font-size:14px;color:#1A1A1A;">
+        <tr><td style="padding:4px 0;color:#6B7280;">Invoice Number</td><td style="padding:4px 0;text-align:right;font-weight:600;">${esc(invoiceNumber)}</td></tr>
+        <tr><td style="padding:4px 0;color:#6B7280;">Student</td><td style="padding:4px 0;text-align:right;font-weight:600;">${esc(studentName)}</td></tr>
+        <tr><td style="padding:4px 0;color:#6B7280;">Total Amount</td><td style="padding:4px 0;text-align:right;font-weight:600;">${school.currencySymbol} ${totalAmount.toLocaleString("en-ZA", { minimumFractionDigits: 2 })}</td></tr>
+        <tr><td style="padding:4px 0;color:#6B7280;">Outstanding Balance</td><td style="padding:4px 0;text-align:right;font-weight:700;color:${urgencyColor};font-size:18px;">${school.currencySymbol} ${balance.toLocaleString("en-ZA", { minimumFractionDigits: 2 })}</td></tr>
+        <tr><td style="padding:4px 0;color:#6B7280;">Due Date</td><td style="padding:4px 0;text-align:right;font-weight:600;">${esc(dueDate)}</td></tr>
+        <tr><td style="padding:4px 0;color:#6B7280;">Days Overdue</td><td style="padding:4px 0;text-align:right;font-weight:700;color:${urgencyColor};">${daysOverdue} days</td></tr>
+      </table>
+    </div>
+    <div style="text-align:center;margin:28px 0;">
+      <a href="${paymentLink}" style="display:inline-block;background:${school.accentColor};color:#fff;font-weight:600;font-size:14px;padding:14px 36px;border-radius:12px;text-decoration:none;">
+        Pay Now
+      </a>
+    </div>
+    <p style="color:#9CA3AF;font-size:12px;line-height:1.5;">
+      If you have already made payment, please disregard this notice. If you have any questions, please contact us at <a href="mailto:${school.email || 'info@portlandschools.co.za'}" style="color:${school.accentColor};">${esc(school.email || 'info@portlandschools.co.za')}</a>.
+    </p>
+  `;
+
+  return wrapEmail(school, "Payment Reminder", content);
+}
+
+// ─── Password Reset Email ───────────────────────────────
   const school = await getSchool();
 
   const content = `
