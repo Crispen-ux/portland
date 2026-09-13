@@ -6,9 +6,9 @@ import {
   Table, TableHeader, TableBody, TableRow, TableCell,
   EmptyState, LoadingState,
 } from "@/components/ui";
-import { Plus, Search, DollarSign, Edit, Trash2, X, AlertCircle, CheckCircle, CreditCard, FileText, Mail } from "lucide-react";
+import { Plus, Search, DollarSign, Edit, Trash2, X, AlertCircle, CheckCircle, CreditCard, FileText, Mail, Repeat } from "lucide-react";
 
-type Tab = "fees" | "invoices" | "payments";
+type Tab = "fees" | "invoices" | "payments" | "recurring";
 
 interface FeeStructure {
   id: string;
@@ -80,7 +80,7 @@ export default function FinancePage() {
 
       {/* Tabs */}
       <div className="flex gap-1 mb-6 bg-portland-light rounded-xl p-1 w-fit">
-        {([["invoices", "Invoices", FileText], ["fees", "Fee Structures", DollarSign], ["payments", "Record Payment", CreditCard]] as const).map(([key, label, Icon]) => (
+        {([["invoices", "Invoices", FileText], ["fees", "Fee Structures", DollarSign], ["payments", "Record Payment", CreditCard], ["recurring", "Recurring", Repeat]] as const).map(([key, label, Icon]) => (
           <button key={key} onClick={() => setTab(key)} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === key ? "bg-white text-portland-dark shadow-sm" : "text-portland-gray hover:text-portland-dark"}`}>
             <Icon className="w-4 h-4" />{label}
           </button>
@@ -90,6 +90,7 @@ export default function FinancePage() {
       {tab === "fees" && <FeesTab setError={setError} setSuccess={setSuccess} />}
       {tab === "invoices" && <InvoicesTab setError={setError} setSuccess={setSuccess} />}
       {tab === "payments" && <PaymentsTab setError={setError} setSuccess={setSuccess} />}
+      {tab === "recurring" && <RecurringTab setError={setError} setSuccess={setSuccess} />}
     </div>
   );
 }
@@ -562,6 +563,188 @@ function InvoiceDetailModal({ invoice, onClose, setError, setSuccess }: { invoic
             </div>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+interface RecurringInvoice {
+  id: string;
+  active: boolean;
+  nextDueDate: string | null;
+  lastGeneratedAt: string | null;
+  createdAt: string;
+  student: { id: string; firstName: string; lastName: string; studentNumber: string | null };
+  feeStructure: { id: string; name: string; amount: number; frequency: string; grade: { name: string } };
+  academicYear: { id: string; name: string };
+}
+
+function RecurringTab({ setError, setSuccess }: { setError: (s: string) => void; setSuccess: (s: string) => void }) {
+  const [recurring, setRecurring] = useState<RecurringInvoice[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showCreate, setShowCreate] = useState(false);
+  const [generating, setGenerating] = useState(false);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/recurring-invoices");
+      const { recurringInvoices } = await res.json();
+      setRecurring(recurringInvoices || []);
+    } catch { setError("Failed to load recurring invoices"); }
+    finally { setLoading(false); }
+  };
+
+  useEffect(() => { fetchData(); }, []);
+
+  const handleToggle = async (id: string, active: boolean) => {
+    try {
+      const res = await fetch(`/api/recurring-invoices/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ active: !active }),
+      });
+      if (!res.ok) throw new Error("Failed to update");
+      setRecurring((prev) => prev.map((r) => r.id === id ? { ...r, active: !active } : r));
+      setSuccess(`Recurring invoice ${!active ? "activated" : "deactivated"}`);
+      setTimeout(() => setSuccess(""), 3000);
+    } catch { setError("Failed to toggle status"); setTimeout(() => setError(""), 3000); }
+  };
+
+  const handleGenerate = async () => {
+    setGenerating(true);
+    try {
+      const res = await fetch("/api/recurring-invoices/generate", { method: "POST" });
+      if (!res.ok) { const err = await res.json(); throw new Error(err.error); }
+      const data = await res.json();
+      setSuccess(`Generated ${data.count || 0} invoices`);
+      fetchData();
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (e: any) { setError(e.message || "Failed to generate"); setTimeout(() => setError(""), 3000); }
+    finally { setGenerating(false); }
+  };
+
+  const handleCreate = async (data: { feeStructureId: string; studentId: string; academicYearId: string; nextDueDate: string }) => {
+    try {
+      const res = await fetch("/api/recurring-invoices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) { const err = await res.json(); throw new Error(err.error); }
+      setSuccess("Recurring invoice created");
+      setShowCreate(false);
+      fetchData();
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (e: any) { setError(e.message); setTimeout(() => setError(""), 3000); }
+  };
+
+  return (
+    <>
+      <Card padding={false}>
+        <div className="p-4 border-b border-portland-mid/30 flex justify-between items-center">
+          <p className="text-sm text-portland-gray">{recurring.length} recurring invoices</p>
+          <div className="flex gap-2">
+            <Button onClick={handleGenerate} disabled={generating} icon={<Repeat className="w-4 h-4" />} variant="outline" size="sm">
+              {generating ? "Generating..." : "Generate Now"}
+            </Button>
+            <Button onClick={() => setShowCreate(true)} icon={<Plus className="w-4 h-4" />} size="sm">Create Recurring</Button>
+          </div>
+        </div>
+
+        {loading ? <LoadingState /> : recurring.length === 0 ? (
+          <EmptyState icon={<Repeat className="w-6 h-6 text-portland-gray" />} title="No recurring invoices" description="Set up recurring billing schedules for students." />
+        ) : (
+          <Table>
+            <TableHeader><TableRow>
+              <TableCell className="font-semibold text-portland-dark">Student</TableCell>
+              <TableCell className="font-semibold text-portland-dark">Fee Structure</TableCell>
+              <TableCell className="font-semibold text-portland-dark">Amount</TableCell>
+              <TableCell className="font-semibold text-portland-dark">Frequency</TableCell>
+              <TableCell className="font-semibold text-portland-dark">Last Generated</TableCell>
+              <TableCell className="font-semibold text-portland-dark">Next Due</TableCell>
+              <TableCell className="font-semibold text-portland-dark">Status</TableCell>
+              <TableCell className="font-semibold text-portland-dark text-right">Actions</TableCell>
+            </TableRow></TableHeader>
+            <TableBody>
+              {recurring.map((r) => (
+                <TableRow key={r.id}>
+                  <TableCell>
+                    <p className="font-medium text-portland-dark">{r.student.firstName} {r.student.lastName}</p>
+                    {r.student.studentNumber && <p className="text-xs text-portland-gray">{r.student.studentNumber}</p>}
+                  </TableCell>
+                  <TableCell>
+                    <p className="text-sm text-portland-dark">{r.feeStructure.name}</p>
+                    <Badge variant="info" className="mt-0.5">{r.feeStructure.grade.name}</Badge>
+                  </TableCell>
+                  <TableCell className="text-portland-dark font-semibold">{formatCurrency(Number(r.feeStructure.amount))}</TableCell>
+                  <TableCell><Badge>{FREQ_LABELS[r.feeStructure.frequency] || r.feeStructure.frequency}</Badge></TableCell>
+                  <TableCell className="text-portland-gray text-sm">{r.lastGeneratedAt ? new Date(r.lastGeneratedAt).toLocaleDateString("en-ZA") : "—"}</TableCell>
+                  <TableCell className="text-portland-gray text-sm">{r.nextDueDate ? new Date(r.nextDueDate).toLocaleDateString("en-ZA") : "—"}</TableCell>
+                  <TableCell>
+                    <button onClick={() => handleToggle(r.id, r.active)} className="focus:outline-none">
+                      {r.active ? <Badge variant="success">Active</Badge> : <Badge>Inactive</Badge>}
+                    </button>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <button onClick={() => handleToggle(r.id, r.active)} className="p-2 hover:bg-portland-light rounded-lg" title={r.active ? "Deactivate" : "Activate"}>
+                      {r.active ? <CheckCircle className="w-4 h-4 text-green-500" /> : <AlertCircle className="w-4 h-4 text-portland-gray" />}
+                    </button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </Card>
+
+      {showCreate && <CreateRecurringModal onSubmit={handleCreate} onClose={() => setShowCreate(false)} setError={setError} />}
+    </>
+  );
+}
+
+function CreateRecurringModal({ onSubmit, onClose, setError }: { onSubmit: (d: any) => void; onClose: () => void; setError: (s: string) => void }) {
+  const [students, setStudents] = useState<Student[]>([]);
+  const [fees, setFees] = useState<FeeStructure[]>([]);
+  const [years, setYears] = useState<AcademicYear[]>([]);
+  const [studentId, setStudentId] = useState("");
+  const [feeStructureId, setFeeStructureId] = useState("");
+  const [academicYearId, setAcademicYearId] = useState("");
+  const [nextDueDate, setNextDueDate] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/students?limit=500").then((r) => r.json()),
+      fetch("/api/fee-structures?limit=200").then((r) => r.json()),
+      fetch("/api/academic-years?limit=100").then((r) => r.json()),
+    ]).then(([sData, fData, yData]) => {
+      setStudents(sData.students);
+      setFees(fData.fees);
+      setYears(yData.years);
+    });
+  }, []);
+
+  const activeYear = years.find((y) => y.active);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-semibold text-portland-dark">New Recurring Invoice</h2>
+          <button onClick={onClose} className="p-2 hover:bg-portland-light rounded-lg"><X className="w-4 h-4" /></button>
+        </div>
+        <form onSubmit={async (e) => { e.preventDefault(); setSaving(true); try { await onSubmit({ feeStructureId, studentId, academicYearId: academicYearId || activeYear?.id, nextDueDate }); } finally { setSaving(false); } }} className="space-y-4">
+          <Select label="Student" value={studentId} onChange={(e) => setStudentId(e.target.value)} options={students.map((s) => ({ value: s.id, label: `${s.firstName} ${s.lastName}${s.studentNumber ? ` (${s.studentNumber})` : ""}` }))} placeholder="Select student" required />
+          <Select label="Fee Structure" value={feeStructureId} onChange={(e) => setFeeStructureId(e.target.value)} options={fees.filter((f) => f.active).map((f) => ({ value: f.id, label: `${f.name} — ${formatCurrency(Number(f.amount))} (${FREQ_LABELS[f.frequency] || f.frequency})` }))} placeholder="Select fee structure" required />
+          <Select label="Academic Year" value={academicYearId || (activeYear?.id ?? "")} onChange={(e) => setAcademicYearId(e.target.value)} options={years.map((y) => ({ value: y.id, label: `${y.name}${y.active ? " (Active)" : ""}` }))} />
+          <Input label="Next Due Date" type="date" value={nextDueDate} onChange={(e) => setNextDueDate(e.target.value)} required />
+          <div className="flex gap-3 pt-2">
+            <Button type="button" variant="outline" onClick={onClose} className="flex-1">Cancel</Button>
+            <Button type="submit" className="flex-1" disabled={saving}>{saving ? "Creating..." : "Create"}</Button>
+          </div>
+        </form>
       </div>
     </div>
   );

@@ -41,6 +41,11 @@ export const PERMISSIONS = {
   "finance.write": ["SUPER_ADMIN", "SCHOOL_ADMIN", "ACCOUNTANT"],
   "finance.reports": ["SUPER_ADMIN", "SCHOOL_ADMIN", "ACCOUNTANT", "PRINCIPAL"],
 
+  // Accounting
+  "accounting.read": ["SUPER_ADMIN", "SCHOOL_ADMIN", "ACCOUNTANT"],
+  "accounting.write": ["SUPER_ADMIN", "SCHOOL_ADMIN", "ACCOUNTANT"],
+  "accounting.reports": ["SUPER_ADMIN", "SCHOOL_ADMIN", "ACCOUNTANT", "PRINCIPAL"],
+
   // Admissions
   "admissions.read": ["SUPER_ADMIN", "SCHOOL_ADMIN", "PRINCIPAL", "ADMISSIONS_OFFICER"],
   "admissions.write": ["SUPER_ADMIN", "SCHOOL_ADMIN", "ADMISSIONS_OFFICER"],

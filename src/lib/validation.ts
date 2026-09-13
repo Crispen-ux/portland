@@ -229,6 +229,28 @@ export const createInvoiceSchema = z.object({
   })).min(1, "At least one item is required"),
 });
 
+// ─── Expenses ───────────────────────────────────────────
+
+export const createExpenseSchema = z.object({
+  description: z.string().min(1, "Description is required"),
+  amount: z.coerce.number().min(0.01, "Amount must be greater than 0"),
+  category: z.string().min(1, "Category is required"),
+  date: z.string().optional(),
+  reference: z.string().optional(),
+  vendor: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+export const updateExpenseSchema = z.object({
+  description: z.string().min(1).optional(),
+  amount: z.coerce.number().min(0.01).optional(),
+  category: z.string().min(1).optional(),
+  date: z.string().optional(),
+  reference: z.string().optional(),
+  vendor: z.string().optional(),
+  notes: z.string().optional(),
+});
+
 export const recordPaymentSchema = z.object({
   invoiceId: z.string().min(1),
   amount: z.coerce.number().min(0.01, "Amount must be greater than 0"),

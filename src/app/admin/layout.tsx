@@ -90,6 +90,16 @@ const NAV_ITEMS = [
     icon: DollarSign,
   },
   {
+    label: "Accounting",
+    href: "/admin/accounting",
+    icon: DollarSign,
+  },
+  {
+    label: "Documents",
+    href: "/admin/documents",
+    icon: FileText,
+  },
+  {
     label: "Admissions",
     href: "/admin/admissions",
     icon: Megaphone,

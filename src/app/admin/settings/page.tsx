@@ -108,26 +108,22 @@ export default function SettingsPage() {
               label="Phone"
               value={school.phone}
               onChange={(e) => setSchool({ ...school, phone: e.target.value })}
-              icon={<Phone className="w-4 h-4" />}
             />
             <Input
               label="Email"
               value={school.email}
               onChange={(e) => setSchool({ ...school, email: e.target.value })}
-              icon={<Mail className="w-4 h-4" />}
             />
             <Input
               label="Website"
               value={school.website}
               onChange={(e) => setSchool({ ...school, website: e.target.value })}
-              icon={<Globe className="w-4 h-4" />}
             />
           </div>
           <Input
             label="Address"
             value={school.address}
             onChange={(e) => setSchool({ ...school, address: e.target.value })}
-            icon={<MapPin className="w-4 h-4" />}
           />
           <Input
             label="City"
