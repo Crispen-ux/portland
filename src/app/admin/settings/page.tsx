@@ -525,56 +525,111 @@ export default function SettingsPage() {
               <p className="text-sm text-portland-gray mt-1">See how your invoices will look.</p>
             </div>
             <div className="p-5">
-              <div className="rounded-xl border border-portland-mid/30 overflow-hidden bg-white max-w-2xl">
-                <div className="flex justify-between items-start p-6 border-b-2" style={{ borderColor: settings.accentColor }}>
-                  <div>
-                    {settings.logoUrl && <img src={settings.logoUrl} alt="Logo" className="h-12 mb-2 object-contain" />}
-                    <p className="font-bold text-lg" style={{ color: settings.accentColor }}>{settings.name}</p>
-                    <p className="text-xs text-portland-gray">{settings.address || "Address"}</p>
-                    <p className="text-xs text-portland-gray">{settings.phone || "Phone"}</p>
+              <div className="rounded-2xl overflow-hidden bg-white max-w-2xl shadow-sm border border-portland-mid/20">
+                {/* Header Bar */}
+                <div className="flex items-center justify-between rounded-t-2xl overflow-hidden" style={{ backgroundColor: settings.secondaryColor }}>
+                  <div className="flex items-center gap-3 px-8 py-6">
+                    {settings.logoUrl ? (
+                      <img src={settings.logoUrl} alt="Logo" className="h-10 object-contain" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-lg" style={{ backgroundColor: settings.accentColor }}>
+                        {settings.name.charAt(0)}
+                      </div>
+                    )}
+                    <div>
+                      <p className="font-bold text-white text-base">{settings.name}</p>
+                      <p className="text-white/40 text-[10px]">{settings.phone || "Phone"} · {settings.email || "Email"}</p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold" style={{ color: settings.accentColor }}>INVOICE</p>
-                    <p className="text-sm text-portland-gray mt-1">{settings.invoicePrefix}-202609-0001</p>
+                  <div className="px-10 py-6">
+                    <p className="text-3xl font-extrabold text-white tracking-widest">INVOICE</p>
                   </div>
                 </div>
-                <div className="p-6">
-                  <div className="flex justify-between mb-6">
-                    <div>
-                      <p className="text-xs text-portland-gray uppercase tracking-wide mb-1">Bill To</p>
-                      <p className="font-semibold text-sm">Student Name</p>
-                      <p className="text-xs text-portland-gray">Student #: STU-001</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-portland-gray uppercase tracking-wide mb-1">Details</p>
-                      <p className="text-sm">Status: <span className="font-semibold text-amber-600">PENDING</span></p>
+                {/* Accent Bar */}
+                <div className="h-1" style={{ background: `linear-gradient(90deg, ${settings.accentColor} 0%, ${settings.accentColor} 60%, transparent 100%)` }}></div>
+
+                <div className="flex">
+                  {/* Left */}
+                  <div className="flex-1 px-8 py-6">
+                    <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: settings.accentColor }}>Invoice To</p>
+                    <p className="font-bold text-base text-portland-dark">Student Name</p>
+                    <p className="text-[11px] text-portland-gray mt-0.5">Student #STU-001</p>
+                    <div className="mt-5">
+                      <p className="text-[10px] font-bold text-portland-gray uppercase tracking-widest mb-1">Contact</p>
+                      <p className="text-[11px] text-portland-gray">{settings.phone || "+27 82 815 4388"}</p>
+                      <p className="text-[11px] text-portland-gray">{settings.email || "info@portlandschools.co.za"}</p>
                     </div>
                   </div>
-                  <table className="w-full text-sm mb-4">
+                  {/* Right */}
+                  <div className="w-[250px]">
+                    <div className="px-6 py-5 border-l-2" style={{ borderColor: settings.accentColor, backgroundColor: "#F7FAFC" }}>
+                      <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: settings.accentColor }}>Invoice Details</p>
+                      <p className="text-[10px] text-portland-gray uppercase tracking-wider">Invoice No</p>
+                      <p className="text-xs font-bold text-portland-dark mb-2">{settings.invoicePrefix}-202609-0001</p>
+                      <p className="text-[10px] text-portland-gray uppercase tracking-wider">Due Date</p>
+                      <p className="text-xs font-semibold text-portland-gray mb-2">15 Oct, 2026</p>
+                      <p className="text-[10px] text-portland-gray uppercase tracking-wider">Status</p>
+                      <span className="inline-block mt-1 px-3 py-0.5 rounded-full text-[10px] font-bold text-white bg-amber-500">PENDING</span>
+                    </div>
+                    <div className="px-6 py-4 border-l-2" style={{ borderColor: settings.secondaryColor, backgroundColor: "#F7FAFC" }}>
+                      <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: settings.secondaryColor }}>Payment Methods</p>
+                      <p className="text-[10px] text-portland-gray uppercase tracking-wider">Account No</p>
+                      <p className="text-[11px] font-semibold text-portland-gray">{settings.phone || "+27 82 815 4388"}</p>
+                      <p className="text-[10px] text-portland-gray uppercase tracking-wider mt-1">Account Name</p>
+                      <p className="text-[11px] font-semibold text-portland-gray">{settings.name}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Table */}
+                <div className="px-8">
+                  <table className="w-full text-xs">
                     <thead>
-                      <tr style={{ backgroundColor: settings.accentColor }}>
-                        <th className="text-left text-white p-2.5 text-xs uppercase">Description</th>
-                        <th className="text-right text-white p-2.5 text-xs uppercase">Amount</th>
+                      <tr style={{ backgroundColor: settings.secondaryColor }}>
+                        <th className="text-left text-white p-2.5 uppercase tracking-wider text-[10px]">No.</th>
+                        <th className="text-left text-white p-2.5 uppercase tracking-wider text-[10px]">Item Description</th>
+                        <th className="text-right text-white p-2.5 uppercase tracking-wider text-[10px]">Price</th>
+                        <th className="text-center text-white p-2.5 uppercase tracking-wider text-[10px]">Qty</th>
+                        <th className="text-right text-white p-2.5 uppercase tracking-wider text-[10px]">Total</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr className="border-b border-portland-mid/20">
-                        <td className="p-2.5">Monthly Tuition - September 2026</td>
-                        <td className="p-2.5 text-right font-semibold">{settings.currencySymbol} 800.00</td>
+                      <tr>
+                        <td className="p-2.5 border-b border-portland-mid/15 text-portland-gray">01</td>
+                        <td className="p-2.5 border-b border-portland-mid/15 font-medium text-portland-dark">Monthly Tuition — September 2026</td>
+                        <td className="p-2.5 border-b border-portland-mid/15 text-right text-portland-gray">{settings.currencySymbol} 800.00</td>
+                        <td className="p-2.5 border-b border-portland-mid/15 text-center text-portland-gray">1</td>
+                        <td className="p-2.5 border-b border-portland-mid/15 text-right font-semibold text-portland-dark">{settings.currencySymbol} 800.00</td>
                       </tr>
                     </tbody>
                   </table>
-                  <div className="text-right">
-                    <p className="text-lg font-bold" style={{ color: settings.accentColor }}>Total: {settings.currencySymbol} 800.00</p>
+                </div>
+
+                {/* Terms + Totals */}
+                <div className="flex px-8 py-6 gap-8">
+                  <div className="flex-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: settings.secondaryColor }}>Terms & Conditions</p>
+                    <p className="text-[10px] text-portland-gray leading-relaxed">{settings.invoiceTerms || "Payment is due within 30 days of the invoice date."}</p>
+                    <p className="text-[11px] font-semibold mt-4 text-portland-dark tracking-wide">THANK YOU FOR YOUR BUSINESS.</p>
+                  </div>
+                  <div className="w-56">
+                    <div className="bg-portland-light/60 rounded-xl p-4">
+                      <div className="flex justify-between text-xs py-1.5 border-b border-portland-mid/20">
+                        <span className="text-portland-gray">Subtotal</span>
+                        <span className="font-semibold text-portland-dark">{settings.currencySymbol} 800.00</span>
+                      </div>
+                      <div className="flex justify-between py-2 mt-1">
+                        <span className="text-xs font-extrabold text-portland-dark">Total</span>
+                        <span className="text-lg font-extrabold" style={{ color: settings.accentColor }}>{settings.currencySymbol} 800.00</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                {settings.invoiceNotes && (
-                  <div className="px-6 pb-4">
-                    <p className="text-xs text-portland-gray p-3 bg-portland-light rounded-lg">{settings.invoiceNotes}</p>
-                  </div>
-                )}
-                <div className="px-6 py-3 text-center text-xs text-portland-gray border-t border-portland-mid/20" style={{ backgroundColor: "#F9FAFB" }}>
-                  {settings.emailFooter || `${settings.name} · ${settings.address || ""}`}
+
+                {/* Footer Bar */}
+                <div className="flex items-center justify-between px-8 py-3.5 rounded-b-2xl" style={{ backgroundColor: settings.secondaryColor }}>
+                  <p className="text-[10px] text-white/40">{settings.phone || "Phone"} · {settings.email || "Email"}{settings.website ? ` · ${settings.website}` : ""}</p>
+                  <p className="text-[10px] text-white/30">{settings.address || ""}{settings.city ? `, ${settings.city}` : ""}</p>
                 </div>
               </div>
             </div>

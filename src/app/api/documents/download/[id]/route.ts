@@ -82,72 +82,194 @@ function docFooter(school: SchoolBranding): string {
 // ─── INVOICE ────────────────────────────────────────────
 
 function generateInvoiceHTML(data: any, school: SchoolBranding): string {
-  const items = (data.items || []).map((item: any) => `
-    <tr>
-      <td style="padding:14px 16px;border-bottom:1px solid #F3F4F6;font-size:14px;">${esc(item.description)}</td>
-      <td style="padding:14px 16px;border-bottom:1px solid #F3F4F6;font-size:14px;text-align:center;">${item.quantity || 1}</td>
-      <td style="padding:14px 16px;border-bottom:1px solid #F3F4F6;font-size:14px;text-align:right;font-weight:500;">${school.currencySymbol} ${Number(item.amount).toFixed(2)}</td>
+  const items = (data.items || []).map((item: any, i: number) => `
+    <tr style="background:${i % 2 === 0 ? '#fff' : '#FAFBFC'};">
+      <td style="padding:14px 12px;border-bottom:1px solid #EDF2F7;font-size:13px;color:${school.secondaryColor};">${String(i + 1).padStart(2, "0")}</td>
+      <td style="padding:14px 12px;border-bottom:1px solid #EDF2F7;font-size:13px;font-weight:500;color:${school.secondaryColor};">${esc(item.description)}</td>
+      <td style="padding:14px 12px;border-bottom:1px solid #EDF2F7;font-size:13px;text-align:right;color:#4A5568;">${school.currencySymbol} ${Number(item.amount || 0).toFixed(2)}</td>
+      <td style="padding:14px 12px;border-bottom:1px solid #EDF2F7;font-size:13px;text-align:center;color:#4A5568;">${item.quantity || 1}</td>
+      <td style="padding:14px 12px;border-bottom:1px solid #EDF2F7;font-size:13px;text-align:right;font-weight:600;color:${school.secondaryColor};">${school.currencySymbol} ${(Number(item.amount || 0) * (item.quantity || 1)).toFixed(2)}</td>
     </tr>`).join("");
+
+  const subtotal = (data.items || []).reduce((sum: number, item: any) => sum + Number(item.amount || 0) * (item.quantity || 1), 0);
+  const tax = Number(data.tax || 0);
+  const discount = Number(data.discount || 0);
+  const total = data.totalAmount || subtotal - discount + tax;
 
   return `${docHead(`Invoice ${data.invoiceNumber || ""}`, school)}
 <body>
-<div class="page">
-  <!-- Header -->
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:48px;">
-    <div>
-      ${logoHtml(school)}
-      <h1 style="font-size:22px;font-weight:800;color:${school.accentColor};margin-top:${school.logoUrl ? '8px' : '0'};letter-spacing:-0.5px;">${esc(school.name)}</h1>
-      <div style="font-size:12px;color:#9CA3AF;margin-top:4px;line-height:1.5;">
-        ${school.address ? `<div>${esc(school.address)}${school.city ? `, ${esc(school.city)}` : ""}</div>` : ""}
-        ${school.phone ? `<div>${esc(school.phone)}</div>` : ""}
-        ${school.email ? `<div>${esc(school.email)}</div>` : ""}
+<div class="page" style="padding:0;max-width:210mm;">
+
+  <!-- Top Header Bar -->
+  <div style="display:flex;background:${school.secondaryColor};border-radius:16px 16px 0 0;overflow:hidden;">
+    <!-- Left: Logo + School -->
+    <div style="flex:1;padding:32px 36px;display:flex;align-items:center;gap:16px;">
+      ${school.logoUrl ? `<img src="${school.logoUrl}" alt="${esc(school.name)}" style="height:48px;object-fit:contain;" />` : `<div style="width:48px;height:48px;border-radius:12px;background:${school.accentColor};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:20px;">${esc(school.name.charAt(0))}</div>`}
+      <div>
+        <div style="font-size:18px;font-weight:700;color:#fff;letter-spacing:-0.3px;">${esc(school.name)}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">
+          ${school.phone ? esc(school.phone) : ""}${school.phone && school.email ? " · " : ""}${school.email ? esc(school.email) : ""}
+        </div>
       </div>
     </div>
-    <div style="text-align:right;">
-      <div style="font-size:36px;font-weight:800;color:${school.accentColor};letter-spacing:-1px;line-height:1;">INVOICE</div>
-      <div style="font-size:13px;color:#6B7280;margin-top:8px;">
-        <div><span style="color:#9CA3AF;">Number:</span> <strong>${esc(data.invoiceNumber || "")}</strong></div>
-        ${data.dueDate ? `<div><span style="color:#9CA3AF;">Due Date:</span> <strong>${new Date(data.dueDate).toLocaleDateString("en-ZA")}</strong></div>` : ""}
-        <div><span style="color:#9CA3AF;">Status:</span> <strong style="color:${data.status === "PAID" ? "#059669" : "#D97706"}">${data.status || "PENDING"}</strong></div>
-      </div>
+    <!-- Right: INVOICE title -->
+    <div style="padding:32px 40px;display:flex;align-items:center;">
+      <div style="font-size:40px;font-weight:800;color:#fff;letter-spacing:3px;">INVOICE</div>
     </div>
   </div>
 
-  <!-- Bill To -->
-  <div style="background:#F9FAFB;border-radius:12px;padding:24px;margin-bottom:36px;display:flex;justify-content:space-between;">
-    <div>
-      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;">Bill To</div>
-      <div style="font-size:16px;font-weight:700;color:${school.secondaryColor};">${esc(data.student?.firstName || "")} ${esc(data.student?.lastName || "")}</div>
-      ${data.student?.studentNumber ? `<div style="font-size:12px;color:#6B7280;margin-top:2px;">Student #${esc(data.student.studentNumber)}</div>` : ""}
+  <!-- Accent Bar -->
+  <div style="height:4px;background:linear-gradient(90deg, ${school.accentColor} 0%, ${school.accentColor} 60%, transparent 100%);"></div>
+
+  <!-- Invoice Details + Bill To Row -->
+  <div style="display:flex;gap:0;padding:0;">
+
+    <!-- Left: Bill To + School Contact -->
+    <div style="flex:1;padding:32px 36px;">
+      <!-- Invoice To -->
+      <div style="margin-bottom:28px;">
+        <div style="font-size:10px;font-weight:700;color:${school.accentColor};text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">Invoice To</div>
+        <div style="font-size:20px;font-weight:700;color:${school.secondaryColor};letter-spacing:-0.3px;">${esc(data.student?.firstName || "")} ${esc(data.student?.lastName || "")}</div>
+        ${data.student?.studentNumber ? `<div style="font-size:12px;color:#718096;margin-top:4px;">Student #${esc(data.student.studentNumber)}</div>` : ""}
+      </div>
+
+      <!-- School Contact -->
+      <div>
+        <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Contact</div>
+        ${school.phone ? `<div style="font-size:12px;color:#4A5568;margin-bottom:3px;">📞 ${esc(school.phone)}</div>` : ""}
+        ${school.email ? `<div style="font-size:12px;color:#4A5568;margin-bottom:3px;">✉️ ${esc(school.email)}</div>` : ""}
+        ${school.address ? `<div style="font-size:12px;color:#4A5568;">📍 ${esc(school.address)}${school.city ? `, ${esc(school.city)}` : ""}</div>` : ""}
+      </div>
     </div>
-    <div style="text-align:right;">
-      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;">Amount Due</div>
-      <div style="font-size:28px;font-weight:800;color:${school.accentColor};">${school.currencySymbol} ${Number(data.totalAmount || 0).toFixed(2)}</div>
+
+    <!-- Right: Invoice Meta + Payment Methods -->
+    <div style="width:300px;">
+
+      <!-- Invoice Details Card -->
+      <div style="background:#F7FAFC;border-radius:0 0 0 12px;padding:28px 28px;border-left:3px solid ${school.accentColor};">
+        <div style="font-size:10px;font-weight:700;color:${school.accentColor};text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;">Invoice Details</div>
+        <div style="margin-bottom:10px;">
+          <div style="font-size:10px;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;">Invoice No</div>
+          <div style="font-size:14px;font-weight:700;color:${school.secondaryColor};">${esc(data.invoiceNumber || "")}</div>
+        </div>
+        ${data.invoiceDate || data.createdAt ? `
+        <div style="margin-bottom:10px;">
+          <div style="font-size:10px;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;">Invoice Date</div>
+          <div style="font-size:13px;font-weight:600;color:#4A5568;">${new Date(data.invoiceDate || data.createdAt).toLocaleDateString("en-ZA", { day: "2-digit", month: "short", year: "numeric" })}</div>
+        </div>` : ""}
+        ${data.dueDate ? `
+        <div style="margin-bottom:10px;">
+          <div style="font-size:10px;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;">Due Date</div>
+          <div style="font-size:13px;font-weight:600;color:#4A5568;">${new Date(data.dueDate).toLocaleDateString("en-ZA", { day: "2-digit", month: "short", year: "numeric" })}</div>
+        </div>` : ""}
+        <div>
+          <div style="font-size:10px;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;">Status</div>
+          <div style="display:inline-block;margin-top:4px;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:700;color:#fff;background:${data.status === "PAID" ? "#059669" : data.status === "OVERDUE" ? "#DC2626" : "#D97706"};">${esc(data.status || "PENDING")}</div>
+        </div>
+      </div>
+
+      <!-- Payment Methods Card -->
+      <div style="background:#F7FAFC;padding:24px 28px;border-left:3px solid ${school.secondaryColor};">
+        <div style="font-size:10px;font-weight:700;color:${school.secondaryColor};text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;">Payment Methods</div>
+        ${school.phone ? `
+        <div style="margin-bottom:8px;">
+          <div style="font-size:10px;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;">Account No</div>
+          <div style="font-size:12px;font-weight:600;color:#4A5568;">${esc(school.phone)}</div>
+        </div>` : ""}
+        <div style="margin-bottom:8px;">
+          <div style="font-size:10px;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;">Account Name</div>
+          <div style="font-size:12px;font-weight:600;color:#4A5568;">${esc(school.name)}</div>
+        </div>
+        ${school.city ? `
+        <div>
+          <div style="font-size:10px;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;">Branch</div>
+          <div style="font-size:12px;font-weight:600;color:#4A5568;">${esc(school.city)}</div>
+        </div>` : ""}
+      </div>
     </div>
   </div>
 
   <!-- Items Table -->
-  <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
-    <thead>
-      <tr>
-        <th style="background:${school.accentColor};color:#fff;padding:12px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Description</th>
-        <th style="background:${school.accentColor};color:#fff;padding:12px 16px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Qty</th>
-        <th style="background:${school.accentColor};color:#fff;padding:12px 16px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Amount</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${items || `<tr><td colspan="3" style="padding:32px;text-align:center;color:#9CA3AF;font-size:14px;">No items</td></tr>`}
-      <tr>
-        <td colspan="2" style="padding:16px;font-size:15px;font-weight:700;text-align:right;border-top:2px solid ${school.secondaryColor};">Total</td>
-        <td style="padding:16px;font-size:20px;font-weight:800;text-align:right;color:${school.accentColor};border-top:2px solid ${school.secondaryColor};">${school.currencySymbol} ${Number(data.totalAmount || 0).toFixed(2)}</td>
-      </tr>
-    </tbody>
-  </table>
+  <div style="padding:0 36px;">
+    <table style="width:100%;border-collapse:collapse;margin-bottom:0;">
+      <thead>
+        <tr>
+          <th style="background:${school.secondaryColor};color:#fff;padding:12px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;width:50px;">No.</th>
+          <th style="background:${school.secondaryColor};color:#fff;padding:12px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">Item Description</th>
+          <th style="background:${school.secondaryColor};color:#fff;padding:12px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">Price</th>
+          <th style="background:${school.secondaryColor};color:#fff;padding:12px 12px;text-align:center;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">Qty</th>
+          <th style="background:${school.secondaryColor};color:#fff;padding:12px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${items || `<tr><td colspan="5" style="padding:40px;text-align:center;color:#9CA3AF;font-size:13px;">No items</td></tr>`}
+      </tbody>
+    </table>
+  </div>
 
-  ${school.invoiceNotes ? `<div style="background:#F9FAFB;border-radius:12px;padding:20px;margin-bottom:20px;font-size:12px;color:#6B7280;line-height:1.6;"><strong style="color:${school.secondaryColor};">Notes:</strong><br>${esc(school.invoiceNotes)}</div>` : ""}
-  ${school.invoiceTerms ? `<div style="background:#FEF3C7;border-radius:12px;padding:20px;margin-bottom:20px;font-size:12px;color:#92400E;line-height:1.6;"><strong>Terms:</strong> ${esc(school.invoiceTerms)}</div>` : ""}
+  <!-- Totals + Terms Row -->
+  <div style="display:flex;padding:0 36px 36px;gap:40px;">
 
-  ${docFooter(school)}
+    <!-- Terms & Conditions -->
+    <div style="flex:1;">
+      <div style="font-size:10px;font-weight:700;color:${school.secondaryColor};text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">Terms & Conditions</div>
+      <div style="font-size:11px;color:#718096;line-height:1.7;">
+        ${school.invoiceTerms ? esc(school.invoiceTerms) : "Payment is due within 30 days of the invoice date. Late payments may incur additional charges."}
+      </div>
+      ${school.invoiceNotes ? `
+      <div style="margin-top:14px;">
+        <div style="font-size:10px;font-weight:700;color:${school.secondaryColor};text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">Notes</div>
+        <div style="font-size:11px;color:#718096;line-height:1.7;">${esc(school.invoiceNotes)}</div>
+      </div>` : ""}
+      <div style="margin-top:20px;font-size:12px;font-weight:600;color:${school.secondaryColor};letter-spacing:0.5px;">THANK YOU FOR YOUR BUSINESS.</div>
+    </div>
+
+    <!-- Totals -->
+    <div style="width:260px;">
+      <div style="background:#F7FAFC;border-radius:12px;padding:20px;">
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #EDF2F7;">
+          <span style="font-size:12px;color:#718096;">Subtotal</span>
+          <span style="font-size:13px;font-weight:600;color:${school.secondaryColor};">${school.currencySymbol} ${subtotal.toFixed(2)}</span>
+        </div>
+        ${discount > 0 ? `
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #EDF2F7;">
+          <span style="font-size:12px;color:#718096;">Discount</span>
+          <span style="font-size:13px;font-weight:600;color:#DC2626;">-${school.currencySymbol} ${discount.toFixed(2)}</span>
+        </div>` : ""}
+        ${tax > 0 ? `
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #EDF2F7;">
+          <span style="font-size:12px;color:#718096;">Tax</span>
+          <span style="font-size:13px;font-weight:600;color:${school.secondaryColor};">${school.currencySymbol} ${tax.toFixed(2)}</span>
+        </div>` : ""}
+        <div style="display:flex;justify-content:space-between;padding:12px 0 4px;margin-top:4px;">
+          <span style="font-size:14px;font-weight:800;color:${school.secondaryColor};">Total</span>
+          <span style="font-size:22px;font-weight:800;color:${school.accentColor};">${school.currencySymbol} ${Number(total).toFixed(2)}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="background:${school.secondaryColor};border-radius:0 0 16px 16px;padding:20px 36px;display:flex;justify-content:space-between;align-items:center;">
+    <div style="font-size:11px;color:rgba(255,255,255,0.5);">
+      ${school.phone ? `<span>📞 ${esc(school.phone)}</span>` : ""}${school.phone && school.email ? " &nbsp;·&nbsp; " : ""}${school.email ? `<span>✉️ ${esc(school.email)}</span>` : ""}${school.website ? ` &nbsp;·&nbsp; <span>🌐 ${esc(school.website)}</span>` : ""}
+    </div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.4);">
+      ${school.address ? esc(school.address) : ""}${school.city ? `, ${esc(school.city)}` : ""}
+    </div>
+  </div>
+
+  <!-- Signature Area -->
+  <div style="margin-top:32px;padding:0 36px;">
+    <div style="display:flex;justify-content:flex-end;">
+      <div style="width:220px;text-align:center;">
+        <div style="border-top:2px solid ${school.secondaryColor};padding-top:8px;margin-top:48px;">
+          <div style="font-size:10px;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;">Authorized Signature</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 </body></html>`;
 }
