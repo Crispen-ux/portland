@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import {
   Card, PageHeader, Button, Input, Badge,
   Table, TableHeader, TableBody, TableRow, TableCell,
-  EmptyState, LoadingState,
+  EmptyState, LoadingState, ConfirmModal, useToast,
 } from "@/components/ui";
 import { Plus, Search, Calendar, GraduationCap, BookOpen, Edit, Trash2, X, AlertCircle, CheckCircle, Star } from "lucide-react";
 
@@ -19,6 +19,8 @@ export default function AcademicsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const { toast } = useToast();
 
   // Data
   const [years, setYears] = useState<AcademicYear[]>([]);
@@ -58,15 +60,17 @@ export default function AcademicsPage() {
     } catch (e: any) { setError(e.message); setTimeout(() => setError(""), 3000); }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async () => {
+    if (!confirmDelete) return;
     const endpoint = tab === "years" ? "/api/academic-years" : tab === "grades" ? "/api/grades" : "/api/subjects";
-    if (!confirm("Delete this item?")) return;
     try {
-      await fetch(`${endpoint}/${id}`, { method: "DELETE" });
-      setSuccess("Deleted successfully");
+      await fetch(`${endpoint}/${confirmDelete}`, { method: "DELETE" });
+      toast("Deleted successfully");
       fetchData();
-      setTimeout(() => setSuccess(""), 3000);
-    } catch { setError("Failed to delete"); setTimeout(() => setError(""), 3000); }
+    } catch {
+      toast("Failed to delete", "error");
+    }
+    setConfirmDelete(null);
   };
 
   const handleSetActive = async (id: string) => {
@@ -121,7 +125,7 @@ export default function AcademicsPage() {
                           <TableCell className="text-right">
                             <div className="flex items-center justify-end gap-1">
                               {!y.active && <button onClick={() => handleSetActive(y.id)} className="p-2 hover:bg-green-50 rounded-lg" title="Set as active"><Star className="w-4 h-4 text-green-500" /></button>}
-                              <button onClick={() => handleDelete(y.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                              <button onClick={() => setConfirmDelete(y.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -155,7 +159,7 @@ export default function AcademicsPage() {
                           <TableCell>{g._count.enrolments}</TableCell>
                           <TableCell className="text-right">
                             <div className="flex items-center justify-end gap-1">
-                              <button onClick={() => handleDelete(g.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                              <button onClick={() => setConfirmDelete(g.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -189,7 +193,7 @@ export default function AcademicsPage() {
                           <TableCell>{s._count.assessments}</TableCell>
                           <TableCell className="text-right">
                             <div className="flex items-center justify-end gap-1">
-                              <button onClick={() => handleDelete(s.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                              <button onClick={() => setConfirmDelete(s.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -206,6 +210,14 @@ export default function AcademicsPage() {
       {showCreate && (
         <CreateModal tab={tab} onSubmit={handleCreate} onClose={() => { setShowCreate(false); setError(""); }} />
       )}
+      <ConfirmModal
+        open={confirmDelete !== null}
+        title="Delete Item"
+        message="Are you sure you want to delete this item? This action cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(null)}
+      />
     </div>
   );
 }

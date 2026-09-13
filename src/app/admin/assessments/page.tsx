@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import {
   Card, PageHeader, Button, Input, Select, Badge,
   Table, TableHeader, TableBody, TableRow, TableCell,
-  EmptyState, LoadingState,
+  EmptyState, LoadingState, ConfirmModal, useToast,
 } from "@/components/ui";
 import { Plus, Search, FileText, Edit, Trash2, X, AlertCircle, CheckCircle, ClipboardList } from "lucide-react";
 import Link from "next/link";
@@ -40,6 +40,7 @@ const TYPE_COLORS: Record<string, string> = {
 };
 
 export default function AssessmentsPage() {
+  const { toast } = useToast();
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [years, setYears] = useState<AcademicYear[]>([]);
@@ -52,6 +53,7 @@ export default function AssessmentsPage() {
   const [editing, setEditing] = useState<Assessment | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -92,13 +94,12 @@ export default function AssessmentsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this assessment and all its results?")) return;
+    setConfirmDelete(null);
     try {
       await fetch(`/api/assessments/${id}`, { method: "DELETE" });
-      setSuccess("Assessment deleted");
+      toast("Assessment deleted");
       fetchData();
-      setTimeout(() => setSuccess(""), 3000);
-    } catch { setError("Failed to delete"); setTimeout(() => setError(""), 3000); }
+    } catch { toast("Failed to delete", "error"); }
   };
 
   return (
@@ -165,7 +166,7 @@ export default function AssessmentsPage() {
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Link href={`/admin/results?assessmentId=${a.id}`} className="p-2 hover:bg-portland-light rounded-lg" title="Enter results"><ClipboardList className="w-4 h-4 text-portland-red" /></Link>
-                      <button onClick={() => handleDelete(a.id)} className="p-2 hover:bg-red-50 rounded-lg" title="Delete"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                      <button onClick={() => setConfirmDelete(a.id)} className="p-2 hover:bg-red-50 rounded-lg" title="Delete"><Trash2 className="w-4 h-4 text-red-500" /></button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -188,6 +189,15 @@ export default function AssessmentsPage() {
       {showCreate && (
         <CreateAssessmentModal subjects={subjects} years={years} onSubmit={handleCreate} onClose={() => { setShowCreate(false); setError(""); }} />
       )}
+
+      <ConfirmModal
+        open={confirmDelete !== null}
+        title="Delete Assessment"
+        message="Delete this assessment and all its results?"
+        confirmLabel="Delete"
+        onConfirm={() => handleDelete(confirmDelete!)}
+        onCancel={() => setConfirmDelete(null)}
+      />
     </div>
   );
 }

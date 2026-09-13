@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import {
   Card, PageHeader, Button, Input, Select, Badge,
   Table, TableHeader, TableBody, TableRow, TableCell,
-  EmptyState, LoadingState,
+  EmptyState, LoadingState, ConfirmModal, useToast,
 } from "@/components/ui";
 import { Plus, Search, DollarSign, Edit, Trash2, X, AlertCircle, CheckCircle, CreditCard, FileText, Mail, Repeat } from "lucide-react";
 
@@ -96,11 +96,13 @@ export default function FinancePage() {
 }
 
 function FeesTab({ setError, setSuccess }: { setError: (s: string) => void; setSuccess: (s: string) => void }) {
+  const { toast } = useToast();
   const [fees, setFees] = useState<FeeStructure[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [grades, setGrades] = useState<Grade[]>([]);
   const [years, setYears] = useState<AcademicYear[]>([]);
+  const [confirmDeleteFee, setConfirmDeleteFee] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -131,13 +133,12 @@ function FeesTab({ setError, setSuccess }: { setError: (s: string) => void; setS
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this fee structure?")) return;
+    setConfirmDeleteFee(null);
     try {
       await fetch(`/api/fee-structures/${id}`, { method: "DELETE" });
-      setSuccess("Fee structure deleted");
+      toast("Fee structure deleted");
       fetchData();
-      setTimeout(() => setSuccess(""), 3000);
-    } catch { setError("Failed to delete"); setTimeout(() => setError(""), 3000); }
+    } catch { toast("Failed to delete", "error"); }
   };
 
   return (
@@ -170,7 +171,7 @@ function FeesTab({ setError, setSuccess }: { setError: (s: string) => void; setS
                 <TableCell className="text-portland-gray">{f.academicYear.name}</TableCell>
                 <TableCell>{f.active ? <Badge variant="success">Active</Badge> : <Badge>Inactive</Badge>}</TableCell>
                 <TableCell className="text-right">
-                  <button onClick={() => handleDelete(f.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                  <button onClick={() => setConfirmDeleteFee(f.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
                 </TableCell>
               </TableRow>
             ))}
@@ -179,11 +180,21 @@ function FeesTab({ setError, setSuccess }: { setError: (s: string) => void; setS
       )}
 
       {showCreate && <FeeModal grades={grades} years={years} onSubmit={handleCreate} onClose={() => setShowCreate(false)} />}
+
+      <ConfirmModal
+        open={confirmDeleteFee !== null}
+        title="Delete Fee Structure"
+        message="Delete this fee structure?"
+        confirmLabel="Delete"
+        onConfirm={() => handleDelete(confirmDeleteFee!)}
+        onCancel={() => setConfirmDeleteFee(null)}
+      />
     </Card>
   );
 }
 
 function InvoicesTab({ setError, setSuccess }: { setError: (s: string) => void; setSuccess: (s: string) => void }) {
+  const { toast } = useToast();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -192,6 +203,7 @@ function InvoicesTab({ setError, setSuccess }: { setError: (s: string) => void; 
   const [totalPages, setTotalPages] = useState(1);
   const [showCreate, setShowCreate] = useState(false);
   const [viewing, setViewing] = useState<Invoice | null>(null);
+  const [confirmDeleteInvoice, setConfirmDeleteInvoice] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -208,13 +220,12 @@ function InvoicesTab({ setError, setSuccess }: { setError: (s: string) => void; 
   useEffect(() => { fetchData(); }, [fetchData]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this invoice?")) return;
+    setConfirmDeleteInvoice(null);
     try {
       await fetch(`/api/invoices/${id}`, { method: "DELETE" });
-      setSuccess("Invoice deleted");
+      toast("Invoice deleted");
       fetchData();
-      setTimeout(() => setSuccess(""), 3000);
-    } catch { setError("Failed to delete"); setTimeout(() => setError(""), 3000); }
+    } catch { toast("Failed to delete", "error"); }
   };
 
   const handleEmailInvoice = async (invoiceId: string) => {
@@ -291,7 +302,7 @@ function InvoicesTab({ setError, setSuccess }: { setError: (s: string) => void; 
                     <div className="flex items-center justify-end gap-1">
                       <button onClick={() => setViewing(inv)} className="p-2 hover:bg-portland-light rounded-lg"><FileText className="w-4 h-4 text-portland-gray" /></button>
                       <button onClick={() => handleEmailInvoice(inv.id)} className="p-2 hover:bg-portland-light rounded-lg" title="Email invoice"><Mail className="w-4 h-4 text-portland-red" /></button>
-                      <button onClick={() => handleDelete(inv.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                      <button onClick={() => setConfirmDeleteInvoice(inv.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -320,6 +331,15 @@ function InvoicesTab({ setError, setSuccess }: { setError: (s: string) => void; 
       }} onClose={() => setShowCreate(false)} setError={setError} />}
 
       {viewing && <InvoiceDetailModal invoice={viewing} onClose={() => { setViewing(null); fetchData(); }} setError={setError} setSuccess={setSuccess} />}
+
+      <ConfirmModal
+        open={confirmDeleteInvoice !== null}
+        title="Delete Invoice"
+        message="Delete this invoice?"
+        confirmLabel="Delete"
+        onConfirm={() => handleDelete(confirmDeleteInvoice!)}
+        onCancel={() => setConfirmDeleteInvoice(null)}
+      />
     </>
   );
 }

@@ -16,6 +16,8 @@ import {
   TableCell,
   EmptyState,
   LoadingState,
+  ConfirmModal,
+  useToast,
 } from "@/components/ui";
 import {
   Plus,
@@ -53,6 +55,8 @@ export default function UsersPage() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [confirmDeactivate, setConfirmDeactivate] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -120,17 +124,16 @@ export default function UsersPage() {
     }
   };
 
-  const handleDeactivate = async (userId: string) => {
-    if (!confirm("Are you sure you want to deactivate this user?")) return;
+  const handleDeactivate = async () => {
+    if (!confirmDeactivate) return;
     try {
-      await fetch(`/api/users/${userId}`, { method: "DELETE" });
-      setSuccess("User deactivated");
+      await fetch(`/api/users/${confirmDeactivate}`, { method: "DELETE" });
+      toast("User deactivated successfully");
       fetchUsers();
-      setTimeout(() => setSuccess(""), 3000);
     } catch {
-      setError("Failed to deactivate user");
-      setTimeout(() => setError(""), 3000);
+      toast("Failed to deactivate user", "error");
     }
+    setConfirmDeactivate(null);
   };
 
   return (
@@ -236,7 +239,7 @@ export default function UsersPage() {
                         <Edit className="w-4 h-4 text-portland-gray" />
                       </button>
                       <button
-                        onClick={() => handleDeactivate(u.id)}
+                        onClick={() => setConfirmDeactivate(u.id)}
                         className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                         title="Deactivate"
                       >
@@ -285,6 +288,14 @@ export default function UsersPage() {
           onClose={() => { setShowCreate(false); setEditingUser(null); setError(""); }}
         />
       )}
+      <ConfirmModal
+        open={confirmDeactivate !== null}
+        title="Deactivate User"
+        message="Are you sure you want to deactivate this user? They will no longer be able to log in."
+        confirmLabel="Deactivate"
+        onConfirm={handleDeactivate}
+        onCancel={() => setConfirmDeactivate(null)}
+      />
     </div>
   );
 }

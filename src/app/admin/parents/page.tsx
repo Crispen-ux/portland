@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import {
   Card, PageHeader, Button, Input, Select, Badge,
   Table, TableHeader, TableBody, TableRow, TableCell,
-  EmptyState, LoadingState,
+  EmptyState, LoadingState, ConfirmModal, useToast,
 } from "@/components/ui";
 import { Plus, Search, Users, Edit, Trash2, X, AlertCircle, CheckCircle, Phone, Mail } from "lucide-react";
 
@@ -19,6 +19,7 @@ interface Parent {
 }
 
 export default function ParentsPage() {
+  const { toast } = useToast();
   const [parents, setParents] = useState<Parent[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -28,6 +29,7 @@ export default function ParentsPage() {
   const [editing, setEditing] = useState<Parent | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -67,13 +69,12 @@ export default function ParentsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this parent record?")) return;
+    setConfirmDelete(null);
     try {
       await fetch(`/api/parents/${id}`, { method: "DELETE" });
-      setSuccess("Parent deleted");
+      toast("Parent deleted");
       fetchData();
-      setTimeout(() => setSuccess(""), 3000);
-    } catch { setError("Failed to delete"); setTimeout(() => setError(""), 3000); }
+    } catch { toast("Failed to delete", "error"); }
   };
 
   return (
@@ -136,7 +137,7 @@ export default function ParentsPage() {
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
                       <button onClick={() => setEditing(p)} className="p-2 hover:bg-portland-light rounded-lg"><Edit className="w-4 h-4 text-portland-gray" /></button>
-                      <button onClick={() => handleDelete(p.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                      <button onClick={() => setConfirmDelete(p.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -159,6 +160,15 @@ export default function ParentsPage() {
       {(showCreate || editing) && (
         <ParentModal parent={editing} onSubmit={editing ? handleUpdate : handleCreate} onClose={() => { setShowCreate(false); setEditing(null); setError(""); }} />
       )}
+
+      <ConfirmModal
+        open={confirmDelete !== null}
+        title="Delete Parent"
+        message="Delete this parent record?"
+        confirmLabel="Delete"
+        onConfirm={() => handleDelete(confirmDelete!)}
+        onCancel={() => setConfirmDelete(null)}
+      />
     </div>
   );
 }

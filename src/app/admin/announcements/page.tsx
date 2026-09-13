@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import {
   Card, PageHeader, Button, Input, Select, Badge,
   Table, TableHeader, TableBody, TableRow, TableCell,
-  EmptyState, LoadingState,
+  EmptyState, LoadingState, ConfirmModal, useToast,
 } from "@/components/ui";
 import { Plus, Search, Megaphone, Trash2, X, AlertCircle, CheckCircle, Send } from "lucide-react";
 
@@ -35,6 +35,8 @@ export default function AnnouncementsPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -70,14 +72,16 @@ export default function AnnouncementsPage() {
     } catch { setError("Failed to update"); setTimeout(() => setError(""), 3000); }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Delete this announcement?")) return;
+  const handleDelete = async () => {
+    if (!confirmDelete) return;
     try {
-      await fetch(`/api/announcements/${id}`, { method: "DELETE" });
-      setSuccess("Deleted");
+      await fetch(`/api/announcements/${confirmDelete}`, { method: "DELETE" });
+      toast("Announcement deleted successfully");
       fetchData();
-      setTimeout(() => setSuccess(""), 3000);
-    } catch { setError("Failed to delete"); setTimeout(() => setError(""), 3000); }
+    } catch {
+      toast("Failed to delete announcement", "error");
+    }
+    setConfirmDelete(null);
   };
 
   return (
@@ -119,7 +123,7 @@ export default function AnnouncementsPage() {
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
                       <button onClick={() => handlePublish(a.id, !a.published)} className="p-2 hover:bg-portland-light rounded-lg" title={a.published ? "Unpublish" : "Publish"}><Send className="w-4 h-4 text-portland-red" /></button>
-                      <button onClick={() => handleDelete(a.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                      <button onClick={() => setConfirmDelete(a.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -140,6 +144,14 @@ export default function AnnouncementsPage() {
       </Card>
 
       {showCreate && <CreateModal onSubmit={handleCreate} onClose={() => setShowCreate(false)} />}
+      <ConfirmModal
+        open={confirmDelete !== null}
+        title="Delete Announcement"
+        message="Are you sure you want to delete this announcement? This action cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(null)}
+      />
     </div>
   );
 }

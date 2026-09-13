@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import {
   Card, PageHeader, Button, Input, Select, Badge,
   Table, TableHeader, TableBody, TableRow, TableCell,
-  EmptyState, LoadingState,
+  EmptyState, LoadingState, ConfirmModal, useToast,
 } from "@/components/ui";
 import { Search, AlertCircle, CheckCircle, Eye, Trash2, X, Phone, Mail, Calendar, ExternalLink } from "lucide-react";
 
@@ -47,6 +47,7 @@ const SOURCE_LABELS: Record<string, string> = {
 const STATUS_FLOW = ["NEW", "CONTACTED", "IN_PROGRESS", "ACCEPTED", "ENROLLED", "CLOSED"];
 
 export default function AdmissionsAdminPage() {
+  const { toast } = useToast();
   const [admissions, setAdmissions] = useState<Admission[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -59,6 +60,7 @@ export default function AdmissionsAdminPage() {
   const [updating, setUpdating] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -98,13 +100,12 @@ export default function AdmissionsAdminPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this admission record?")) return;
+    setConfirmDelete(null);
     try {
       await fetch(`/api/admissions/${id}`, { method: "DELETE" });
-      setSuccess("Admission deleted");
+      toast("Admission deleted");
       fetchData();
-      setTimeout(() => setSuccess(""), 3000);
-    } catch { setError("Failed to delete"); setTimeout(() => setError(""), 3000); }
+    } catch { toast("Failed to delete", "error"); }
   };
 
   const advanceStatus = (current: string) => {
@@ -230,7 +231,7 @@ export default function AdmissionsAdminPage() {
                             <ExternalLink className="w-4 h-4 text-green-600" />
                           </button>
                         )}
-                        <button onClick={() => handleDelete(a.id)} className="p-2 hover:bg-red-50 rounded-lg" title="Delete"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                        <button onClick={() => setConfirmDelete(a.id)} className="p-2 hover:bg-red-50 rounded-lg" title="Delete"><Trash2 className="w-4 h-4 text-red-500" /></button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -260,6 +261,15 @@ export default function AdmissionsAdminPage() {
           updating={updating === viewing.id}
         />
       )}
+
+      <ConfirmModal
+        open={confirmDelete !== null}
+        title="Delete Admission"
+        message="Delete this admission record?"
+        confirmLabel="Delete"
+        onConfirm={() => handleDelete(confirmDelete!)}
+        onCancel={() => setConfirmDelete(null)}
+      />
     </div>
   );
 }

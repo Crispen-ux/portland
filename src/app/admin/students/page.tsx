@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import {
   Card, PageHeader, Button, Input, Select, Badge,
   Table, TableHeader, TableBody, TableRow, TableCell,
-  EmptyState, LoadingState,
+  EmptyState, LoadingState, ConfirmModal, useToast,
 } from "@/components/ui";
-import { Plus, Search, GraduationCap, Edit, Trash2, X, AlertCircle, CheckCircle, Users, Link2, Unlink } from "lucide-react";
+import { Plus, Search, GraduationCap, Edit, Trash2, X, AlertCircle, CheckCircle, Link2, Unlink } from "lucide-react";
 
 interface Student {
   id: string;
@@ -24,6 +24,7 @@ interface Student {
 interface Parent { id: string; firstName: string; lastName: string; phone: string; relationship: string | null; }
 
 export default function StudentsPage() {
+  const { toast } = useToast();
   const [students, setStudents] = useState<Student[]>([]);
   const [parents, setParents] = useState<Parent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,6 +36,8 @@ export default function StudentsPage() {
   const [linkingStudent, setLinkingStudent] = useState<Student | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [confirmUnlink, setConfirmUnlink] = useState<{ studentId: string; guardianId: string } | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -44,11 +47,17 @@ export default function StudentsPage() {
         fetch(`/api/students?${params}`),
         fetch("/api/parents?limit=200"),
       ]);
-      const sData = await sRes.json();
-      const pData = await pRes.json();
-      setStudents(sData.students);
-      setTotalPages(sData.totalPages);
-      setParents(pData.parents);
+      if (sRes.ok) {
+        const sData = await sRes.json();
+        setStudents(sData.students || []);
+        setTotalPages(sData.totalPages || 1);
+      } else {
+        setError("Failed to load students");
+      }
+      if (pRes.ok) {
+        const pData = await pRes.json();
+        setParents(pData.parents || []);
+      }
     } catch { setError("Failed to load data"); }
     finally { setLoading(false); }
   };
@@ -61,10 +70,9 @@ export default function StudentsPage() {
       const err = await res.json().catch(() => ({ error: "Failed to create student" }));
       throw new Error(err.error || "Failed to create student");
     }
-    setSuccess("Student added");
+    toast("Student added successfully");
     setShowCreate(false);
     fetchData();
-    setTimeout(() => setSuccess(""), 3000);
   };
 
   const handleUpdate = async (data: any) => {
@@ -74,20 +82,20 @@ export default function StudentsPage() {
       const err = await res.json().catch(() => ({ error: "Failed to update student" }));
       throw new Error(err.error || "Failed to update student");
     }
-    setSuccess("Student updated");
+    toast("Student updated successfully");
     setEditing(null);
     fetchData();
-    setTimeout(() => setSuccess(""), 3000);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Delete this student? This cannot be undone.")) return;
+  const handleDelete = async () => {
+    if (!confirmDelete) return;
     try {
-      await fetch(`/api/students/${id}`, { method: "DELETE" });
-      setSuccess("Student deleted");
+      const res = await fetch(`/api/students/${confirmDelete}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete");
+      toast("Student deleted successfully");
       fetchData();
-      setTimeout(() => setSuccess(""), 3000);
-    } catch { setError("Failed to delete"); setTimeout(() => setError(""), 3000); }
+    } catch { toast("Failed to delete student", "error"); }
+    setConfirmDelete(null);
   };
 
   const handleLinkGuardian = async (guardianId: string, isPrimary: boolean) => {
@@ -99,25 +107,24 @@ export default function StudentsPage() {
         body: JSON.stringify({ guardianId, isPrimary }),
       });
       if (!res.ok) { const err = await res.json(); throw new Error(err.error); }
-      setSuccess("Guardian linked");
+      toast("Guardian linked successfully");
       setLinkingStudent(null);
       fetchData();
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (e: any) { setError(e.message); setTimeout(() => setError(""), 3000); }
+    } catch (e: any) { toast(e.message || "Failed to link guardian", "error"); }
   };
 
-  const handleUnlinkGuardian = async (studentId: string, guardianId: string) => {
-    if (!confirm("Unlink this guardian?")) return;
+  const handleUnlinkGuardian = async () => {
+    if (!confirmUnlink) return;
     try {
-      await fetch(`/api/students/${studentId}`, {
+      await fetch(`/api/students/${confirmUnlink.studentId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ guardianId }),
+        body: JSON.stringify({ guardianId: confirmUnlink.guardianId }),
       });
-      setSuccess("Guardian unlinked");
+      toast("Guardian unlinked");
       fetchData();
-      setTimeout(() => setSuccess(""), 3000);
-    } catch { setError("Failed to unlink"); setTimeout(() => setError(""), 3000); }
+    } catch { toast("Failed to unlink guardian", "error"); }
+    setConfirmUnlink(null);
   };
 
   const activeEnrolment = (s: Student) => s.enrolments.find((e) => e.academicYear.active && e.status === "ACTIVE");
@@ -130,8 +137,19 @@ export default function StudentsPage() {
         action={<Button onClick={() => setShowCreate(true)} icon={<Plus className="w-4 h-4" />}>Add Student</Button>}
       />
 
-      {error && <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-center gap-3"><AlertCircle className="w-5 h-5 text-red-500 shrink-0" /><p className="text-sm text-red-700">{error}</p></div>}
-      {success && <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500 shrink-0" /><p className="text-sm text-green-700">{success}</p></div>}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
+          <p className="text-sm text-red-700">{error}</p>
+          <button onClick={() => setError("")} className="ml-auto text-red-400 hover:text-red-600"><X className="w-4 h-4" /></button>
+        </div>
+      )}
+      {success && (
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+          <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
+          <p className="text-sm text-green-700">{success}</p>
+        </div>
+      )}
 
       <Card padding={false}>
         <div className="p-4 border-b border-portland-mid/30">
@@ -177,7 +195,7 @@ export default function StudentsPage() {
                             <div key={gl.id} className="flex items-center gap-1 text-xs">
                               <span className="text-portland-dark">{gl.guardian.firstName} {gl.guardian.lastName}</span>
                               {gl.isPrimary && <Badge variant="success">Primary</Badge>}
-                              <button onClick={() => handleUnlinkGuardian(s.id, gl.guardian.id)} className="text-red-400 hover:text-red-600"><Unlink className="w-3 h-3" /></button>
+                              <button onClick={() => setConfirmUnlink({ studentId: s.id, guardianId: gl.guardian.id })} className="text-red-400 hover:text-red-600"><Unlink className="w-3 h-3" /></button>
                             </div>
                           ))}
                         </div>
@@ -187,7 +205,7 @@ export default function StudentsPage() {
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
                         <button onClick={() => setEditing(s)} className="p-2 hover:bg-portland-light rounded-lg"><Edit className="w-4 h-4 text-portland-gray" /></button>
-                        <button onClick={() => handleDelete(s.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                        <button onClick={() => setConfirmDelete(s.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -209,17 +227,35 @@ export default function StudentsPage() {
       </Card>
 
       {(showCreate || editing) && (
-        <StudentModal student={editing} error={error} setError={setError} onSubmit={editing ? handleUpdate : handleCreate} onClose={() => { setShowCreate(false); setEditing(null); setError(""); }} />
+        <StudentModal student={editing} onSubmit={editing ? handleUpdate : handleCreate} onClose={() => { setShowCreate(false); setEditing(null); }} />
       )}
 
       {linkingStudent && (
         <LinkGuardianModal student={linkingStudent} parents={parents} onLink={handleLinkGuardian} onClose={() => setLinkingStudent(null)} />
       )}
+
+      <ConfirmModal
+        open={!!confirmDelete}
+        title="Delete Student"
+        message="Are you sure you want to delete this student? This action cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(null)}
+      />
+
+      <ConfirmModal
+        open={!!confirmUnlink}
+        title="Unlink Guardian"
+        message="Are you sure you want to unlink this guardian from the student?"
+        confirmLabel="Unlink"
+        onConfirm={handleUnlinkGuardian}
+        onCancel={() => setConfirmUnlink(null)}
+      />
     </div>
   );
 }
 
-function StudentModal({ student, error, setError, onSubmit, onClose }: { student: any; error?: string; setError?: (msg: string) => void; onSubmit: (d: any) => void; onClose: () => void }) {
+function StudentModal({ student, onSubmit, onClose }: { student: any; onSubmit: (d: any) => void; onClose: () => void }) {
   const [firstName, setFirstName] = useState(student?.firstName || "");
   const [lastName, setLastName] = useState(student?.lastName || "");
   const [dateOfBirth, setDateOfBirth] = useState(student?.dateOfBirth ? new Date(student.dateOfBirth).toISOString().split("T")[0] : "");
@@ -228,14 +264,16 @@ function StudentModal({ student, error, setError, onSubmit, onClose }: { student
   const [idNumber, setIdNumber] = useState(student?.idNumber || "");
   const [studentNumber, setStudentNumber] = useState(student?.studentNumber || "");
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    setError("");
     try {
       await onSubmit({ firstName, lastName, dateOfBirth: dateOfBirth || undefined, gender: gender || undefined, nationality: nationality || undefined, idNumber: idNumber || undefined, studentNumber: studentNumber || undefined });
     } catch (err: any) {
-      setError?.(err.message || "An error occurred");
+      setError(err.message || "An error occurred");
     } finally {
       setSubmitting(false);
     }

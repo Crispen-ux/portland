@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import {
   Card, PageHeader, Button, Input, Badge,
   Table, TableHeader, TableBody, TableRow, TableCell,
-  EmptyState, LoadingState,
+  EmptyState, LoadingState, ConfirmModal, useToast,
 } from "@/components/ui";
 import { Plus, Search, Users, Edit, Trash2, X, AlertCircle, CheckCircle, Mail, Phone } from "lucide-react";
 
@@ -29,6 +29,8 @@ export default function StaffPage() {
   const [editing, setEditing] = useState<StaffMember | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchData = async () => {
     setLoading(true);
@@ -55,14 +57,16 @@ export default function StaffPage() {
     } catch (e: any) { setError(e.message); setTimeout(() => setError(""), 3000); }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Remove this staff member?")) return;
+  const handleDelete = async () => {
+    if (!confirmDelete) return;
     try {
-      await fetch(`/api/staff/${id}`, { method: "DELETE" });
-      setSuccess("Staff member removed");
+      await fetch(`/api/staff/${confirmDelete}`, { method: "DELETE" });
+      toast("Staff member removed successfully");
       fetchData();
-      setTimeout(() => setSuccess(""), 3000);
-    } catch { setError("Failed to remove"); setTimeout(() => setError(""), 3000); }
+    } catch {
+      toast("Failed to remove staff member", "error");
+    }
+    setConfirmDelete(null);
   };
 
   return (
@@ -121,7 +125,7 @@ export default function StaffPage() {
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
                       <button onClick={() => setEditing(s)} className="p-2 hover:bg-portland-light rounded-lg"><Edit className="w-4 h-4 text-portland-gray" /></button>
-                      <button onClick={() => handleDelete(s.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                      <button onClick={() => setConfirmDelete(s.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -148,6 +152,14 @@ export default function StaffPage() {
           onClose={() => { setShowCreate(false); setEditing(null); setError(""); }}
         />
       )}
+      <ConfirmModal
+        open={confirmDelete !== null}
+        title="Remove Staff Member"
+        message="Are you sure you want to remove this staff member? This action cannot be undone."
+        confirmLabel="Remove"
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(null)}
+      />
     </div>
   );
 }

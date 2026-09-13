@@ -8,42 +8,47 @@ export async function GET(request: NextRequest) {
   const { user, error } = await apiAuth("students.read");
   if (error) return error;
 
-  const { searchParams } = new URL(request.url);
-  const params = paginationSchema.parse(Object.fromEntries(searchParams));
+  try {
+    const { searchParams } = new URL(request.url);
+    const params = paginationSchema.parse(Object.fromEntries(searchParams));
 
-  const where: any = {};
-  if (params.search) {
-    where.OR = [
-      { firstName: { contains: params.search, mode: "insensitive" } },
-      { lastName: { contains: params.search, mode: "insensitive" } },
-      { studentNumber: { contains: params.search, mode: "insensitive" } },
-    ];
-  }
+    const where: any = {};
+    if (params.search) {
+      where.OR = [
+        { firstName: { contains: params.search, mode: "insensitive" } },
+        { lastName: { contains: params.search, mode: "insensitive" } },
+        { studentNumber: { contains: params.search, mode: "insensitive" } },
+      ];
+    }
 
-  const [students, total] = await Promise.all([
-    db.student.findMany({
-      where,
-      include: {
-        guardianLinks: {
-          include: { guardian: { select: { id: true, firstName: true, lastName: true, phone: true, relationship: true } } },
-        },
-        enrolments: {
-          include: {
-            grade: { select: { name: true } },
-            class: { select: { name: true } },
-            academicYear: { select: { name: true, active: true } },
+    const [students, total] = await Promise.all([
+      db.student.findMany({
+        where,
+        include: {
+          guardianLinks: {
+            include: { guardian: { select: { id: true, firstName: true, lastName: true, phone: true, relationship: true } } },
           },
-          orderBy: { enrolledAt: "desc" },
+          enrolments: {
+            include: {
+              grade: { select: { name: true } },
+              class: { select: { name: true } },
+              academicYear: { select: { name: true, active: true } },
+            },
+            orderBy: { enrolledAt: "desc" },
+          },
         },
-      },
-      orderBy: { firstName: "asc" },
-      take: params.limit,
-      skip: (params.page - 1) * params.limit,
-    }),
-    db.student.count({ where }),
-  ]);
+        orderBy: { firstName: "asc" },
+        take: params.limit,
+        skip: (params.page - 1) * params.limit,
+      }),
+      db.student.count({ where }),
+    ]);
 
-  return NextResponse.json({ students, total, page: params.page, totalPages: Math.ceil(total / params.limit) });
+    return NextResponse.json({ students, total, page: params.page, totalPages: Math.ceil(total / params.limit) });
+  } catch (e: any) {
+    console.error("Error fetching students:", e);
+    return NextResponse.json({ error: "Failed to fetch students" }, { status: 500 });
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -53,11 +58,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const data = createStudentSchema.parse(body);
-
-    const school = await db.school.findFirst();
-    if (!school) {
-      return NextResponse.json({ error: "No school configured" }, { status: 400 });
-    }
 
     const student = await db.student.create({
       data: {
@@ -84,6 +84,7 @@ export async function POST(request: NextRequest) {
     if (e.name === "ZodError") {
       return NextResponse.json({ error: "Validation failed", details: e.errors }, { status: 400 });
     }
+    console.error("Error creating student:", e);
     return NextResponse.json({ error: "Failed to create student" }, { status: 500 });
   }
 }

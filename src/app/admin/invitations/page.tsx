@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   Card, PageHeader, Button, Badge,
-  EmptyState, LoadingState,
+  EmptyState, LoadingState, ConfirmModal, useToast,
 } from "@/components/ui";
 import { Mail, Plus, Trash2, Copy, CheckCircle, AlertCircle, Send } from "lucide-react";
 
@@ -26,12 +26,14 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 export default function InvitationsPage() {
+  const { toast } = useToast();
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -68,15 +70,13 @@ export default function InvitationsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Cancel this invitation?")) return;
+    setConfirmDelete(null);
     try {
       await fetch(`/api/invitations/${id}`, { method: "DELETE" });
-      setSuccess("Invitation cancelled");
+      toast("Invitation cancelled");
       fetchData();
-      setTimeout(() => setSuccess(""), 3000);
     } catch {
-      setError("Failed to cancel");
-      setTimeout(() => setError(""), 3000);
+      toast("Failed to cancel", "error");
     }
   };
 
@@ -164,7 +164,7 @@ export default function InvitationsPage() {
                         <button onClick={() => copyLink(inv.token)} className="p-2 hover:bg-portland-light rounded-lg" title="Copy invite link">
                           {copied === inv.token ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-portland-gray" />}
                         </button>
-                        <button onClick={() => handleDelete(inv.id)} className="p-2 hover:bg-red-50 rounded-lg" title="Cancel"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                        <button onClick={() => setConfirmDelete(inv.id)} className="p-2 hover:bg-red-50 rounded-lg" title="Cancel"><Trash2 className="w-4 h-4 text-red-500" /></button>
                       </>
                     )}
                   </div>
@@ -176,6 +176,15 @@ export default function InvitationsPage() {
       </Card>
 
       {showCreate && <CreateModal onSubmit={handleCreate} onClose={() => setShowCreate(false)} />}
+
+      <ConfirmModal
+        open={confirmDelete !== null}
+        title="Cancel Invitation"
+        message="Cancel this invitation?"
+        confirmLabel="Cancel"
+        onConfirm={() => handleDelete(confirmDelete!)}
+        onCancel={() => setConfirmDelete(null)}
+      />
     </div>
   );
 }

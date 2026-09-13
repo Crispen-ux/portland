@@ -1,5 +1,7 @@
-import { forwardRef } from "react";
-import { Loader2 } from "lucide-react";
+"use client";
+
+import { forwardRef, createContext, useContext, useState, useCallback, useEffect } from "react";
+import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
 
 // ─── Button ─────────────────────────────────────────────
 
@@ -244,3 +246,101 @@ export function PageHeader({ title, description, action }: PageHeaderProps) {
     </div>
   );
 }
+
+// ─── Toast ──────────────────────────────────────────────
+
+type ToastType = "success" | "error" | "info";
+
+interface Toast {
+  id: string;
+  message: string;
+  type: ToastType;
+}
+
+interface ToastContextValue {
+  toast: (message: string, type?: ToastType) => void;
+}
+
+const ToastContext = createContext<ToastContextValue>({ toast: () => {} });
+
+export function useToast() {
+  return useContext(ToastContext);
+}
+
+export function ToastProvider({ children }: { children: React.ReactNode }) {
+  const [toasts, setToasts] = useState<Toast[]>([]);
+
+  const toast = useCallback((message: string, type: ToastType = "success") => {
+    const id = Math.random().toString(36).slice(2);
+    setToasts((prev) => [...prev, { id, message, type }]);
+  }, []);
+
+  useEffect(() => {
+    if (toasts.length === 0) return;
+    const timer = setTimeout(() => {
+      setToasts((prev) => prev.slice(1));
+    }, 3500);
+    return () => clearTimeout(timer);
+  }, [toasts]);
+
+  return (
+    <ToastContext.Provider value={{ toast }}>
+      {children}
+      <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none">
+        {toasts.map((t) => (
+          <div
+            key={t.id}
+            className={`pointer-events-auto px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2.5 animate-slide-in max-w-sm ${
+              t.type === "success" ? "bg-green-600 text-white" :
+              t.type === "error" ? "bg-red-600 text-white" :
+              "bg-portland-dark text-white"
+            }`}
+          >
+            {t.type === "success" && <CheckCircle className="w-4 h-4 shrink-0" />}
+            {t.type === "error" && <AlertCircle className="w-4 h-4 shrink-0" />}
+            {t.type === "info" && <AlertCircle className="w-4 h-4 shrink-0" />}
+            {t.message}
+          </div>
+        ))}
+      </div>
+    </ToastContext.Provider>
+  );
+}
+
+// ─── Confirm Modal ──────────────────────────────────────
+
+interface ConfirmModalProps {
+  open: boolean;
+  title: string;
+  message: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  variant?: "danger" | "default";
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+export function ConfirmModal({ open, title, message, confirmLabel = "Confirm", cancelLabel = "Cancel", variant = "danger", onConfirm, onCancel }: ConfirmModalProps) {
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-[90] flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/50" onClick={onCancel} />
+      <div className="relative bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl">
+        <h3 className="text-lg font-semibold text-portland-dark mb-2">{title}</h3>
+        <p className="text-sm text-portland-gray mb-6">{message}</p>
+        <div className="flex gap-3 justify-end">
+          <Button variant="outline" onClick={onCancel}>{cancelLabel}</Button>
+          <Button
+            onClick={onConfirm}
+            className={variant === "danger" ? "bg-red-600 hover:bg-red-700 text-white" : ""}
+          >
+            {confirmLabel}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Slide-in animation (add to globals.css or inline) ──

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import {
   Card, PageHeader, Button, Input, Select, Badge,
   Table, TableHeader, TableBody, TableRow, TableCell,
-  EmptyState, LoadingState,
+  EmptyState, LoadingState, ConfirmModal, useToast,
 } from "@/components/ui";
 import { Plus, Search, BookOpen, Edit, Trash2, X, AlertCircle, CheckCircle } from "lucide-react";
 
@@ -32,6 +32,8 @@ export default function ClassesPage() {
   const [editing, setEditing] = useState<ClassItem | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchData = async () => {
     setLoading(true);
@@ -73,14 +75,16 @@ export default function ClassesPage() {
     } catch (e: any) { setError(e.message); setTimeout(() => setError(""), 3000); }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Delete this class?")) return;
+  const handleDelete = async () => {
+    if (!confirmDelete) return;
     try {
-      await fetch(`/api/classes/${id}`, { method: "DELETE" });
-      setSuccess("Class deleted");
+      await fetch(`/api/classes/${confirmDelete}`, { method: "DELETE" });
+      toast("Class deleted successfully");
       fetchData();
-      setTimeout(() => setSuccess(""), 3000);
-    } catch { setError("Failed to delete"); setTimeout(() => setError(""), 3000); }
+    } catch {
+      toast("Failed to delete class", "error");
+    }
+    setConfirmDelete(null);
   };
 
   return (
@@ -127,7 +131,7 @@ export default function ClassesPage() {
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
                       <button onClick={() => setEditing(c)} className="p-2 hover:bg-portland-light rounded-lg"><Edit className="w-4 h-4 text-portland-gray" /></button>
-                      <button onClick={() => handleDelete(c.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                      <button onClick={() => setConfirmDelete(c.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -156,6 +160,14 @@ export default function ClassesPage() {
           onClose={() => { setShowCreate(false); setEditing(null); setError(""); }}
         />
       )}
+      <ConfirmModal
+        open={confirmDelete !== null}
+        title="Delete Class"
+        message="Are you sure you want to delete this class? This action cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(null)}
+      />
     </div>
   );
 }

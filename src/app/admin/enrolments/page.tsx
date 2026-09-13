@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import {
   Card, PageHeader, Button, Input, Select, Badge,
   Table, TableHeader, TableBody, TableRow, TableCell,
-  EmptyState, LoadingState,
+  EmptyState, LoadingState, ConfirmModal, useToast,
 } from "@/components/ui";
 import { Plus, Search, FileText, Trash2, X, AlertCircle, CheckCircle } from "lucide-react";
 
@@ -32,6 +32,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function EnrolmentsPage() {
+  const { toast } = useToast();
   const [enrolments, setEnrolments] = useState<Enrolment[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [years, setYears] = useState<AcademicYear[]>([]);
@@ -44,6 +45,7 @@ export default function EnrolmentsPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -100,13 +102,12 @@ export default function EnrolmentsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this enrolment?")) return;
+    setConfirmDelete(null);
     try {
       await fetch(`/api/enrolments/${id}`, { method: "DELETE" });
-      setSuccess("Enrolment deleted");
+      toast("Enrolment deleted");
       fetchData();
-      setTimeout(() => setSuccess(""), 3000);
-    } catch { setError("Failed to delete"); setTimeout(() => setError(""), 3000); }
+    } catch { toast("Failed to delete", "error"); }
   };
 
   return (
@@ -166,7 +167,7 @@ export default function EnrolmentsPage() {
                           <button onClick={() => handleUpdateStatus(e.id, "GRADUATED")} className="p-2 hover:bg-green-50 rounded-lg" title="Graduate"><span className="text-xs text-green-600">G</span></button>
                         </>
                       )}
-                      <button onClick={() => handleDelete(e.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                      <button onClick={() => setConfirmDelete(e.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -197,6 +198,15 @@ export default function EnrolmentsPage() {
           onClose={() => { setShowCreate(false); setError(""); }}
         />
       )}
+
+      <ConfirmModal
+        open={confirmDelete !== null}
+        title="Delete Enrolment"
+        message="Delete this enrolment?"
+        confirmLabel="Delete"
+        onConfirm={() => handleDelete(confirmDelete!)}
+        onCancel={() => setConfirmDelete(null)}
+      />
     </div>
   );
 }

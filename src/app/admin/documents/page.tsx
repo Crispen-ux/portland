@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import {
   Card, PageHeader, Button, Input, Select, Badge,
   Table, TableHeader, TableBody, TableRow, TableCell,
-  EmptyState, LoadingState,
+  EmptyState, LoadingState, ConfirmModal, useToast,
 } from "@/components/ui";
 import {
   FileText, Download, Trash2, Plus, Filter,
@@ -79,6 +79,8 @@ export default function DocumentsPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [typeFilter, setTypeFilter] = useState("ALL");
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const { toast } = useToast();
 
   // Form state
   const [docType, setDocType] = useState("INVOICE");
@@ -167,18 +169,17 @@ export default function DocumentsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Delete this document?")) return;
+  const handleDelete = async () => {
+    if (!confirmDelete) return;
     try {
-      const res = await fetch(`/api/documents/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/documents/${confirmDelete}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete document");
-      setSuccess("Document deleted successfully");
+      toast("Document deleted successfully");
       fetchDocuments();
-      setTimeout(() => setSuccess(""), 3000);
     } catch {
-      setError("Failed to delete document");
-      setTimeout(() => setError(""), 3000);
+      toast("Failed to delete document", "error");
     }
+    setConfirmDelete(null);
   };
 
   return (
@@ -333,7 +334,7 @@ export default function DocumentsPage() {
                             <Download className="w-4 h-4 text-portland-gray" />
                           </a>
                           <button
-                            onClick={() => handleDelete(doc.id)}
+                            onClick={() => setConfirmDelete(doc.id)}
                             className="p-2 hover:bg-red-50 rounded-lg"
                             title="Delete document"
                           >
@@ -349,6 +350,14 @@ export default function DocumentsPage() {
           </Card>
         </>
       )}
+      <ConfirmModal
+        open={confirmDelete !== null}
+        title="Delete Document"
+        message="Are you sure you want to delete this document? This action cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(null)}
+      />
     </div>
   );
 }

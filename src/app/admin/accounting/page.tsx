@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import {
   Card, PageHeader, Button, Input, Select, Badge,
   Table, TableHeader, TableBody, TableRow, TableCell,
-  EmptyState, LoadingState,
+  EmptyState, LoadingState, ConfirmModal, useToast,
 } from "@/components/ui";
 import {
   DollarSign, TrendingUp, TrendingDown, Plus, Filter, Edit, Trash2, X,
@@ -100,6 +100,8 @@ export default function AccountingPage() {
   const [success, setSuccess] = useState("");
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [confirmDeleteExpense, setConfirmDeleteExpense] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchSummary = useCallback(async () => {
     try {
@@ -149,19 +151,18 @@ export default function AccountingPage() {
     fetchExpenses();
   }, [fetchExpenses]);
 
-  const handleDeleteExpense = async (id: string) => {
-    if (!confirm("Delete this expense?")) return;
+  const handleDeleteExpense = async () => {
+    if (!confirmDeleteExpense) return;
     try {
-      const res = await fetch(`/api/expenses/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/expenses/${confirmDeleteExpense}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete expense");
-      setSuccess("Expense deleted successfully");
+      toast("Expense deleted successfully");
       fetchExpenses();
       fetchSummary();
-      setTimeout(() => setSuccess(""), 3000);
     } catch {
-      setError("Failed to delete expense");
-      setTimeout(() => setError(""), 3000);
+      toast("Failed to delete expense", "error");
     }
+    setConfirmDeleteExpense(null);
   };
 
   const handleSaveExpense = async (data: any) => {
@@ -400,7 +401,7 @@ export default function AccountingPage() {
                             <Edit className="w-4 h-4 text-portland-gray" />
                           </button>
                           <button
-                            onClick={() => handleDeleteExpense(expense.id)}
+                            onClick={() => setConfirmDeleteExpense(expense.id)}
                             className="p-2 hover:bg-red-50 rounded-lg"
                             title="Delete expense"
                           >
@@ -439,6 +440,14 @@ export default function AccountingPage() {
               onClose={() => { setShowExpenseModal(false); setEditingExpense(null); }}
             />
           )}
+          <ConfirmModal
+            open={confirmDeleteExpense !== null}
+            title="Delete Expense"
+            message="Are you sure you want to delete this expense? This action cannot be undone."
+            confirmLabel="Delete"
+            onConfirm={handleDeleteExpense}
+            onCancel={() => setConfirmDeleteExpense(null)}
+          />
         </>
       )}
     </div>

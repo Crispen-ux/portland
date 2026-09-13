@@ -8,35 +8,40 @@ export async function GET(request: NextRequest) {
   const { user, error } = await apiAuth("students.read");
   if (error) return error;
 
-  const { searchParams } = new URL(request.url);
-  const params = paginationSchema.parse(Object.fromEntries(searchParams));
+  try {
+    const { searchParams } = new URL(request.url);
+    const params = paginationSchema.parse(Object.fromEntries(searchParams));
 
-  const where: any = {};
-  if (params.search) {
-    where.OR = [
-      { firstName: { contains: params.search, mode: "insensitive" } },
-      { lastName: { contains: params.search, mode: "insensitive" } },
-      { phone: { contains: params.search, mode: "insensitive" } },
-      { email: { contains: params.search, mode: "insensitive" } },
-    ];
-  }
+    const where: any = {};
+    if (params.search) {
+      where.OR = [
+        { firstName: { contains: params.search, mode: "insensitive" } },
+        { lastName: { contains: params.search, mode: "insensitive" } },
+        { phone: { contains: params.search, mode: "insensitive" } },
+        { email: { contains: params.search, mode: "insensitive" } },
+      ];
+    }
 
-  const [parents, total] = await Promise.all([
-    db.parentGuardian.findMany({
-      where,
-      include: {
-        studentLinks: {
-          include: { student: { select: { firstName: true, lastName: true, studentNumber: true } } },
+    const [parents, total] = await Promise.all([
+      db.parentGuardian.findMany({
+        where,
+        include: {
+          studentLinks: {
+            include: { student: { select: { firstName: true, lastName: true, studentNumber: true } } },
+          },
         },
-      },
-      orderBy: { firstName: "asc" },
-      take: params.limit,
-      skip: (params.page - 1) * params.limit,
-    }),
-    db.parentGuardian.count({ where }),
-  ]);
+        orderBy: { firstName: "asc" },
+        take: params.limit,
+        skip: (params.page - 1) * params.limit,
+      }),
+      db.parentGuardian.count({ where }),
+    ]);
 
-  return NextResponse.json({ parents, total, page: params.page, totalPages: Math.ceil(total / params.limit) });
+    return NextResponse.json({ parents, total, page: params.page, totalPages: Math.ceil(total / params.limit) });
+  } catch (e: any) {
+    console.error("Error fetching parents:", e);
+    return NextResponse.json({ error: "Failed to fetch parents" }, { status: 500 });
+  }
 }
 
 export async function POST(request: NextRequest) {

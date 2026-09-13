@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import {
   Card, PageHeader, Button, Input, Select, Badge,
   Table, TableHeader, TableBody, TableRow, TableCell,
-  EmptyState, LoadingState,
+  EmptyState, LoadingState, ConfirmModal, useToast,
 } from "@/components/ui";
 import { Plus, Search, Package, Edit2, Trash2, X, AlertCircle, CheckCircle, Tag, ShoppingCart, AlertTriangle, Eye, EyeOff } from "lucide-react";
 
@@ -57,6 +57,8 @@ export default function AdminCataloguePage() {
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const [summary, setSummary] = useState({
     totalProducts: 0,
@@ -140,21 +142,20 @@ export default function AdminCataloguePage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Delete this product?")) return;
+  const handleDelete = async () => {
+    if (!confirmDelete) return;
     try {
-      const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/products/${confirmDelete}`, { method: "DELETE" });
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.error);
       }
-      setSuccess("Product deleted");
+      toast("Product deleted successfully");
       fetchProducts();
-      setTimeout(() => setSuccess(""), 3000);
     } catch (e: any) {
-      setError(e.message);
-      setTimeout(() => setError(""), 3000);
+      toast(e.message || "Failed to delete product", "error");
     }
+    setConfirmDelete(null);
   };
 
   return (
@@ -360,7 +361,7 @@ export default function AdminCataloguePage() {
                         <Edit2 className="w-4 h-4 text-portland-red" />
                       </button>
                       <button
-                        onClick={() => handleDelete(product.id)}
+                        onClick={() => setConfirmDelete(product.id)}
                         className="p-2 hover:bg-red-50 rounded-lg"
                         title="Delete"
                       >
@@ -396,6 +397,14 @@ export default function AdminCataloguePage() {
           onClose={() => { setShowModal(false); setEditProduct(null); }}
         />
       )}
+      <ConfirmModal
+        open={confirmDelete !== null}
+        title="Delete Product"
+        message="Are you sure you want to delete this product? This action cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(null)}
+      />
     </div>
   );
 }
