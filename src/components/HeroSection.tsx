@@ -6,17 +6,17 @@ import { ArrowRight } from "lucide-react";
 
 export default function HeroSection() {
   return (
-    <section className="relative min-h-[100vh] flex items-center overflow-hidden bg-portland-dark">
+    <section className="relative min-h-[100vh] flex items-center overflow-hidden bg-portland-red">
       {/* Decorative accent */}
-      <div className="absolute top-0 right-0 w-1/3 h-full bg-portland-red/8" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-portland-red/5 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
+      <div className="absolute top-0 right-0 w-1/3 h-full bg-white/8" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="max-w-3xl">
           {/* Eyebrow */}
           <div className="animate-fade-up mb-6">
-            <span className="text-eyebrow text-portland-red-light tracking-[0.2em]">
+            <span className="text-eyebrow text-white/80 tracking-[0.2em]">
               Admissions Open — {SITE.grades}
             </span>
           </div>
@@ -27,10 +27,10 @@ export default function HeroSection() {
             <br />
             Child Is{" "}
             <span className="relative inline-block">
-              <span className="text-gradient bg-gradient-to-r from-portland-red-light to-[#FF6B6B] bg-clip-text text-transparent">
+              <span className="text-gradient bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
                 Known.
               </span>
-              <span className="absolute -bottom-2 left-0 w-full h-[3px] bg-gradient-to-r from-portland-red-light to-transparent rounded-full" />
+              <span className="absolute -bottom-2 left-0 w-full h-[3px] bg-gradient-to-r from-white to-transparent rounded-full" />
             </span>
           </h1>
 

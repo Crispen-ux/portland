@@ -71,11 +71,11 @@ function AdmissionsContent() {
       {/* Hero */}
       <section
         ref={heroRef}
-        className="relative min-h-[100vh] flex items-center overflow-hidden bg-portland-cream"
+        className="relative min-h-[100vh] flex items-center overflow-hidden bg-portland-red"
       >
         {/* Decorative accents */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-portland-red/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-portland-red/8 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/8 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-white/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div
@@ -83,14 +83,14 @@ function AdmissionsContent() {
               heroInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <span className="text-eyebrow text-portland-red tracking-[0.2em] mb-4 block">
+            <span className="text-eyebrow text-white/80 tracking-[0.2em] mb-4 block">
               Admissions Open
             </span>
-            <h1 className="text-display text-portland-dark mb-6">
+            <h1 className="text-display text-white mb-6">
               Start Your Child&apos;s Journey at{" "}
-              <span className="text-gradient">Portland</span>
+              <span className="text-gradient bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">Portland</span>
             </h1>
-            <p className="text-xl text-portland-gray mb-8">
+            <p className="text-xl text-white/70 mb-8">
               Interested in joining Portland Schools? Tell us a little about your
               child and our team will help you with the next steps.
             </p>

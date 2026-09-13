@@ -55,7 +55,7 @@ export default function SchoolFeesPage() {
       {/* Hero */}
       <section
         ref={heroRef}
-        className="min-h-[100vh] flex items-center bg-portland-dark text-white"
+        className="min-h-[100vh] flex items-center bg-portland-red text-white"
       >
         <div
           className={`mx-auto max-w-4xl px-6 text-center transition-all duration-700 ${
