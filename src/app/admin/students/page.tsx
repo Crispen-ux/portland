@@ -56,26 +56,28 @@ export default function StudentsPage() {
   useEffect(() => { fetchData(); }, [page, search]);
 
   const handleCreate = async (data: any) => {
-    try {
-      const res = await fetch("/api/students", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-      if (!res.ok) { const err = await res.json(); throw new Error(err.error); }
-      setSuccess("Student added");
-      setShowCreate(false);
-      fetchData();
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (e: any) { setError(e.message); setTimeout(() => setError(""), 3000); }
+    const res = await fetch("/api/students", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: "Failed to create student" }));
+      throw new Error(err.error || "Failed to create student");
+    }
+    setSuccess("Student added");
+    setShowCreate(false);
+    fetchData();
+    setTimeout(() => setSuccess(""), 3000);
   };
 
   const handleUpdate = async (data: any) => {
     if (!editing) return;
-    try {
-      const res = await fetch(`/api/students/${editing.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-      if (!res.ok) throw new Error("Failed to update");
-      setSuccess("Student updated");
-      setEditing(null);
-      fetchData();
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (e: any) { setError(e.message); setTimeout(() => setError(""), 3000); }
+    const res = await fetch(`/api/students/${editing.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: "Failed to update student" }));
+      throw new Error(err.error || "Failed to update student");
+    }
+    setSuccess("Student updated");
+    setEditing(null);
+    fetchData();
+    setTimeout(() => setSuccess(""), 3000);
   };
 
   const handleDelete = async (id: string) => {
@@ -207,7 +209,7 @@ export default function StudentsPage() {
       </Card>
 
       {(showCreate || editing) && (
-        <StudentModal student={editing} onSubmit={editing ? handleUpdate : handleCreate} onClose={() => { setShowCreate(false); setEditing(null); setError(""); }} />
+        <StudentModal student={editing} error={error} setError={setError} onSubmit={editing ? handleUpdate : handleCreate} onClose={() => { setShowCreate(false); setEditing(null); setError(""); }} />
       )}
 
       {linkingStudent && (
@@ -217,7 +219,7 @@ export default function StudentsPage() {
   );
 }
 
-function StudentModal({ student, onSubmit, onClose }: { student: any; onSubmit: (d: any) => void; onClose: () => void }) {
+function StudentModal({ student, error, setError, onSubmit, onClose }: { student: any; error?: string; setError?: (msg: string) => void; onSubmit: (d: any) => void; onClose: () => void }) {
   const [firstName, setFirstName] = useState(student?.firstName || "");
   const [lastName, setLastName] = useState(student?.lastName || "");
   const [dateOfBirth, setDateOfBirth] = useState(student?.dateOfBirth ? new Date(student.dateOfBirth).toISOString().split("T")[0] : "");
@@ -225,6 +227,19 @@ function StudentModal({ student, onSubmit, onClose }: { student: any; onSubmit: 
   const [nationality, setNationality] = useState(student?.nationality || "");
   const [idNumber, setIdNumber] = useState(student?.idNumber || "");
   const [studentNumber, setStudentNumber] = useState(student?.studentNumber || "");
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await onSubmit({ firstName, lastName, dateOfBirth: dateOfBirth || undefined, gender: gender || undefined, nationality: nationality || undefined, idNumber: idNumber || undefined, studentNumber: studentNumber || undefined });
+    } catch (err: any) {
+      setError?.(err.message || "An error occurred");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -234,7 +249,13 @@ function StudentModal({ student, onSubmit, onClose }: { student: any; onSubmit: 
           <h2 className="text-lg font-semibold text-portland-dark">{student ? "Edit Student" : "Add Student"}</h2>
           <button onClick={onClose} className="p-2 hover:bg-portland-light rounded-lg"><X className="w-4 h-4" /></button>
         </div>
-        <form onSubmit={(e) => { e.preventDefault(); onSubmit({ firstName, lastName, dateOfBirth: dateOfBirth || undefined, gender: gender || undefined, nationality: nationality || undefined, idNumber: idNumber || undefined, studentNumber: studentNumber || undefined }); }} className="space-y-4">
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
+            <p className="text-sm text-red-700">{error}</p>
+          </div>
+        )}
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <Input label="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
             <Input label="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
@@ -247,8 +268,8 @@ function StudentModal({ student, onSubmit, onClose }: { student: any; onSubmit: 
           <Input label="ID Number" value={idNumber} onChange={(e) => setIdNumber(e.target.value)} placeholder="SA ID number" />
           <Input label="Student Number" value={studentNumber} onChange={(e) => setStudentNumber(e.target.value)} placeholder="Auto-generated if blank" />
           <div className="flex gap-3 pt-2">
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1">Cancel</Button>
-            <Button type="submit" className="flex-1">{student ? "Save" : "Add Student"}</Button>
+            <Button type="button" variant="outline" onClick={onClose} className="flex-1" disabled={submitting}>Cancel</Button>
+            <Button type="submit" className="flex-1" disabled={submitting}>{submitting ? "Saving..." : student ? "Save" : "Add Student"}</Button>
           </div>
         </form>
       </div>
