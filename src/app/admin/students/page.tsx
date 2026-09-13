@@ -6,8 +6,9 @@ import {
   Table, TableHeader, TableBody, TableRow, TableCell,
   EmptyState, LoadingState, ConfirmModal, useToast,
 } from "@/components/ui";
-import { Plus, Search, GraduationCap, Edit, Trash2, X, AlertCircle, CheckCircle, Link2, Unlink, Eye } from "lucide-react";
+import { Plus, Search, GraduationCap, Edit, Trash2, X, AlertCircle, CheckCircle, Link2, Unlink, Eye, Download } from "lucide-react";
 import Link from "next/link";
+import { downloadCSV } from "@/lib/export-csv";
 
 interface Student {
   id: string;
@@ -130,12 +131,37 @@ export default function StudentsPage() {
 
   const activeEnrolment = (s: Student) => s.enrolments.find((e) => e.academicYear.active && e.status === "ACTIVE");
 
+  const handleExport = () => {
+    const rows = students.map((s) => {
+      const enrolment = activeEnrolment(s);
+      return {
+        "Student Number": s.studentNumber || "",
+        "First Name": s.firstName,
+        "Last Name": s.lastName,
+        "Gender": s.gender || "",
+        "Date of Birth": s.dateOfBirth ? new Date(s.dateOfBirth).toLocaleDateString("en-ZA") : "",
+        "ID Number": s.idNumber || "",
+        "Grade": enrolment?.grade?.name || "",
+        "Class": enrolment?.class?.name || "",
+        "Status": enrolment?.status || "Not Enrolled",
+        "Guardian": s.guardianLinks?.[0] ? `${s.guardianLinks[0].guardian.firstName} ${s.guardianLinks[0].guardian.lastName}` : "",
+        "Guardian Phone": s.guardianLinks?.[0]?.guardian?.phone || "",
+      };
+    });
+    downloadCSV(rows, "students");
+  };
+
   return (
     <div>
       <PageHeader
         title="Students"
         description="Manage student records, enrolments, and guardian links."
-        action={<Button onClick={() => setShowCreate(true)} icon={<Plus className="w-4 h-4" />}>Add Student</Button>}
+        action={
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleExport} icon={<Download className="w-4 h-4" />}>Export CSV</Button>
+            <Button onClick={() => setShowCreate(true)} icon={<Plus className="w-4 h-4" />}>Add Student</Button>
+          </div>
+        }
       />
 
       {error && (

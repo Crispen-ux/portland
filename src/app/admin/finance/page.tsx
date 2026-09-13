@@ -6,7 +6,8 @@ import {
   Table, TableHeader, TableBody, TableRow, TableCell,
   EmptyState, LoadingState, ConfirmModal, useToast,
 } from "@/components/ui";
-import { Plus, Search, DollarSign, Edit, Trash2, X, AlertCircle, CheckCircle, CreditCard, FileText, Mail, Repeat, Bell } from "lucide-react";
+import { Plus, Search, DollarSign, Edit, Trash2, X, AlertCircle, CheckCircle, CreditCard, FileText, Mail, Repeat, Bell, Download } from "lucide-react";
+import { downloadCSV } from "@/lib/export-csv";
 
 type Tab = "fees" | "invoices" | "payments" | "recurring";
 
@@ -251,6 +252,20 @@ function InvoicesTab({ setError, setSuccess }: { setError: (s: string) => void; 
     }
   };
 
+  const handleExportInvoices = () => {
+    const rows = invoices.map((inv) => ({
+      "Invoice Number": inv.invoiceNumber,
+      "Student": inv.studentName,
+      "Total Amount": inv.totalAmount,
+      "Paid": inv.totalPaid,
+      "Balance": inv.balance,
+      "Status": inv.status,
+      "Due Date": inv.dueDate ? new Date(inv.dueDate).toLocaleDateString("en-ZA") : "",
+      "Created": new Date(inv.createdAt).toLocaleDateString("en-ZA"),
+    }));
+    downloadCSV(rows, "invoices");
+  };
+
   const handleDelete = async (id: string) => {
     setConfirmDeleteInvoice(null);
     try {
@@ -299,6 +314,7 @@ function InvoicesTab({ setError, setSuccess }: { setError: (s: string) => void; 
             />
           </div>
           <Button onClick={() => setShowCreate(true)} icon={<Plus className="w-4 h-4" />} size="sm">New Invoice</Button>
+          <Button variant="outline" onClick={handleExportInvoices} icon={<Download className="w-4 h-4" />} size="sm">Export CSV</Button>
           {overdueCount > 0 && (
             <Button
               variant="outline"
