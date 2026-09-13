@@ -2,6 +2,13 @@
 
 import { createAuthClient } from "@neondatabase/auth/next";
 
-export const authClient = createAuthClient();
+let authClient: ReturnType<typeof createAuthClient> | null = null;
 
-export const { useSession } = authClient;
+try {
+  authClient = createAuthClient();
+} catch {
+  // Neon Auth not configured — social login disabled
+}
+
+export { authClient };
+export const useSession = authClient?.useSession ?? (() => ({ data: null }));
