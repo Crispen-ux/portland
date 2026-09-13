@@ -42,6 +42,7 @@ export async function middleware(request: NextRequest) {
   const token = await getToken({
     req: request,
     secret: process.env.AUTH_SECRET,
+    secureCookie: process.env.NEXTAUTH_URL?.startsWith("https"),
   });
 
   if (!token) {
