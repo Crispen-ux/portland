@@ -388,6 +388,7 @@ function OverviewTab({ data }: { data: ProfileData }) {
 // ─── Classes Tab ───────────────────────────────────────
 
 function ClassesTab({ data }: { data: ProfileData }) {
+  const { toast } = useToast();
   const [showAssign, setShowAssign] = useState(false);
 
   return (

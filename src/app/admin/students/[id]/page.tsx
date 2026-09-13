@@ -557,6 +557,7 @@ function OverviewTab({ data }: { data: ProfileData }) {
 
 function AcademicsTab({ data, studentId }: { data: ProfileData; studentId: string }) {
   const { academics } = data;
+  const { toast } = useToast();
   const [showEnterGrade, setShowEnterGrade] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<SubjectSummary | null>(null);
 
