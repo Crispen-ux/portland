@@ -43,7 +43,7 @@ export default function AboutPage() {
             </span>
             <h1 className="text-display text-white mb-6">
               About{" "}
-              <span className="text-gradient bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">Portland</span>
+              <span className="text-white">Portland</span>
             </h1>
             <p className="text-xl text-white/70">
               A place to learn. A place to grow. A place to belong.

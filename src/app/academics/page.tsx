@@ -42,7 +42,7 @@ export default function AcademicsPage() {
             </span>
             <h1 className="text-display text-white mb-6">
               Learning for Today.{" "}
-              <span className="text-gradient bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
+              <span className="text-white">
                 Preparing for Tomorrow.
               </span>
             </h1>

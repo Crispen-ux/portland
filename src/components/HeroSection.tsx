@@ -27,7 +27,7 @@ export default function HeroSection() {
             <br />
             Child Is{" "}
             <span className="relative inline-block">
-              <span className="text-gradient bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
+              <span className="text-white">
                 Known.
               </span>
               <span className="absolute -bottom-2 left-0 w-full h-[3px] bg-gradient-to-r from-white to-transparent rounded-full" />
