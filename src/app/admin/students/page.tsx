@@ -6,7 +6,8 @@ import {
   Table, TableHeader, TableBody, TableRow, TableCell,
   EmptyState, LoadingState, ConfirmModal, useToast,
 } from "@/components/ui";
-import { Plus, Search, GraduationCap, Edit, Trash2, X, AlertCircle, CheckCircle, Link2, Unlink } from "lucide-react";
+import { Plus, Search, GraduationCap, Edit, Trash2, X, AlertCircle, CheckCircle, Link2, Unlink, Eye } from "lucide-react";
+import Link from "next/link";
 
 interface Student {
   id: string;
@@ -180,7 +181,9 @@ export default function StudentsPage() {
                   <TableRow key={s.id}>
                     <TableCell>
                       <div>
-                        <p className="font-medium text-portland-dark">{s.firstName} {s.lastName}</p>
+                        <Link href={`/admin/students/${s.id}`} className="font-medium text-portland-dark hover:text-portland-red transition-colors">
+                          {s.firstName} {s.lastName}
+                        </Link>
                         {s.gender && <p className="text-xs text-portland-gray">{s.gender}{s.dateOfBirth ? ` · ${new Date(s.dateOfBirth).toLocaleDateString("en-ZA")}` : ""}</p>}
                       </div>
                     </TableCell>
@@ -204,6 +207,7 @@ export default function StudentsPage() {
                     <TableCell>{ae ? <Badge variant="success">Enrolled</Badge> : <Badge>Inactive</Badge>}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
+                        <Link href={`/admin/students/${s.id}`} className="p-2 hover:bg-portland-light rounded-lg"><Eye className="w-4 h-4 text-portland-gray" /></Link>
                         <button onClick={() => setEditing(s)} className="p-2 hover:bg-portland-light rounded-lg"><Edit className="w-4 h-4 text-portland-gray" /></button>
                         <button onClick={() => setConfirmDelete(s.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
                       </div>

@@ -28,6 +28,11 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get("type");
   if (type && type !== "ALL") where.type = type;
 
+  const studentId = searchParams.get("studentId");
+  if (studentId) {
+    where.results = { some: { studentId } };
+  }
+
   const [assessments, total] = await Promise.all([
     db.assessment.findMany({
       where,

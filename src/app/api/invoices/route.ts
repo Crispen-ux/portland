@@ -34,6 +34,9 @@ export async function GET(request: NextRequest) {
   const academicYearId = searchParams.get("academicYearId");
   if (academicYearId) where.academicYearId = academicYearId;
 
+  const studentId = searchParams.get("studentId");
+  if (studentId) where.studentId = studentId;
+
   const [invoices, total] = await Promise.all([
     db.invoice.findMany({
       where,
