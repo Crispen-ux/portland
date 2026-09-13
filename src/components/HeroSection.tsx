@@ -13,7 +13,7 @@ export default function HeroSection() {
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="max-w-3xl">
+        <div className="max-w-3xl text-left">
           {/* Eyebrow */}
           <div className="animate-fade-up mb-6">
             <span className="text-eyebrow text-white/80 tracking-[0.2em]">

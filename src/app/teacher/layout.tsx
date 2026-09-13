@@ -51,7 +51,7 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
             </Link>
           </div>
 
-          <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+          <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto no-scrollbar">
             {NAV_ITEMS.map((item) => {
               const isActive = pathname === item.href || (item.href !== "/teacher" && pathname.startsWith(item.href));
               return (

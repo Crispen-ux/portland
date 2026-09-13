@@ -79,7 +79,7 @@ function AdmissionsContent() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div
-            className={`max-w-2xl transition-all duration-700 ${
+            className={`max-w-2xl text-left transition-all duration-700 ${
               heroInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >

@@ -57,22 +57,24 @@ export default function SchoolFeesPage() {
         ref={heroRef}
         className="min-h-[100vh] flex items-center bg-portland-red text-white"
       >
-        <div
-          className={`mx-auto max-w-4xl px-6 text-center transition-all duration-700 ${
-            heroInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-          }`}
-        >
-          <div className="inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full text-sm font-medium mb-6">
-            <GraduationCap className="w-4 h-4 text-portland-red-light" />
-            Transparent &amp; Affordable
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div
+            className={`max-w-2xl text-left transition-all duration-700 ${
+              heroInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+            }`}
+          >
+            <div className="inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <GraduationCap className="w-4 h-4 text-portland-red-light" />
+              Transparent &amp; Affordable
+            </div>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
+              School Fees
+            </h1>
+            <p className="text-lg sm:text-xl text-portland-mid max-w-2xl leading-relaxed">
+              Portland Schools provides quality CAPS education at fees that respect
+              your family&apos;s budget. Every learner receives a free school uniform.
+            </p>
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
-            School Fees
-          </h1>
-          <p className="text-lg sm:text-xl text-portland-mid max-w-2xl mx-auto leading-relaxed">
-            Portland Schools provides quality CAPS education at fees that respect
-            your family&apos;s budget. Every learner receives a free school uniform.
-          </p>
         </div>
       </section>
 

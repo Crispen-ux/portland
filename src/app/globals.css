@@ -229,6 +229,16 @@ a:focus-visible {
   color: #1A1A1A;
 }
 
+/* Hide scrollbar while keeping scroll (e.g. sidebar navs) */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

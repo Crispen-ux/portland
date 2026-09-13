@@ -56,22 +56,24 @@ export default function ContactPage() {
         ref={heroRef}
         className="min-h-[100vh] flex items-center bg-portland-red text-white"
       >
-        <div
-          className={`mx-auto max-w-4xl px-6 text-center transition-all duration-700 ${
-            heroInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-          }`}
-        >
-          <div className="inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full text-sm font-medium mb-6">
-            <MapPin className="w-4 h-4 text-portland-red-light" />
-            Johannesburg
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div
+            className={`max-w-2xl text-left transition-all duration-700 ${
+              heroInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+            }`}
+          >
+            <div className="inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <MapPin className="w-4 h-4 text-portland-red-light" />
+              Johannesburg
+            </div>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
+              Contact Us
+            </h1>
+            <p className="text-lg sm:text-xl text-portland-mid max-w-2xl leading-relaxed">
+              We&apos;d love to hear from you. Get in touch to learn about admissions,
+              fees, or to book a school visit.
+            </p>
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
-            Contact Us
-          </h1>
-          <p className="text-lg sm:text-xl text-portland-mid max-w-2xl mx-auto leading-relaxed">
-            We&apos;d love to hear from you. Get in touch to learn about admissions,
-            fees, or to book a school visit.
-          </p>
         </div>
       </section>
 
@@ -84,10 +86,10 @@ export default function ContactPage() {
               : "opacity-0 translate-y-6"
           }`}
         >
-          <h2 className="text-3xl sm:text-4xl font-bold text-portland-dark text-center mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-portland-dark text-left mb-4">
             Get in Touch
           </h2>
-          <p className="text-center text-portland-gray max-w-xl mx-auto mb-12">
+          <p className="text-left text-portland-gray max-w-xl mb-12">
             Choose the way that works best for you.
           </p>
 
@@ -102,9 +104,9 @@ export default function ContactPage() {
                     ? "noopener noreferrer"
                     : undefined
                 }
-                className="bg-white rounded-2xl p-8 text-center shadow-[0_2px_20px_rgba(0,0,0,0.04)] border border-portland-mid/30 hover:shadow-[0_4px_30px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 group"
+                className="bg-white rounded-2xl p-8 text-left shadow-[0_2px_20px_rgba(0,0,0,0.04)] border border-portland-mid/30 hover:shadow-[0_4px_30px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 group"
               >
-                <div className="w-12 h-12 bg-portland-light rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-portland-red/10 transition-colors">
+                <div className="w-12 h-12 bg-portland-light rounded-xl flex items-center justify-center mb-4 group-hover:bg-portland-red/10 transition-colors">
                   <method.icon
                     className={`w-5 h-5 ${method.color || "text-portland-red"}`}
                   />
@@ -197,16 +199,17 @@ export default function ContactPage() {
 
       {/* CTA */}
       <section className="py-20 bg-portland-dark text-white">
-        <div className="mx-auto max-w-4xl px-6 text-center">
-          <GraduationCap className="w-10 h-10 text-portland-red-light mx-auto mb-4" />
-          <h2 className="text-3xl sm:text-4xl font-bold mb-6">
-            Ready to Visit?
-          </h2>
-          <p className="text-portland-mid mb-8 max-w-xl mx-auto">
-            Book a school visit to meet our team, see our classrooms, and learn
-            more about Portland Schools.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div className="max-w-2xl text-left">
+            <GraduationCap className="w-10 h-10 text-portland-red-light mb-4" />
+            <h2 className="text-3xl sm:text-4xl font-bold mb-6">
+              Ready to Visit?
+            </h2>
+            <p className="text-portland-mid mb-8 max-w-xl">
+              Book a school visit to meet our team, see our classrooms, and learn
+              more about Portland Schools.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
             <Link
               href={SITE.whatsappLink}
               target="_blank"
@@ -223,6 +226,7 @@ export default function ContactPage() {
               Admissions
               <ChevronRight className="w-4 h-4" />
             </Link>
+            </div>
           </div>
         </div>
       </section>

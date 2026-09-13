@@ -276,9 +276,14 @@ export default function AdminLayout({
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+          <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto no-scrollbar">
             {NAV_ITEMS.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+              // Dashboard ("/admin") must match exactly — every admin route
+              // starts with "/admin/", otherwise it stays highlighted everywhere.
+              const isActive =
+                item.href === "/admin"
+                  ? pathname === "/admin"
+                  : pathname === item.href || pathname.startsWith(item.href + "/");
               return (
                 <Link
                   key={item.href}
