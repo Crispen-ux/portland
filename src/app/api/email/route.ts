@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "To, subject, and body are required" }, { status: 400 });
     }
 
-    const html = generalEmail({ subject, body: emailBody.replace(/\n/g, "<br>"), recipientName });
+    const html = await generalEmail({ subject, body: emailBody.replace(/\n/g, "<br>"), recipientName });
 
     await sendEmail({
       to,

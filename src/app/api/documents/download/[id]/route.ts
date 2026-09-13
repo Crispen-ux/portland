@@ -2,448 +2,460 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { apiAuth } from "@/lib/auth/helpers";
 
-function generateInvoiceHTML(data: any): string {
-  return `
-<!DOCTYPE html>
-<html>
+interface SchoolBranding {
+  name: string;
+  address: string | null;
+  city: string | null;
+  phone: string | null;
+  email: string | null;
+  website: string | null;
+  logoUrl: string | null;
+  accentColor: string;
+  secondaryColor: string;
+  fontFamily: string;
+  invoicePrefix: string;
+  invoiceNotes: string | null;
+  invoiceTerms: string | null;
+  currency: string;
+  currencySymbol: string;
+  emailFooter: string | null;
+  principalName: string | null;
+  principalTitle: string | null;
+}
+
+async function getSchool(): Promise<SchoolBranding> {
+  const school = await db.school.findFirst();
+  if (!school) throw new Error("No school configured");
+  return school as unknown as SchoolBranding;
+}
+
+function esc(str: string | null | undefined): string {
+  if (!str) return "";
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function logoHtml(school: SchoolBranding, height = 48): string {
+  if (!school.logoUrl) return "";
+  return `<img src="${school.logoUrl}" alt="${esc(school.name)}" style="height:${height}px;object-fit:contain;" />`;
+}
+
+function docHead(title: string, school: SchoolBranding, extraCSS = ""): string {
+  return `<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Invoice ${data.invoiceNumber || ""}</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
-    .header { display: flex; justify-content: space-between; margin-bottom: 40px; border-bottom: 2px solid #2563eb; padding-bottom: 20px; }
-    .school-name { font-size: 24px; font-weight: bold; color: #2563eb; }
-    .school-info { font-size: 12px; color: #666; margin-top: 5px; }
-    .invoice-title { font-size: 28px; font-weight: bold; color: #2563eb; text-align: right; }
-    .invoice-number { font-size: 14px; color: #666; text-align: right; margin-top: 5px; }
-    .details { display: flex; justify-content: space-between; margin-bottom: 30px; }
-    .student-info, .invoice-meta { width: 45%; }
-    .label { font-weight: bold; color: #666; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; }
-    .value { font-size: 14px; margin-bottom: 15px; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-    th { background: #2563eb; color: white; padding: 12px; text-align: left; font-size: 12px; text-transform: uppercase; }
-    td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
-    .total-row { font-weight: bold; background: #f3f4f6; }
-    .total-row td { padding: 12px; }
-    .footer { margin-top: 40px; font-size: 12px; color: #666; text-align: center; border-top: 1px solid #e5e7eb; padding-top: 20px; }
-    @media print { body { padding: 20px; } }
-  </style>
-</head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${esc(title)}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: ${school.fontFamily};
+    color: ${school.secondaryColor};
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  @media print {
+    body { padding: 0; }
+    .no-print { display: none !important; }
+    @page { margin: 15mm; size: A4; }
+  }
+  @page { size: A4; margin: 15mm; }
+  .page { max-width: 210mm; margin: 0 auto; padding: 40px; }
+  ${extraCSS}
+</style>
+</head>`;
+}
+
+function docFooter(school: SchoolBranding): string {
+  const footer = school.emailFooter || `${esc(school.name)} · ${esc(school.address || "")}, ${esc(school.city || "")}`;
+  return `
+  <div style="margin-top:40px;padding-top:20px;border-top:2px solid ${school.accentColor};">
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#9CA3AF;">
+      <span>${footer}</span>
+      <span>Generated ${new Date().toLocaleDateString("en-ZA", { day: "2-digit", month: "short", year: "numeric" })}</span>
+    </div>
+  </div>`;
+}
+
+// ─── INVOICE ────────────────────────────────────────────
+
+function generateInvoiceHTML(data: any, school: SchoolBranding): string {
+  const items = (data.items || []).map((item: any) => `
+    <tr>
+      <td style="padding:14px 16px;border-bottom:1px solid #F3F4F6;font-size:14px;">${esc(item.description)}</td>
+      <td style="padding:14px 16px;border-bottom:1px solid #F3F4F6;font-size:14px;text-align:center;">${item.quantity || 1}</td>
+      <td style="padding:14px 16px;border-bottom:1px solid #F3F4F6;font-size:14px;text-align:right;font-weight:500;">${school.currencySymbol} ${Number(item.amount).toFixed(2)}</td>
+    </tr>`).join("");
+
+  return `${docHead(`Invoice ${data.invoiceNumber || ""}`, school)}
 <body>
-  <div class="header">
+<div class="page">
+  <!-- Header -->
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:48px;">
     <div>
-      <div class="school-name">Portland Schools</div>
-      <div class="school-info">123 Education Street<br>Pretoria, 0001<br>Phone: (012) 345-6789</div>
+      ${logoHtml(school)}
+      <h1 style="font-size:22px;font-weight:800;color:${school.accentColor};margin-top:${school.logoUrl ? '8px' : '0'};letter-spacing:-0.5px;">${esc(school.name)}</h1>
+      <div style="font-size:12px;color:#9CA3AF;margin-top:4px;line-height:1.5;">
+        ${school.address ? `<div>${esc(school.address)}${school.city ? `, ${esc(school.city)}` : ""}</div>` : ""}
+        ${school.phone ? `<div>${esc(school.phone)}</div>` : ""}
+        ${school.email ? `<div>${esc(school.email)}</div>` : ""}
+      </div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:36px;font-weight:800;color:${school.accentColor};letter-spacing:-1px;line-height:1;">INVOICE</div>
+      <div style="font-size:13px;color:#6B7280;margin-top:8px;">
+        <div><span style="color:#9CA3AF;">Number:</span> <strong>${esc(data.invoiceNumber || "")}</strong></div>
+        ${data.dueDate ? `<div><span style="color:#9CA3AF;">Due Date:</span> <strong>${new Date(data.dueDate).toLocaleDateString("en-ZA")}</strong></div>` : ""}
+        <div><span style="color:#9CA3AF;">Status:</span> <strong style="color:${data.status === "PAID" ? "#059669" : "#D97706"}">${data.status || "PENDING"}</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bill To -->
+  <div style="background:#F9FAFB;border-radius:12px;padding:24px;margin-bottom:36px;display:flex;justify-content:space-between;">
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;">Bill To</div>
+      <div style="font-size:16px;font-weight:700;color:${school.secondaryColor};">${esc(data.student?.firstName || "")} ${esc(data.student?.lastName || "")}</div>
+      ${data.student?.studentNumber ? `<div style="font-size:12px;color:#6B7280;margin-top:2px;">Student #${esc(data.student.studentNumber)}</div>` : ""}
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;">Amount Due</div>
+      <div style="font-size:28px;font-weight:800;color:${school.accentColor};">${school.currencySymbol} ${Number(data.totalAmount || 0).toFixed(2)}</div>
+    </div>
+  </div>
+
+  <!-- Items Table -->
+  <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+    <thead>
+      <tr>
+        <th style="background:${school.accentColor};color:#fff;padding:12px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Description</th>
+        <th style="background:${school.accentColor};color:#fff;padding:12px 16px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Qty</th>
+        <th style="background:${school.accentColor};color:#fff;padding:12px 16px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${items || `<tr><td colspan="3" style="padding:32px;text-align:center;color:#9CA3AF;font-size:14px;">No items</td></tr>`}
+      <tr>
+        <td colspan="2" style="padding:16px;font-size:15px;font-weight:700;text-align:right;border-top:2px solid ${school.secondaryColor};">Total</td>
+        <td style="padding:16px;font-size:20px;font-weight:800;text-align:right;color:${school.accentColor};border-top:2px solid ${school.secondaryColor};">${school.currencySymbol} ${Number(data.totalAmount || 0).toFixed(2)}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  ${school.invoiceNotes ? `<div style="background:#F9FAFB;border-radius:12px;padding:20px;margin-bottom:20px;font-size:12px;color:#6B7280;line-height:1.6;"><strong style="color:${school.secondaryColor};">Notes:</strong><br>${esc(school.invoiceNotes)}</div>` : ""}
+  ${school.invoiceTerms ? `<div style="background:#FEF3C7;border-radius:12px;padding:20px;margin-bottom:20px;font-size:12px;color:#92400E;line-height:1.6;"><strong>Terms:</strong> ${esc(school.invoiceTerms)}</div>` : ""}
+
+  ${docFooter(school)}
+</div>
+</body></html>`;
+}
+
+// ─── TRANSCRIPT ─────────────────────────────────────────
+
+function generateTranscriptHTML(data: any, school: SchoolBranding): string {
+  const subjectRows = (data.subjects || []).map((s: any, i: number) => `
+    <tr style="background:${i % 2 === 0 ? '#fff' : '#F9FAFB'};">
+      <td style="padding:14px 16px;font-weight:600;font-size:14px;border-bottom:1px solid #F3F4F6;">${esc(s.subject)}</td>
+      <td style="padding:14px 16px;text-align:center;font-size:14px;border-bottom:1px solid #F3F4F6;">${s.average}%</td>
+      <td style="padding:14px 16px;text-align:center;border-bottom:1px solid #F3F4F6;">
+        <span style="display:inline-block;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;color:#fff;background:${
+          s.average >= 80 ? "#059669" : s.average >= 60 ? "#D97706" : s.average >= 50 ? "#EA580C" : "#DC2626"
+        };">${esc(s.grade)}</span>
+      </td>
+    </tr>`).join("");
+
+  return `${docHead(`Transcript - ${data.student?.firstName} ${data.student?.lastName}`, school)}
+<body>
+<div class="page">
+  <!-- Header -->
+  <div style="text-align:center;margin-bottom:40px;padding-bottom:32px;border-bottom:2px solid ${school.accentColor};">
+    ${logoHtml(school, 56)}
+    <h1 style="font-size:14px;font-weight:600;color:#9CA3AF;text-transform:uppercase;letter-spacing:3px;margin-top:${school.logoUrl ? '12px' : '0'};">Academic Transcript</h1>
+  </div>
+
+  <!-- Student Info -->
+  <div style="display:flex;justify-content:space-between;margin-bottom:36px;background:#F9FAFB;border-radius:12px;padding:24px;">
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">Student Name</div>
+      <div style="font-size:18px;font-weight:700;color:${school.secondaryColor};">${esc(data.student?.firstName || "")} ${esc(data.student?.lastName || "")}</div>
     </div>
     <div>
-      <div class="invoice-title">INVOICE</div>
-      <div class="invoice-number">${data.invoiceNumber || ""}</div>
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">Student Number</div>
+      <div style="font-size:16px;font-weight:600;color:${school.secondaryColor};">${esc(data.student?.studentNumber || "N/A")}</div>
+    </div>
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">Academic Year</div>
+      <div style="font-size:16px;font-weight:600;color:${school.accentColor};">${esc(data.academicYear?.name || "N/A")}</div>
     </div>
   </div>
-  <div class="details">
-    <div class="student-info">
-      <div class="label">Bill To</div>
-      <div class="value">${data.student?.firstName || ""} ${data.student?.lastName || ""}</div>
-      <div class="value">Student #: ${data.student?.studentNumber || "N/A"}</div>
-    </div>
-    <div class="invoice-meta">
-      <div class="label">Invoice Details</div>
-      <div class="value">Due Date: ${data.dueDate ? new Date(data.dueDate).toLocaleDateString() : "N/A"}</div>
-      <div class="value">Status: ${data.status || "PENDING"}</div>
-    </div>
-  </div>
-  <table>
+
+  <!-- Results Table -->
+  <table style="width:100%;border-collapse:collapse;margin-bottom:32px;">
     <thead>
       <tr>
-        <th>Description</th>
-        <th>Qty</th>
-        <th style="text-align: right">Amount</th>
+        <th style="background:${school.accentColor};color:#fff;padding:12px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Subject</th>
+        <th style="background:${school.accentColor};color:#fff;padding:12px 16px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Average</th>
+        <th style="background:${school.accentColor};color:#fff;padding:12px 16px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Grade</th>
       </tr>
     </thead>
     <tbody>
-      ${(data.items || [])
-        .map(
-          (item: any) => `
-        <tr>
-          <td>${item.description}</td>
-          <td>${item.quantity || 1}</td>
-          <td style="text-align: right">R ${Number(item.amount).toFixed(2)}</td>
-        </tr>
-      `
-        )
-        .join("")}
-      <tr class="total-row">
-        <td colspan="2">Total</td>
-        <td style="text-align: right">R ${Number(data.totalAmount || 0).toFixed(2)}</td>
-      </tr>
+      ${subjectRows || `<tr><td colspan="3" style="padding:40px;text-align:center;color:#9CA3AF;">No results available</td></tr>`}
     </tbody>
   </table>
-  <div class="footer">
-    <p>Thank you for your payment. Please retain this invoice for your records.</p>
-  </div>
-</body>
-</html>`;
+
+  <!-- Signature -->
+  ${school.principalName ? `
+  <div style="margin-top:60px;display:flex;justify-content:flex-end;">
+    <div style="text-align:center;width:200px;">
+      <div style="border-top:2px solid ${school.secondaryColor};padding-top:8px;">
+        <p style="font-size:14px;font-weight:700;color:${school.secondaryColor};">${esc(school.principalName)}</p>
+        <p style="font-size:12px;color:#6B7280;">${esc(school.principalTitle || "Principal")}</p>
+      </div>
+    </div>
+  </div>` : ""}
+
+  ${docFooter(school)}
+</div>
+</body></html>`;
 }
 
-function generateTranscriptHTML(data: any): string {
-  const subjectRows = (data.subjects || [])
-    .map(
-      (s: any) => `
-    <tr>
-      <td>${s.subject}</td>
-      <td style="text-align: center">${s.average}%</td>
-      <td style="text-align: center">${s.grade}</td>
-    </tr>`
-    )
-    .join("");
+// ─── REPORT CARD ────────────────────────────────────────
 
-  return `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Transcript - ${data.student?.firstName} ${data.student?.lastName}</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
-    .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #2563eb; padding-bottom: 20px; }
-    .school-name { font-size: 24px; font-weight: bold; color: #2563eb; }
-    .school-info { font-size: 12px; color: #666; margin-top: 5px; }
-    .title { font-size: 20px; font-weight: bold; margin: 20px 0; }
-    .student-info { display: flex; justify-content: space-between; margin-bottom: 30px; padding: 15px; background: #f9fafb; border-radius: 8px; }
-    .info-group { margin-right: 30px; }
-    .label { font-size: 11px; color: #666; text-transform: uppercase; }
-    .value { font-size: 14px; font-weight: bold; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-    th { background: #2563eb; color: white; padding: 12px; text-align: left; font-size: 12px; }
-    td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
-    .footer { margin-top: 40px; font-size: 12px; color: #666; text-align: center; }
-    @media print { body { padding: 20px; } }
-  </style>
-</head>
+function generateReportCardHTML(data: any, school: SchoolBranding): string {
+  const subjectRows = (data.academicResults || []).map((s: any, i: number) => `
+    <tr style="background:${i % 2 === 0 ? '#fff' : '#F9FAFB'};">
+      <td style="padding:14px 16px;font-weight:600;font-size:14px;border-bottom:1px solid #F3F4F6;">${esc(s.subject)}</td>
+      <td style="padding:14px 16px;text-align:center;font-size:14px;font-weight:600;border-bottom:1px solid #F3F4F6;">${s.average}%</td>
+    </tr>`).join("");
+
+  const attendanceColor = (data.attendanceRate || 0) >= 90 ? "#059669" : (data.attendanceRate || 0) >= 75 ? "#D97706" : "#DC2626";
+
+  return `${docHead(`Report Card - ${data.student?.firstName} ${data.student?.lastName}`, school)}
 <body>
-  <div class="header">
-    <div class="school-name">Portland Schools</div>
-    <div class="school-info">Academic Transcript</div>
+<div class="page">
+  <!-- Header -->
+  <div style="text-align:center;margin-bottom:40px;padding-bottom:32px;border-bottom:2px solid ${school.accentColor};">
+    ${logoHtml(school, 56)}
+    <h1 style="font-size:14px;font-weight:600;color:#9CA3AF;text-transform:uppercase;letter-spacing:3px;margin-top:${school.logoUrl ? '12px' : '0'};">Academic Report Card</h1>
   </div>
-  <div class="title">ACADEMIC TRANSCRIPT</div>
-  <div class="student-info">
-    <div class="info-group">
-      <div class="label">Student Name</div>
-      <div class="value">${data.student?.firstName || ""} ${data.student?.lastName || ""}</div>
+
+  <!-- Student Info -->
+  <div style="display:flex;justify-content:space-between;margin-bottom:36px;background:#F9FAFB;border-radius:12px;padding:24px;">
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">Student Name</div>
+      <div style="font-size:18px;font-weight:700;color:${school.secondaryColor};">${esc(data.student?.firstName || "")} ${esc(data.student?.lastName || "")}</div>
     </div>
-    <div class="info-group">
-      <div class="label">Student Number</div>
-      <div class="value">${data.student?.studentNumber || "N/A"}</div>
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">Student Number</div>
+      <div style="font-size:16px;font-weight:600;color:${school.secondaryColor};">${esc(data.student?.studentNumber || "N/A")}</div>
     </div>
-    <div class="info-group">
-      <div class="label">Academic Year</div>
-      <div class="value">${data.academicYear?.name || "N/A"}</div>
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">Academic Year</div>
+      <div style="font-size:16px;font-weight:600;color:${school.accentColor};">${esc(data.academicYear?.name || "N/A")}</div>
     </div>
   </div>
-  <table>
+
+  <!-- Attendance Stats -->
+  <div style="display:flex;gap:16px;margin-bottom:36px;">
+    <div style="flex:1;text-align:center;padding:20px;background:#F9FAFB;border-radius:12px;">
+      <div style="font-size:28px;font-weight:800;color:${school.secondaryColor};">${data.attendance?.total || 0}</div>
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Total Days</div>
+    </div>
+    <div style="flex:1;text-align:center;padding:20px;background:#F0FDF4;border-radius:12px;">
+      <div style="font-size:28px;font-weight:800;color:#059669;">${data.attendance?.present || 0}</div>
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Present</div>
+    </div>
+    <div style="flex:1;text-align:center;padding:20px;background:#FEF2F2;border-radius:12px;">
+      <div style="font-size:28px;font-weight:800;color:#DC2626;">${data.attendance?.absent || 0}</div>
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Absent</div>
+    </div>
+    <div style="flex:1;text-align:center;padding:20px;background:${attendanceColor}11;border-radius:12px;">
+      <div style="font-size:28px;font-weight:800;color:${attendanceColor};">${data.attendanceRate || 0}%</div>
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Attendance Rate</div>
+    </div>
+  </div>
+
+  <!-- Academic Results -->
+  <h2 style="font-size:16px;font-weight:700;color:${school.accentColor};margin-bottom:16px;text-transform:uppercase;letter-spacing:1px;">Academic Results</h2>
+  <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
     <thead>
       <tr>
-        <th>Subject</th>
-        <th style="text-align: center">Average</th>
-        <th style="text-align: center">Grade</th>
+        <th style="background:${school.accentColor};color:#fff;padding:12px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Subject</th>
+        <th style="background:${school.accentColor};color:#fff;padding:12px 16px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Average</th>
       </tr>
     </thead>
     <tbody>
-      ${subjectRows || '<tr><td colspan="3" style="text-align: center">No results available</td></tr>'}
+      ${subjectRows || `<tr><td colspan="2" style="padding:40px;text-align:center;color:#9CA3AF;">No results available</td></tr>`}
+      <tr style="background:${school.accentColor}11;">
+        <td style="padding:16px;font-size:15px;font-weight:800;border-top:2px solid ${school.accentColor};">Overall Average</td>
+        <td style="padding:16px;font-size:18px;font-weight:800;text-align:center;color:${school.accentColor};border-top:2px solid ${school.accentColor};">${data.overallAverage || 0}%</td>
+      </tr>
     </tbody>
   </table>
-  <div class="footer">
-    <p>Generated on ${data.generatedAt ? new Date(data.generatedAt).toLocaleDateString() : new Date().toLocaleDateString()}</p>
-  </div>
-</body>
-</html>`;
+
+  <!-- Signature -->
+  ${school.principalName ? `
+  <div style="margin-top:60px;display:flex;justify-content:flex-end;">
+    <div style="text-align:center;width:200px;">
+      <div style="border-top:2px solid ${school.secondaryColor};padding-top:8px;">
+        <p style="font-size:14px;font-weight:700;color:${school.secondaryColor};">${esc(school.principalName)}</p>
+        <p style="font-size:12px;color:#6B7280;">${esc(school.principalTitle || "Principal")}</p>
+      </div>
+    </div>
+  </div>` : ""}
+
+  ${docFooter(school)}
+</div>
+</body></html>`;
 }
 
-function generateReportCardHTML(data: any): string {
-  const subjectRows = (data.academicResults || [])
-    .map(
-      (s: any) => `
-    <tr>
-      <td>${s.subject}</td>
-      <td style="text-align: center">${s.average}%</td>
-    </tr>`
-    )
-    .join("");
+// ─── STATEMENT ──────────────────────────────────────────
 
-  return `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Report Card - ${data.student?.firstName} ${data.student?.lastName}</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
-    .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #2563eb; padding-bottom: 20px; }
-    .school-name { font-size: 24px; font-weight: bold; color: #2563eb; }
-    .title { font-size: 20px; font-weight: bold; margin: 20px 0; }
-    .student-info { display: flex; justify-content: space-between; margin-bottom: 30px; padding: 15px; background: #f9fafb; border-radius: 8px; }
-    .info-group { margin-right: 30px; }
-    .label { font-size: 11px; color: #666; text-transform: uppercase; }
-    .value { font-size: 14px; font-weight: bold; }
-    .section { margin-bottom: 30px; }
-    .section-title { font-size: 16px; font-weight: bold; margin-bottom: 15px; color: #2563eb; }
-    .stats { display: flex; gap: 20px; margin-bottom: 20px; }
-    .stat-card { flex: 1; padding: 15px; background: #f9fafb; border-radius: 8px; text-align: center; }
-    .stat-value { font-size: 24px; font-weight: bold; color: #2563eb; }
-    .stat-label { font-size: 11px; color: #666; text-transform: uppercase; margin-top: 5px; }
-    table { width: 100%; border-collapse: collapse; }
-    th { background: #2563eb; color: white; padding: 12px; text-align: left; font-size: 12px; }
-    td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
-    .footer { margin-top: 40px; font-size: 12px; color: #666; text-align: center; }
-    @media print { body { padding: 20px; } }
-  </style>
-</head>
+function generateStatementHTML(data: any, school: SchoolBranding): string {
+  const itemRows = (data.items || []).map((item: any, i: number) => `
+    <tr style="background:${i % 2 === 0 ? '#fff' : '#F9FAFB'};">
+      <td style="padding:12px 16px;font-size:13px;border-bottom:1px solid #F3F4F6;">${new Date(item.date).toLocaleDateString("en-ZA")}</td>
+      <td style="padding:12px 16px;font-size:13px;border-bottom:1px solid #F3F4F6;">
+        <span style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;color:#fff;background:${item.type === "PAYMENT" ? "#059669" : school.accentColor};">${esc(item.type)}</span>
+      </td>
+      <td style="padding:12px 16px;font-size:13px;border-bottom:1px solid #F3F4F6;">${esc(item.description)}</td>
+      <td style="padding:12px 16px;font-size:13px;text-align:right;border-bottom:1px solid #F3F4F6;font-weight:600;color:${item.type === "PAYMENT" ? "#059669" : school.secondaryColor};">
+        ${item.type === "PAYMENT" ? "-" : ""}${school.currencySymbol} ${Math.abs(item.amount).toFixed(2)}
+      </td>
+      <td style="padding:12px 16px;font-size:13px;text-align:right;border-bottom:1px solid #F3F4F6;font-weight:700;">${school.currencySymbol} ${item.balance.toFixed(2)}</td>
+    </tr>`).join("");
+
+  const balanceColor = data.balance > 0 ? "#DC2626" : "#059669";
+
+  return `${docHead(`Statement - ${data.student?.firstName} ${data.student?.lastName}`, school)}
 <body>
-  <div class="header">
-    <div class="school-name">Portland Schools</div>
-    <div class="school-info">Report Card</div>
+<div class="page">
+  <!-- Header -->
+  <div style="text-align:center;margin-bottom:40px;padding-bottom:32px;border-bottom:2px solid ${school.accentColor};">
+    ${logoHtml(school, 56)}
+    <h1 style="font-size:14px;font-weight:600;color:#9CA3AF;text-transform:uppercase;letter-spacing:3px;margin-top:${school.logoUrl ? '12px' : '0'};">Account Statement</h1>
   </div>
-  <div class="title">ACADEMIC REPORT CARD</div>
-  <div class="student-info">
-    <div class="info-group">
-      <div class="label">Student Name</div>
-      <div class="value">${data.student?.firstName || ""} ${data.student?.lastName || ""}</div>
-    </div>
-    <div class="info-group">
-      <div class="label">Student Number</div>
-      <div class="value">${data.student?.studentNumber || "N/A"}</div>
-    </div>
-    <div class="info-group">
-      <div class="label">Academic Year</div>
-      <div class="value">${data.academicYear?.name || "N/A"}</div>
-    </div>
-  </div>
-  <div class="section">
-    <div class="section-title">Attendance Summary</div>
-    <div class="stats">
-      <div class="stat-card">
-        <div class="stat-value">${data.attendance?.total || 0}</div>
-        <div class="stat-label">Total Days</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">${data.attendance?.present || 0}</div>
-        <div class="stat-label">Present</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">${data.attendance?.absent || 0}</div>
-        <div class="stat-label">Absent</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">${data.attendanceRate || 0}%</div>
-        <div class="stat-label">Attendance Rate</div>
-      </div>
-    </div>
-  </div>
-  <div class="section">
-    <div class="section-title">Academic Results</div>
-    <table>
-      <thead>
-        <tr>
-          <th>Subject</th>
-          <th style="text-align: center">Average</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${subjectRows || '<tr><td colspan="2" style="text-align: center">No results available</td></tr>'}
-        <tr style="font-weight: bold; background: #f3f4f6;">
-          <td>Overall Average</td>
-          <td style="text-align: center">${data.overallAverage || 0}%</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="footer">
-    <p>Generated on ${data.generatedAt ? new Date(data.generatedAt).toLocaleDateString() : new Date().toLocaleDateString()}</p>
-  </div>
-</body>
-</html>`;
-}
 
-function generateStatementHTML(data: any): string {
-  const itemRows = (data.items || [])
-    .map(
-      (item: any) => `
-    <tr>
-      <td>${new Date(item.date).toLocaleDateString()}</td>
-      <td>${item.type}</td>
-      <td>${item.description}</td>
-      <td style="text-align: right">${item.type === "PAYMENT" ? "-" : ""}R ${Math.abs(item.amount).toFixed(2)}</td>
-      <td style="text-align: right">R ${item.balance.toFixed(2)}</td>
-    </tr>`
-    )
-    .join("");
+  <!-- Student Info -->
+  <div style="display:flex;justify-content:space-between;margin-bottom:32px;background:#F9FAFB;border-radius:12px;padding:24px;">
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">Student Name</div>
+      <div style="font-size:18px;font-weight:700;color:${school.secondaryColor};">${esc(data.student?.firstName || "")} ${esc(data.student?.lastName || "")}</div>
+    </div>
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">Student Number</div>
+      <div style="font-size:16px;font-weight:600;color:${school.secondaryColor};">${esc(data.student?.studentNumber || "N/A")}</div>
+    </div>
+  </div>
 
-  return `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Statement - ${data.student?.firstName} ${data.student?.lastName}</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
-    .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #2563eb; padding-bottom: 20px; }
-    .school-name { font-size: 24px; font-weight: bold; color: #2563eb; }
-    .title { font-size: 20px; font-weight: bold; margin: 20px 0; }
-    .student-info { display: flex; justify-content: space-between; margin-bottom: 30px; padding: 15px; background: #f9fafb; border-radius: 8px; }
-    .info-group { margin-right: 30px; }
-    .label { font-size: 11px; color: #666; text-transform: uppercase; }
-    .value { font-size: 14px; font-weight: bold; }
-    .summary { display: flex; gap: 20px; margin-bottom: 30px; }
-    .summary-card { flex: 1; padding: 15px; background: #f9fafb; border-radius: 8px; text-align: center; }
-    .summary-value { font-size: 20px; font-weight: bold; }
-    .summary-label { font-size: 11px; color: #666; text-transform: uppercase; margin-top: 5px; }
-    .balance-positive { color: #dc2626; }
-    .balance-negative { color: #16a34a; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-    th { background: #2563eb; color: white; padding: 12px; text-align: left; font-size: 12px; }
-    td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
-    .footer { margin-top: 40px; font-size: 12px; color: #666; text-align: center; }
-    @media print { body { padding: 20px; } }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <div class="school-name">Portland Schools</div>
-    <div class="school-info">Account Statement</div>
-  </div>
-  <div class="title">ACCOUNT STATEMENT</div>
-  <div class="student-info">
-    <div class="info-group">
-      <div class="label">Student Name</div>
-      <div class="value">${data.student?.firstName || ""} ${data.student?.lastName || ""}</div>
+  <!-- Summary Cards -->
+  <div style="display:flex;gap:16px;margin-bottom:32px;">
+    <div style="flex:1;text-align:center;padding:24px;background:#F9FAFB;border-radius:12px;">
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Total Invoiced</div>
+      <div style="font-size:22px;font-weight:800;color:${school.secondaryColor};">${school.currencySymbol} ${(data.totalInvoiced || 0).toFixed(2)}</div>
     </div>
-    <div class="info-group">
-      <div class="label">Student Number</div>
-      <div class="value">${data.student?.studentNumber || "N/A"}</div>
+    <div style="flex:1;text-align:center;padding:24px;background:#F0FDF4;border-radius:12px;">
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Total Paid</div>
+      <div style="font-size:22px;font-weight:800;color:#059669;">${school.currencySymbol} ${(data.totalPaid || 0).toFixed(2)}</div>
+    </div>
+    <div style="flex:1;text-align:center;padding:24px;background:${balanceColor}11;border-radius:12px;">
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Balance Due</div>
+      <div style="font-size:22px;font-weight:800;color:${balanceColor};">${school.currencySymbol} ${(data.balance || 0).toFixed(2)}</div>
     </div>
   </div>
-  <div class="summary">
-    <div class="summary-card">
-      <div class="summary-value">R ${(data.totalInvoiced || 0).toFixed(2)}</div>
-      <div class="summary-label">Total Invoiced</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-value">R ${(data.totalPaid || 0).toFixed(2)}</div>
-      <div class="summary-label">Total Paid</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-value ${data.balance > 0 ? "balance-positive" : "balance-negative"}">R ${(data.balance || 0).toFixed(2)}</div>
-      <div class="summary-label">Balance Due</div>
-    </div>
-  </div>
-  <table>
+
+  <!-- Transactions Table -->
+  <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
     <thead>
       <tr>
-        <th>Date</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th style="text-align: right">Amount</th>
-        <th style="text-align: right">Balance</th>
+        <th style="background:${school.accentColor};color:#fff;padding:12px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Date</th>
+        <th style="background:${school.accentColor};color:#fff;padding:12px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Type</th>
+        <th style="background:${school.accentColor};color:#fff;padding:12px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Description</th>
+        <th style="background:${school.accentColor};color:#fff;padding:12px 16px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Amount</th>
+        <th style="background:${school.accentColor};color:#fff;padding:12px 16px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Balance</th>
       </tr>
     </thead>
     <tbody>
-      ${itemRows || '<tr><td colspan="5" style="text-align: center">No transactions</td></tr>'}
+      ${itemRows || `<tr><td colspan="5" style="padding:40px;text-align:center;color:#9CA3AF;">No transactions</td></tr>`}
     </tbody>
   </table>
-  <div class="footer">
-    <p>Generated on ${data.generatedAt ? new Date(data.generatedAt).toLocaleDateString() : new Date().toLocaleDateString()}</p>
-  </div>
-</body>
-</html>`;
+
+  ${docFooter(school)}
+</div>
+</body></html>`;
 }
 
-function generateReceiptHTML(data: any): string {
-  const paymentRows = (data.payments || [])
-    .map(
-      (p: any) => `
-    <tr>
-      <td>${new Date(p.paidAt).toLocaleDateString()}</td>
-      <td>${p.invoiceNumber || "N/A"}</td>
-      <td>${p.method}</td>
-      <td>${p.reference || "-"}</td>
-      <td style="text-align: right">R ${Number(p.amount).toFixed(2)}</td>
-    </tr>`
-    )
-    .join("");
+// ─── RECEIPT ────────────────────────────────────────────
 
-  const totalPaid = (data.payments || []).reduce(
-    (sum: number, p: any) => sum + Number(p.amount),
-    0
-  );
+function generateReceiptHTML(data: any, school: SchoolBranding): string {
+  const paymentRows = (data.payments || []).map((p: any, i: number) => `
+    <tr style="background:${i % 2 === 0 ? '#fff' : '#F9FAFB'};">
+      <td style="padding:12px 16px;font-size:13px;border-bottom:1px solid #F3F4F6;">${new Date(p.paidAt).toLocaleDateString("en-ZA")}</td>
+      <td style="padding:12px 16px;font-size:13px;border-bottom:1px solid #F3F4F6;">${esc(p.invoiceNumber || "N/A")}</td>
+      <td style="padding:12px 16px;font-size:13px;border-bottom:1px solid #F3F4F6;">
+        <span style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;color:#fff;background:#059669;">${esc(p.method)}</span>
+      </td>
+      <td style="padding:12px 16px;font-size:13px;border-bottom:1px solid #F3F4F6;">${esc(p.reference || "-")}</td>
+      <td style="padding:12px 16px;font-size:13px;text-align:right;border-bottom:1px solid #F3F4F6;font-weight:700;color:#059669;">${school.currencySymbol} ${Number(p.amount).toFixed(2)}</td>
+    </tr>`).join("");
 
-  return `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Receipt - ${data.student?.firstName} ${data.student?.lastName}</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
-    .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #16a34a; padding-bottom: 20px; }
-    .school-name { font-size: 24px; font-weight: bold; color: #16a34a; }
-    .title { font-size: 20px; font-weight: bold; margin: 20px 0; color: #16a34a; }
-    .student-info { margin-bottom: 30px; padding: 15px; background: #f0fdf4; border-radius: 8px; }
-    .info-group { margin-right: 30px; display: inline-block; }
-    .label { font-size: 11px; color: #666; text-transform: uppercase; }
-    .value { font-size: 14px; font-weight: bold; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-    th { background: #16a34a; color: white; padding: 12px; text-align: left; font-size: 12px; }
-    td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
-    .total-row { font-weight: bold; background: #f0fdf4; }
-    .footer { margin-top: 40px; font-size: 12px; color: #666; text-align: center; }
-    @media print { body { padding: 20px; } }
-  </style>
-</head>
+  const totalPaid = (data.payments || []).reduce((sum: number, p: any) => sum + Number(p.amount), 0);
+
+  return `${docHead(`Receipt - ${data.student?.firstName} ${data.student?.lastName}`, school)}
 <body>
-  <div class="header">
-    <div class="school-name">Portland Schools</div>
-    <div class="school-info">Payment Receipt</div>
+<div class="page">
+  <!-- Header -->
+  <div style="text-align:center;margin-bottom:40px;padding-bottom:32px;border-bottom:2px solid #059669;">
+    ${logoHtml(school, 56)}
+    <h1 style="font-size:14px;font-weight:600;color:#9CA3AF;text-transform:uppercase;letter-spacing:3px;margin-top:${school.logoUrl ? '12px' : '0'};">Payment Receipt</h1>
   </div>
-  <div class="title">PAYMENT RECEIPT</div>
-  <div class="student-info">
-    <div class="info-group">
-      <div class="label">Student Name</div>
-      <div class="value">${data.student?.firstName || ""} ${data.student?.lastName || ""}</div>
+
+  <!-- Success Banner -->
+  <div style="text-align:center;margin-bottom:36px;background:#F0FDF4;border-radius:12px;padding:24px;">
+    <div style="font-size:36px;font-weight:800;color:#059669;">${school.currencySymbol} ${totalPaid.toFixed(2)}</div>
+    <div style="font-size:12px;color:#059669;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Payment Received</div>
+  </div>
+
+  <!-- Student Info -->
+  <div style="display:flex;justify-content:space-between;margin-bottom:32px;background:#F9FAFB;border-radius:12px;padding:24px;">
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">Received From</div>
+      <div style="font-size:18px;font-weight:700;color:${school.secondaryColor};">${esc(data.student?.firstName || "")} ${esc(data.student?.lastName || "")}</div>
     </div>
-    <div class="info-group">
-      <div class="label">Student Number</div>
-      <div class="value">${data.student?.studentNumber || "N/A"}</div>
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">Student Number</div>
+      <div style="font-size:16px;font-weight:600;color:${school.secondaryColor};">${esc(data.student?.studentNumber || "N/A")}</div>
     </div>
   </div>
-  <table>
+
+  <!-- Payments Table -->
+  <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
     <thead>
       <tr>
-        <th>Date</th>
-        <th>Invoice</th>
-        <th>Method</th>
-        <th>Reference</th>
-        <th style="text-align: right">Amount</th>
+        <th style="background:#059669;color:#fff;padding:12px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Date</th>
+        <th style="background:#059669;color:#fff;padding:12px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Invoice</th>
+        <th style="background:#059669;color:#fff;padding:12px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Method</th>
+        <th style="background:#059669;color:#fff;padding:12px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Reference</th>
+        <th style="background:#059669;color:#fff;padding:12px 16px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Amount</th>
       </tr>
     </thead>
     <tbody>
-      ${paymentRows || '<tr><td colspan="5" style="text-align: center">No payments found</td></tr>'}
-      <tr class="total-row">
-        <td colspan="4">Total Paid</td>
-        <td style="text-align: right">R ${totalPaid.toFixed(2)}</td>
+      ${paymentRows || `<tr><td colspan="5" style="padding:40px;text-align:center;color:#9CA3AF;">No payments found</td></tr>`}
+      <tr style="background:#F0FDF4;">
+        <td colspan="4" style="padding:16px;font-size:14px;font-weight:800;border-top:2px solid #059669;">Total Received</td>
+        <td style="padding:16px;font-size:18px;font-weight:800;text-align:right;color:#059669;border-top:2px solid #059669;">${school.currencySymbol} ${totalPaid.toFixed(2)}</td>
       </tr>
     </tbody>
   </table>
-  <div class="footer">
-    <p>Generated on ${data.generatedAt ? new Date(data.generatedAt).toLocaleDateString() : new Date().toLocaleDateString()}</p>
-  </div>
-</body>
-</html>`;
+
+  ${docFooter(school)}
+</div>
+</body></html>`;
 }
+
+// ─── Route Handlers ─────────────────────────────────────
 
 export async function GET(
   request: NextRequest,
@@ -467,31 +479,40 @@ export async function GET(
   }
 
   const data = JSON.parse(document.data);
+  let school: SchoolBranding;
+
+  try {
+    school = await getSchool();
+  } catch {
+    return NextResponse.json({ error: "School not configured" }, { status: 500 });
+  }
+
   let html = "";
 
   switch (document.type) {
     case "INVOICE":
-      html = generateInvoiceHTML(data);
+      html = generateInvoiceHTML(data, school);
       break;
     case "TRANSCRIPT":
-      html = generateTranscriptHTML(data);
+      html = generateTranscriptHTML(data, school);
       break;
     case "REPORT_CARD":
-      html = generateReportCardHTML(data);
+      html = generateReportCardHTML(data, school);
       break;
     case "STATEMENT":
-      html = generateStatementHTML(data);
+      html = generateStatementHTML(data, school);
       break;
     case "RECEIPT":
-      html = generateReceiptHTML(data);
+      html = generateReceiptHTML(data, school);
       break;
     default:
-      html = `<html><body><h1>Unknown document type: ${document.type}</h1></body></html>`;
+      html = `<html><body><h1>Unknown document type: ${esc(document.type)}</h1></body></html>`;
   }
 
   return new NextResponse(html, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "no-cache",
     },
   });
 }

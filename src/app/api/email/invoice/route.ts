@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     const studentName = `${invoice.student.firstName} ${invoice.student.lastName}`;
     const paymentLink = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/parent/invoices`;
 
-    const html = invoiceEmail({
+    const html = await invoiceEmail({
       studentName,
       invoiceNumber: invoice.invoiceNumber,
       totalAmount: Number(invoice.totalAmount),

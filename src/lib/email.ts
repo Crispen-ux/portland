@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { db } from "@/lib/db";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -11,6 +12,60 @@ interface SendEmailParams {
   html: string;
   replyTo?: string;
 }
+
+// ─── School Branding Helper ─────────────────────────────
+
+interface SchoolBranding {
+  name: string;
+  address: string | null;
+  city: string | null;
+  phone: string | null;
+  email: string | null;
+  logoUrl: string | null;
+  accentColor: string;
+  secondaryColor: string;
+  emailFooter: string | null;
+  emailSignature: string | null;
+  currencySymbol: string;
+}
+
+let _schoolCache: SchoolBranding | null = null;
+let _schoolCacheTime = 0;
+
+async function getSchool(): Promise<SchoolBranding> {
+  if (_schoolCache && Date.now() - _schoolCacheTime < 60_000) return _schoolCache;
+  const school = await db.school.findFirst();
+  if (!school) {
+    return {
+      name: "Portland Group of Schools",
+      address: "188 Commissioner Street",
+      city: "Johannesburg",
+      phone: "+27 82 815 4388",
+      email: "info@portlandschools.co.za",
+      logoUrl: null,
+      accentColor: "#C41E3A",
+      secondaryColor: "#1A1A1A",
+      emailFooter: "Portland Group of Schools · 188 Commissioner Street, Johannesburg",
+      emailSignature: "Kind regards,\nPortland Group of Schools",
+      currencySymbol: "R",
+    };
+  }
+  _schoolCache = school as unknown as SchoolBranding;
+  _schoolCacheTime = Date.now();
+  return _schoolCache;
+}
+
+function logoHtml(school: SchoolBranding, height = 40): string {
+  if (!school.logoUrl) return `<h1 style="color:#fff;font-size:20px;margin:0;font-weight:700;">${esc(school.name)}</h1>`;
+  return `<img src="${school.logoUrl}" alt="${esc(school.name)}" style="height:${height}px;object-fit:contain;" />`;
+}
+
+function esc(str: string | null | undefined): string {
+  if (!str) return "";
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+// ─── Send Email ─────────────────────────────────────────
 
 export async function sendEmail({ to, subject, html, replyTo }: SendEmailParams) {
   const { data, error } = await resend.emails.send({
@@ -29,43 +84,30 @@ export async function sendEmail({ to, subject, html, replyTo }: SendEmailParams)
   return data;
 }
 
-// ─── Email Templates ────────────────────────────────────
+// ─── Email Wrapper ──────────────────────────────────────
 
-export function invitationEmail({ name, email, role, inviteUrl }: { name?: string; email: string; role: string; inviteUrl: string }) {
-  const roleName = role.replace("_", " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+function wrapEmail(school: SchoolBranding, subtitle: string, content: string, signature?: string): string {
+  const footer = school.emailFooter || `${esc(school.name)} · ${esc(school.address || "")}, ${esc(school.city || "")}`;
+  const sig = signature || school.emailSignature || `Kind regards,\n${esc(school.name)}`;
+
   return `
     <!DOCTYPE html>
     <html>
     <head><meta charset="utf-8"></head>
     <body style="margin:0;padding:0;background-color:#F8F7F4;font-family:system-ui,-apple-system,sans-serif;">
-      <div style="max-width:480px;margin:40px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
-        <div style="background:#C41E3A;padding:32px;text-align:center;">
-          <h1 style="color:#fff;font-size:20px;margin:0;">Portland Schools</h1>
-          <p style="color:rgba(255,255,255,0.8);font-size:13px;margin:4px 0 0;">Group of Schools</p>
+      <div style="max-width:520px;margin:40px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
+        <div style="background:${school.accentColor};padding:32px;text-align:center;">
+          ${logoHtml(school)}
+          <p style="color:rgba(255,255,255,0.8);font-size:13px;margin:${school.logoUrl ? '8px' : '4px'} 0 0;">${esc(subtitle)}</p>
         </div>
         <div style="padding:32px;">
-          <h2 style="color:#1A1A1A;font-size:18px;margin:0 0 16px;">You're Invited!</h2>
-          <p style="color:#6B7280;font-size:14px;line-height:1.6;margin:0 0 16px;">
-            ${name ? `Hi ${name},` : `Hi there,`}
-          </p>
-          <p style="color:#6B7280;font-size:14px;line-height:1.6;margin:0 0 16px;">
-            You've been invited to join <strong>Portland Schools</strong> as a <strong>${roleName}</strong>.
-            Click the button below to create your account.
-          </p>
-          <div style="text-align:center;margin:24px 0;">
-            <a href="${inviteUrl}" style="display:inline-block;background:#C41E3A;color:#fff;font-weight:600;font-size:14px;padding:12px 32px;border-radius:12px;text-decoration:none;">
-              Create Account
-            </a>
+          <div style="color:#1A1A1A;font-size:14px;line-height:1.7;">
+            ${content}
           </div>
-          <p style="color:#9CA3AF;font-size:12px;line-height:1.5;margin:0 0 8px;">
-            This invitation expires in 7 days. If you didn't expect this, you can safely ignore this email.
-          </p>
-          <p style="color:#9CA3AF;font-size:12px;line-height:1.5;margin:0;">
-            Or copy this link: <a href="${inviteUrl}" style="color:#C41E3A;word-break:break-all;">${inviteUrl}</a>
-          </p>
+          <div style="margin-top:28px;padding-top:20px;border-top:1px solid #F3F4F6;white-space:pre-line;color:#6B7280;font-size:13px;line-height:1.6;">${esc(sig)}</div>
         </div>
         <div style="background:#F9FAFB;padding:16px 32px;text-align:center;">
-          <p style="color:#9CA3AF;font-size:11px;margin:0;">Portland Group of Schools · 188 Commissioner Street, Johannesburg</p>
+          <p style="color:#9CA3AF;font-size:11px;margin:0;">${footer}</p>
         </div>
       </div>
     </body>
@@ -73,7 +115,35 @@ export function invitationEmail({ name, email, role, inviteUrl }: { name?: strin
   `;
 }
 
-export function invoiceEmail({ studentName, invoiceNumber, totalAmount, dueDate, parentName, paymentLink }: {
+// ─── Invitation Email ───────────────────────────────────
+
+export async function invitationEmail({ name, email, role, inviteUrl }: { name?: string; email: string; role: string; inviteUrl: string }) {
+  const school = await getSchool();
+  const roleName = role.replace("_", " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+
+  const content = `
+    <p>Hi ${name ? esc(name) : "there"},</p>
+    <p>You've been invited to join <strong>${esc(school.name)}</strong> as a <strong>${esc(roleName)}</strong>.
+    Click the button below to create your account.</p>
+    <div style="text-align:center;margin:28px 0;">
+      <a href="${inviteUrl}" style="display:inline-block;background:${school.accentColor};color:#fff;font-weight:600;font-size:14px;padding:14px 36px;border-radius:12px;text-decoration:none;">
+        Create Account
+      </a>
+    </div>
+    <p style="color:#9CA3AF;font-size:12px;line-height:1.5;">
+      This invitation expires in 7 days. If you didn't expect this, you can safely ignore this email.
+    </p>
+    <p style="color:#9CA3AF;font-size:12px;line-height:1.5;margin-top:8px;">
+      Or copy this link: <a href="${inviteUrl}" style="color:${school.accentColor};word-break:break-all;">${inviteUrl}</a>
+    </p>
+  `;
+
+  return wrapEmail(school, "You're Invited!", content);
+}
+
+// ─── Invoice Email ──────────────────────────────────────
+
+export async function invoiceEmail({ studentName, invoiceNumber, totalAmount, dueDate, parentName, paymentLink }: {
   studentName: string;
   invoiceNumber: string;
   totalAmount: number;
@@ -81,113 +151,89 @@ export function invoiceEmail({ studentName, invoiceNumber, totalAmount, dueDate,
   parentName: string;
   paymentLink: string;
 }) {
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head><meta charset="utf-8"></head>
-    <body style="margin:0;padding:0;background-color:#F8F7F4;font-family:system-ui,-apple-system,sans-serif;">
-      <div style="max-width:480px;margin:40px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
-        <div style="background:#C41E3A;padding:32px;text-align:center;">
-          <h1 style="color:#fff;font-size:20px;margin:0;">Portland Schools</h1>
-          <p style="color:rgba(255,255,255,0.8);font-size:13px;margin:4px 0 0;">Invoice</p>
-        </div>
-        <div style="padding:32px;">
-          <p style="color:#6B7280;font-size:14px;line-height:1.6;margin:0 0 16px;">
-            Dear ${parentName},
-          </p>
-          <p style="color:#6B7280;font-size:14px;line-height:1.6;margin:0 0 24px;">
-            An invoice has been issued for <strong>${studentName}</strong>.
-          </p>
-          <div style="background:#F9FAFB;border-radius:12px;padding:20px;margin:0 0 24px;">
-            <table style="width:100%;font-size:14px;color:#1A1A1A;">
-              <tr><td style="padding:4px 0;color:#6B7280;">Invoice Number</td><td style="padding:4px 0;text-align:right;font-weight:600;">${invoiceNumber}</td></tr>
-              <tr><td style="padding:4px 0;color:#6B7280;">Student</td><td style="padding:4px 0;text-align:right;font-weight:600;">${studentName}</td></tr>
-              <tr><td style="padding:4px 0;color:#6B7280;">Amount Due</td><td style="padding:4px 0;text-align:right;font-weight:700;color:#C41E3A;font-size:18px;">R ${totalAmount.toLocaleString("en-ZA", { minimumFractionDigits: 2 })}</td></tr>
-              ${dueDate ? `<tr><td style="padding:4px 0;color:#6B7280;">Due Date</td><td style="padding:4px 0;text-align:right;font-weight:600;">${dueDate}</td></tr>` : ""}
-            </table>
-          </div>
-          <div style="text-align:center;margin:24px 0;">
-            <a href="${paymentLink}" style="display:inline-block;background:#C41E3A;color:#fff;font-weight:600;font-size:14px;padding:12px 32px;border-radius:12px;text-decoration:none;">
-              View Invoice
-            </a>
-          </div>
-          <p style="color:#9CA3AF;font-size:12px;line-height:1.5;margin:0;">
-            If you have any questions, please contact us at <a href="mailto:info@portlandschools.co.za" style="color:#C41E3A;">info@portlandschools.co.za</a>.
-          </p>
-        </div>
-        <div style="background:#F9FAFB;padding:16px 32px;text-align:center;">
-          <p style="color:#9CA3AF;font-size:11px;margin:0;">Portland Group of Schools · 188 Commissioner Street, Johannesburg</p>
-        </div>
-      </div>
-    </body>
-    </html>
+  const school = await getSchool();
+
+  const content = `
+    <p>Dear ${esc(parentName)},</p>
+    <p>An invoice has been issued for <strong>${esc(studentName)}</strong>.</p>
+    <div style="background:#F9FAFB;border-radius:12px;padding:20px;margin:24px 0;">
+      <table style="width:100%;font-size:14px;color:#1A1A1A;">
+        <tr><td style="padding:4px 0;color:#6B7280;">Invoice Number</td><td style="padding:4px 0;text-align:right;font-weight:600;">${esc(invoiceNumber)}</td></tr>
+        <tr><td style="padding:4px 0;color:#6B7280;">Student</td><td style="padding:4px 0;text-align:right;font-weight:600;">${esc(studentName)}</td></tr>
+        <tr><td style="padding:4px 0;color:#6B7280;">Amount Due</td><td style="padding:4px 0;text-align:right;font-weight:700;color:${school.accentColor};font-size:18px;">${school.currencySymbol} ${totalAmount.toLocaleString("en-ZA", { minimumFractionDigits: 2 })}</td></tr>
+        ${dueDate ? `<tr><td style="padding:4px 0;color:#6B7280;">Due Date</td><td style="padding:4px 0;text-align:right;font-weight:600;">${esc(dueDate)}</td></tr>` : ""}
+      </table>
+    </div>
+    <div style="text-align:center;margin:28px 0;">
+      <a href="${paymentLink}" style="display:inline-block;background:${school.accentColor};color:#fff;font-weight:600;font-size:14px;padding:14px 36px;border-radius:12px;text-decoration:none;">
+        View Invoice
+      </a>
+    </div>
+    <p style="color:#9CA3AF;font-size:12px;line-height:1.5;">
+      If you have any questions, please contact us at <a href="mailto:${school.email || 'info@portlandschools.co.za'}" style="color:${school.accentColor};">${esc(school.email || 'info@portlandschools.co.za')}</a>.
+    </p>
   `;
+
+  return wrapEmail(school, "Invoice", content);
 }
 
-export function reportCardEmail({ studentName, term, year, parentName, reportLink }: {
+// ─── Report Card Email ──────────────────────────────────
+
+export async function reportCardEmail({ studentName, term, year, parentName, reportLink }: {
   studentName: string;
   term: string;
   year: string;
   parentName: string;
   reportLink: string;
 }) {
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head><meta charset="utf-8"></head>
-    <body style="margin:0;padding:0;background-color:#F8F7F4;font-family:system-ui,-apple-system,sans-serif;">
-      <div style="max-width:480px;margin:40px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
-        <div style="background:#C41E3A;padding:32px;text-align:center;">
-          <h1 style="color:#fff;font-size:20px;margin:0;">Portland Schools</h1>
-          <p style="color:rgba(255,255,255,0.8);font-size:13px;margin:4px 0 0;">Report Card</p>
-        </div>
-        <div style="padding:32px;">
-          <p style="color:#6B7280;font-size:14px;line-height:1.6;margin:0 0 16px;">
-            Dear ${parentName},
-          </p>
-          <p style="color:#6B7280;font-size:14px;line-height:1.6;margin:0 0 24px;">
-            The report card for <strong>${studentName}</strong> for <strong>${term} ${year}</strong> is now available.
-          </p>
-          <div style="text-align:center;margin:24px 0;">
-            <a href="${reportLink}" style="display:inline-block;background:#C41E3A;color:#fff;font-weight:600;font-size:14px;padding:12px 32px;border-radius:12px;text-decoration:none;">
-              View Report Card
-            </a>
-          </div>
-          <p style="color:#9CA3AF;font-size:12px;line-height:1.5;margin:0;">
-            If you have any questions, please contact us at <a href="mailto:info@portlandschools.co.za" style="color:#C41E3A;">info@portlandschools.co.za</a>.
-          </p>
-        </div>
-        <div style="background:#F9FAFB;padding:16px 32px;text-align:center;">
-          <p style="color:#9CA3AF;font-size:11px;margin:0;">Portland Group of Schools · 188 Commissioner Street, Johannesburg</p>
-        </div>
-      </div>
-    </body>
-    </html>
+  const school = await getSchool();
+
+  const content = `
+    <p>Dear ${esc(parentName)},</p>
+    <p>The report card for <strong>${esc(studentName)}</strong> for <strong>${esc(term)} ${esc(year)}</strong> is now available.</p>
+    <div style="text-align:center;margin:28px 0;">
+      <a href="${reportLink}" style="display:inline-block;background:${school.accentColor};color:#fff;font-weight:600;font-size:14px;padding:14px 36px;border-radius:12px;text-decoration:none;">
+        View Report Card
+      </a>
+    </div>
+    <p style="color:#9CA3AF;font-size:12px;line-height:1.5;">
+      If you have any questions, please contact us at <a href="mailto:${school.email || 'info@portlandschools.co.za'}" style="color:${school.accentColor};">${esc(school.email || 'info@portlandschools.co.za')}</a>.
+    </p>
   `;
+
+  return wrapEmail(school, "Report Card", content);
 }
 
-export function generalEmail({ subject, body, recipientName }: { subject: string; body: string; recipientName?: string }) {
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head><meta charset="utf-8"></head>
-    <body style="margin:0;padding:0;background-color:#F8F7F4;font-family:system-ui,-apple-system,sans-serif;">
-      <div style="max-width:480px;margin:40px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
-        <div style="background:#C41E3A;padding:32px;text-align:center;">
-          <h1 style="color:#fff;font-size:20px;margin:0;">Portland Schools</h1>
-          <p style="color:rgba(255,255,255,0.8);font-size:13px;margin:4px 0 0;">${subject}</p>
-        </div>
-        <div style="padding:32px;">
-          ${recipientName ? `<p style="color:#6B7280;font-size:14px;line-height:1.6;margin:0 0 16px;">Dear ${recipientName},</p>` : ""}
-          <div style="color:#1A1A1A;font-size:14px;line-height:1.6;">
-            ${body}
-          </div>
-        </div>
-        <div style="background:#F9FAFB;padding:16px 32px;text-align:center;">
-          <p style="color:#9CA3AF;font-size:11px;margin:0;">Portland Group of Schools · 188 Commissioner Street, Johannesburg</p>
-        </div>
-      </div>
-    </body>
-    </html>
+// ─── General Email ──────────────────────────────────────
+
+export async function generalEmail({ subject, body, recipientName }: { subject: string; body: string; recipientName?: string }) {
+  const school = await getSchool();
+
+  const content = `
+    ${recipientName ? `<p>Dear ${esc(recipientName)},</p>` : ""}
+    <div>${body}</div>
   `;
+
+  return wrapEmail(school, subject, content);
+}
+
+// ─── Password Reset Email ───────────────────────────────
+
+export async function passwordResetEmail({ name, resetUrl }: { name?: string; resetUrl: string }) {
+  const school = await getSchool();
+
+  const content = `
+    <p>Hi ${name ? esc(name) : "there"},</p>
+    <p>We received a request to reset your password for your <strong>${esc(school.name)}</strong> account.</p>
+    <div style="text-align:center;margin:28px 0;">
+      <a href="${resetUrl}" style="display:inline-block;background:${school.accentColor};color:#fff;font-weight:600;font-size:14px;padding:14px 36px;border-radius:12px;text-decoration:none;">
+        Reset Password
+      </a>
+    </div>
+    <p style="color:#9CA3AF;font-size:12px;line-height:1.5;">
+      This link expires in 1 hour. If you didn't request this, you can safely ignore this email.
+    </p>
+  `;
+
+  return wrapEmail(school, "Password Reset", content);
 }

@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
     const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/signup?token=${invitation.token}`;
 
-    const html = invitationEmail({
+    const html = await invitationEmail({
       email: invitation.email,
       role: invitation.role,
       inviteUrl,

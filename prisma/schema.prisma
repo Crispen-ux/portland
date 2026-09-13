@@ -72,22 +72,44 @@ model PasswordResetToken {
 // ─── School Structure ───────────────────────────────────
 
 model School {
-  id            String   @id @default(cuid())
-  name          String
-  address       String?
-  city          String?
-  phone         String?
-  email         String?
-  logoUrl       String?
-  active        Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id              String   @id @default(cuid())
+  name            String
+  address         String?
+  city            String?
+  phone           String?
+  email           String?
+  website         String?
+  logoUrl         String?
+  active          Boolean  @default(true)
 
-  academicYears AcademicYear[]
-  grades        Grade[]
-  classes       Class[]
-  staff         Staff[]
-  subjects      Subject[]
+  // Branding
+  accentColor     String   @default("#C41E3A")
+  secondaryColor  String   @default("#1A1A1A")
+  fontFamily      String   @default("Inter, system-ui, sans-serif")
+
+  // Document defaults
+  invoicePrefix   String   @default("INV")
+  invoiceNotes    String?  @default("Payment is due within 30 days. Please reference your invoice number when making payment.")
+  invoiceTerms    String?  @default("Late payments may incur a 2% monthly interest charge.")
+  currency        String   @default("ZAR")
+  currencySymbol  String   @default("R")
+
+  // Email defaults
+  emailSignature  String?  @default("Kind regards,\nPortland Group of Schools\ninfo@portlandschools.co.za | +27 82 815 4388")
+  emailFooter     String?  @default("Portland Group of Schools · 188 Commissioner Street, Johannesburg")
+
+  // Report card
+  principalName   String?
+  principalTitle  String?  @default("Principal")
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  academicYears   AcademicYear[]
+  grades          Grade[]
+  classes         Class[]
+  staff           Staff[]
+  subjects        Subject[]
 }
 
 model AcademicYear {

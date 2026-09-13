@@ -62,7 +62,7 @@ export const PERMISSIONS = {
 
   // Settings
   "settings.read": ["SUPER_ADMIN", "SCHOOL_ADMIN"],
-  "settings.write": ["SUPER_ADMIN"],
+  "settings.write": ["SUPER_ADMIN", "SCHOOL_ADMIN"],
 
   // Announcements
   "announcements.read": ["SUPER_ADMIN", "SCHOOL_ADMIN", "PRINCIPAL", "TEACHER", "PARENT", "STUDENT"],
