@@ -6,7 +6,8 @@ import {
   Table, TableHeader, TableBody, TableRow, TableCell,
   EmptyState, LoadingState, ConfirmModal, useToast,
 } from "@/components/ui";
-import { Plus, Search, Users, Edit, Trash2, X, AlertCircle, CheckCircle, Mail, Phone } from "lucide-react";
+import { Plus, Search, Users, Edit, Trash2, X, AlertCircle, CheckCircle, Mail, Phone, Eye } from "lucide-react";
+import Link from "next/link";
 
 interface StaffMember {
   id: string;
@@ -124,6 +125,9 @@ export default function StaffPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
+                      {(s.position?.toLowerCase().includes("teacher") || s.user?.role === "TEACHER") && (
+                        <Link href={`/admin/teachers/${s.id}`} className="p-2 hover:bg-portland-light rounded-lg"><Eye className="w-4 h-4 text-portland-gray" /></Link>
+                      )}
                       <button onClick={() => setEditing(s)} className="p-2 hover:bg-portland-light rounded-lg"><Edit className="w-4 h-4 text-portland-gray" /></button>
                       <button onClick={() => setConfirmDelete(s.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
                     </div>

@@ -21,6 +21,7 @@ import {
   User,
   FileText,
   ShoppingBag,
+  Award,
 } from "lucide-react";
 import { ROLE_LABELS } from "@/lib/auth/rbac";
 
@@ -59,6 +60,11 @@ const NAV_ITEMS = [
     label: "Staff",
     href: "/admin/staff",
     icon: Users,
+  },
+  {
+    label: "Teachers",
+    href: "/admin/teachers",
+    icon: Award,
   },
   {
     label: "Classes",

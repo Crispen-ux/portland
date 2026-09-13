@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     db.staff.findMany({
       where,
       include: {
-        user: { select: { email: true, role: true, active: true } },
+        user: { select: { email: true, role: true, status: true, active: true } },
         _count: { select: { teacherClasses: true, teacherSubjects: true } },
       },
       orderBy: { firstName: "asc" },
