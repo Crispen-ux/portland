@@ -217,7 +217,33 @@ export async function generalEmail({ subject, body, recipientName }: { subject: 
   return wrapEmail(school, subject, content);
 }
 
-// ─── Password Reset Email ───────────────────────────────
+// ─── Announcement Email ────────────────────────────────
+
+export async function announcementEmail({ title, content, target, publishedAt }: {
+  title: string;
+  content: string;
+  target: string;
+  publishedAt?: string;
+}) {
+  const school = await getSchool();
+
+  const targetLabel = target === "ALL" ? "everyone" : target === "PARENTS" ? "parents" : target === "TEACHERS" ? "teachers" : "students";
+
+  const contentHtml = `
+    <p>Dear ${esc(targetLabel)},</p>
+    <p>A new announcement has been published by <strong>${esc(school.name)}</strong>.</p>
+    <div style="background:#F9FAFB;border-radius:12px;padding:24px;margin:24px 0;border-left:4px solid ${school.accentColor};">
+      <div style="font-size:16px;font-weight:700;color:${school.secondaryColor};margin-bottom:8px;">${esc(title)}</div>
+      <div style="font-size:14px;color:#4A5568;line-height:1.7;white-space:pre-line;">${esc(content)}</div>
+      ${publishedAt ? `<div style="font-size:11px;color:#9CA3AF;margin-top:12px;">Published ${new Date(publishedAt).toLocaleDateString("en-ZA", { day: "2-digit", month: "long", year: "numeric" })}</div>` : ""}
+    </div>
+    <p style="color:#9CA3AF;font-size:12px;line-height:1.5;">
+      If you have any questions, please contact us at <a href="mailto:${school.email || 'info@portlandschools.co.za'}" style="color:${school.accentColor};">${esc(school.email || 'info@portlandschools.co.za')}</a>.
+    </p>
+  `;
+
+  return wrapEmail(school, "New Announcement", contentHtml);
+}
 
 export async function passwordResetEmail({ name, resetUrl }: { name?: string; resetUrl: string }) {
   const school = await getSchool();

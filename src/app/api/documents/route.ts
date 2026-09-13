@@ -418,9 +418,52 @@ export async function POST(request: NextRequest) {
 
       case "INVOICE": {
         title = `Invoice - ${student.firstName} ${student.lastName}`;
+
+        // Find the student's most recent invoice (or by academicYearId if provided)
+        const invoiceWhere: any = { studentId };
+        if (academicYearId) invoiceWhere.academicYearId = academicYearId;
+
+        const invoice = await db.invoice.findFirst({
+          where: invoiceWhere,
+          include: {
+            items: true,
+            payments: { orderBy: { paidAt: "asc" } },
+            feeStructure: { select: { name: true } },
+          },
+          orderBy: { createdAt: "desc" },
+        });
+
+        if (!invoice) {
+          return NextResponse.json(
+            { error: "No invoice found for this student" },
+            { status: 404 }
+          );
+        }
+
+        const paidAmount = invoice.payments.reduce((sum, p) => sum + Number(p.amount), 0);
+        const totalAmount = Number(invoice.totalAmount);
+
         documentData = {
+          invoiceNumber: invoice.invoiceNumber,
+          invoiceDate: invoice.createdAt,
+          dueDate: invoice.dueDate,
+          status: invoice.status,
+          totalAmount,
+          paidAmount,
+          balance: totalAmount - paidAmount,
           student,
-          note: "Invoice generation not yet implemented",
+          feeStructure: invoice.feeStructure?.name || null,
+          items: invoice.items.map((item) => ({
+            description: item.description,
+            amount: Number(item.amount),
+            quantity: item.quantity || 1,
+          })),
+          payments: invoice.payments.map((p) => ({
+            amount: Number(p.amount),
+            method: p.method,
+            reference: p.reference,
+            paidAt: p.paidAt,
+          })),
           generatedAt: new Date().toISOString(),
         };
         break;

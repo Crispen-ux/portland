@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { apiAuth } from "@/lib/auth/helpers";
 import { auditLog } from "@/lib/audit";
 import { paginationSchema } from "@/lib/validation";
+import { sendEmail, announcementEmail } from "@/lib/email";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -64,6 +65,50 @@ export async function POST(request: NextRequest) {
       resourceId: announcement.id,
       metadata: { title, target },
     });
+
+    // Send email notifications if published
+    if (published) {
+      try {
+        const html = await announcementEmail({
+          title,
+          content,
+          target: target || "ALL",
+          publishedAt: new Date().toISOString(),
+        });
+
+        // Collect recipient emails based on target
+        let recipients: string[] = [];
+        if (target === "ALL" || target === "PARENTS") {
+          const parents = await db.parentGuardian.findMany({
+            where: { user: { status: "ACTIVE" } },
+            select: { email: true },
+          });
+          recipients.push(...parents.map((p) => p.email).filter(Boolean));
+        }
+        if (target === "ALL" || target === "TEACHERS") {
+          const teachers = await db.staff.findMany({
+            where: { user: { status: "ACTIVE" }, position: { contains: "Teacher", mode: "insensitive" } },
+            select: { user: { select: { email: true } } },
+          });
+          teachers.forEach((t) => { if (t.user?.email) recipients.push(t.user.email); });
+        }
+
+        // Deduplicate
+        recipients = [...new Set(recipients)];
+
+        if (recipients.length > 0) {
+          await sendEmail({
+            to: recipients,
+            subject: `Announcement: ${title}`,
+            html,
+            replyTo: "info@portlandschools.co.za",
+          });
+        }
+      } catch (e: any) {
+        console.error("Failed to send announcement emails:", e.message);
+        // Don't fail the announcement creation if email fails
+      }
+    }
 
     return NextResponse.json(announcement, { status: 201 });
   } catch {
