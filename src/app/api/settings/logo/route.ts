@@ -24,9 +24,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid logo format. Must be a data URI." }, { status: 400 });
     }
 
-    const sizeKB = Math.round((logo.length * 3) / 4 / 1024);
-    if (sizeKB > 500) {
-      return NextResponse.json({ error: `Logo too large (${sizeKB}KB). Maximum 500KB.` }, { status: 400 });
+    const base64Data = logo.split(",")[1] || "";
+    const rawSizeKB = Math.round((base64Data.length * 3) / 4 / 1024);
+    if (rawSizeKB > 2048) {
+      return NextResponse.json({ error: `Logo too large (${rawSizeKB}KB). Maximum 2MB.`, status: 400 });
     }
 
     const updated = await db.school.update({
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
       action: "school.logo_updated",
       resource: "school",
       resourceId: school.id,
-      metadata: { sizeKB },
+      metadata: { rawSizeKB },
     });
 
     return NextResponse.json({ logoUrl: updated.logoUrl });

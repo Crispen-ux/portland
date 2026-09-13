@@ -130,8 +130,8 @@ export default function SettingsPage() {
       return;
     }
 
-    if (file.size > 500 * 1024) {
-      setError("Logo must be under 500KB");
+    if (file.size > 2 * 1024 * 1024) {
+      setError("Logo must be under 2MB");
       setTimeout(() => setError(""), 3000);
       return;
     }
@@ -307,7 +307,7 @@ export default function SettingsPage() {
                     {uploadingLogo ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
                     {uploadingLogo ? "Uploading..." : settings.logoUrl ? "Replace Logo" : "Upload Logo"}
                   </Button>
-                  <p className="text-xs text-portland-gray mt-2">PNG, JPG or SVG. Max 500KB. Recommended: 400x400px</p>
+                  <p className="text-xs text-portland-gray mt-2">PNG, JPG or SVG. Max 2MB. Recommended: 400x400px</p>
                   {settings.logoUrl && (
                     <Button variant="ghost" size="sm" onClick={handleRemoveLogo} className="mt-2 text-red-500 hover:text-red-600">
                       <Trash2 className="w-3.5 h-3.5 mr-1.5" />
