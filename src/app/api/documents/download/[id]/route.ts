@@ -224,87 +224,174 @@ function generateTranscriptHTML(data: any, school: SchoolBranding): string {
 // ─── REPORT CARD ────────────────────────────────────────
 
 function generateReportCardHTML(data: any, school: SchoolBranding): string {
-  const subjectRows = (data.academicResults || []).map((s: any, i: number) => `
+  const gradeLabels = ["Term 1", "Term 2", "Term 3", "Term 4"];
+  const quarterlyGPAs = data.quarterlyGPAs || [0, 0, 0, 0];
+  const subjectRows = (data.academicResults || []).map((s: any, i: number) => {
+    const qGrades = (s.quarterlyGrades || [null, null, null, null]).map((q: any) =>
+      q ? `<td style="padding:10px 12px;text-align:center;font-size:12px;border-bottom:1px solid #E5E7EB;"><span style="font-weight:600;color:${school.secondaryColor};">${q.grade}</span><br><span style="color:#9CA3AF;font-size:11px;">${q.percentage}</span></td>` :
+      `<td style="padding:10px 12px;text-align:center;font-size:12px;border-bottom:1px solid #E5E7EB;color:#D1D5DB;">—</td>`
+    );
+    return `
     <tr style="background:${i % 2 === 0 ? '#fff' : '#F9FAFB'};">
-      <td style="padding:14px 16px;font-weight:600;font-size:14px;border-bottom:1px solid #F3F4F6;">${esc(s.subject)}</td>
-      <td style="padding:14px 16px;text-align:center;font-size:14px;font-weight:600;border-bottom:1px solid #F3F4F6;">${s.average}%</td>
-    </tr>`).join("");
+      <td style="padding:10px 12px;font-weight:600;font-size:13px;border-bottom:1px solid #E5E7EB;white-space:nowrap;">${esc(s.subject)}</td>
+      ${qGrades.join("")}
+      <td style="padding:10px 12px;text-align:center;border-bottom:1px solid #E5E7EB;">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;color:#fff;background:${
+          s.finalPercentage >= 80 ? "#059669" : s.finalPercentage >= 60 ? "#D97706" : s.finalPercentage >= 50 ? "#EA580C" : "#DC2626"
+        };">${esc(s.finalGrade)}</span>
+      </td>
+      <td style="padding:10px 12px;text-align:center;font-weight:700;font-size:13px;border-bottom:1px solid #E5E7EB;color:${school.secondaryColor};">${s.finalPercentage}%</td>
+    </tr>`;
+  }).join("");
 
-  const attendanceColor = (data.attendanceRate || 0) >= 90 ? "#059669" : (data.attendanceRate || 0) >= 75 ? "#D97706" : "#DC2626";
+  // Attendance rows
+  const attQ = data.attendance?.quarterly || [];
+  const attRow = (label: string, key: string, color: string) => {
+    const cells = [0, 1, 2, 3].map((q) => {
+      const val = attQ[q]?.[key] || 0;
+      return `<td style="padding:8px 12px;text-align:center;font-size:12px;border-bottom:1px solid #E5E7EB;">${val}</td>`;
+    }).join("");
+    const total = attQ.reduce((sum: number, q: any) => sum + (q[key] || 0), 0);
+    return `<tr>
+      <td style="padding:8px 12px;font-weight:500;font-size:12px;border-bottom:1px solid #E5E7EB;color:${color};">${label}</td>
+      ${cells}
+      <td style="padding:8px 12px;text-align:center;font-weight:700;font-size:12px;border-bottom:1px solid #E5E7EB;">${total}</td>
+    </tr>`;
+  };
 
   return `${docHead(`Report Card - ${data.student?.firstName} ${data.student?.lastName}`, school)}
 <body>
 <div class="page">
-  <!-- Header -->
-  <div style="text-align:center;margin-bottom:40px;padding-bottom:32px;border-bottom:2px solid ${school.accentColor};">
-    ${logoHtml(school, 56)}
-    <h1 style="font-size:14px;font-weight:600;color:#9CA3AF;text-transform:uppercase;letter-spacing:3px;margin-top:${school.logoUrl ? '12px' : '0'};">Academic Report Card</h1>
-  </div>
-
-  <!-- Student Info -->
-  <div style="display:flex;justify-content:space-between;margin-bottom:36px;background:#F9FAFB;border-radius:12px;padding:24px;">
-    <div>
-      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">Student Name</div>
-      <div style="font-size:18px;font-weight:700;color:${school.secondaryColor};">${esc(data.student?.firstName || "")} ${esc(data.student?.lastName || "")}</div>
+  <!-- Header with Logo & School Info -->
+  <div style="display:flex;align-items:flex-start;gap:20px;margin-bottom:8px;padding-bottom:20px;border-bottom:3px solid ${school.accentColor};">
+    <div style="flex-shrink:0;">
+      ${logoHtml(school, 72) || `<div style="width:72px;height:72px;border-radius:12px;background:${school.accentColor};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:28px;">${esc(school.name.charAt(0))}</div>`}
     </div>
     <div>
-      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">Student Number</div>
-      <div style="font-size:16px;font-weight:600;color:${school.secondaryColor};">${esc(data.student?.studentNumber || "N/A")}</div>
-    </div>
-    <div>
-      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">Academic Year</div>
-      <div style="font-size:16px;font-weight:600;color:${school.accentColor};">${esc(data.academicYear?.name || "N/A")}</div>
-    </div>
-  </div>
-
-  <!-- Attendance Stats -->
-  <div style="display:flex;gap:16px;margin-bottom:36px;">
-    <div style="flex:1;text-align:center;padding:20px;background:#F9FAFB;border-radius:12px;">
-      <div style="font-size:28px;font-weight:800;color:${school.secondaryColor};">${data.attendance?.total || 0}</div>
-      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Total Days</div>
-    </div>
-    <div style="flex:1;text-align:center;padding:20px;background:#F0FDF4;border-radius:12px;">
-      <div style="font-size:28px;font-weight:800;color:#059669;">${data.attendance?.present || 0}</div>
-      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Present</div>
-    </div>
-    <div style="flex:1;text-align:center;padding:20px;background:#FEF2F2;border-radius:12px;">
-      <div style="font-size:28px;font-weight:800;color:#DC2626;">${data.attendance?.absent || 0}</div>
-      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Absent</div>
-    </div>
-    <div style="flex:1;text-align:center;padding:20px;background:${attendanceColor}11;border-radius:12px;">
-      <div style="font-size:28px;font-weight:800;color:${attendanceColor};">${data.attendanceRate || 0}%</div>
-      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Attendance Rate</div>
-    </div>
-  </div>
-
-  <!-- Academic Results -->
-  <h2 style="font-size:16px;font-weight:700;color:${school.accentColor};margin-bottom:16px;text-transform:uppercase;letter-spacing:1px;">Academic Results</h2>
-  <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
-    <thead>
-      <tr>
-        <th style="background:${school.accentColor};color:#fff;padding:12px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Subject</th>
-        <th style="background:${school.accentColor};color:#fff;padding:12px 16px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Average</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${subjectRows || `<tr><td colspan="2" style="padding:40px;text-align:center;color:#9CA3AF;">No results available</td></tr>`}
-      <tr style="background:${school.accentColor}11;">
-        <td style="padding:16px;font-size:15px;font-weight:800;border-top:2px solid ${school.accentColor};">Overall Average</td>
-        <td style="padding:16px;font-size:18px;font-weight:800;text-align:center;color:${school.accentColor};border-top:2px solid ${school.accentColor};">${data.overallAverage || 0}%</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <!-- Signature -->
-  ${school.principalName ? `
-  <div style="margin-top:60px;display:flex;justify-content:flex-end;">
-    <div style="text-align:center;width:200px;">
-      <div style="border-top:2px solid ${school.secondaryColor};padding-top:8px;">
-        <p style="font-size:14px;font-weight:700;color:${school.secondaryColor};">${esc(school.principalName)}</p>
-        <p style="font-size:12px;color:#6B7280;">${esc(school.principalTitle || "Principal")}</p>
+      <h1 style="font-size:22px;font-weight:800;color:${school.secondaryColor};letter-spacing:-0.5px;margin:0;">${esc(school.name)}</h1>
+      <div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5;">
+        ${school.address ? `<div>${esc(school.address)}${school.city ? `, ${esc(school.city)}` : ""}</div>` : ""}
+        ${school.phone ? `<div>${esc(school.phone)}</div>` : ""}
       </div>
     </div>
-  </div>` : ""}
+  </div>
+
+  <!-- Term / Year Banner -->
+  <div style="text-align:center;margin-bottom:24px;">
+    <div style="display:inline-block;padding:8px 32px;background:${school.accentColor};color:#fff;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:8px;">
+      ${esc(data.academicYear?.name || "Academic Year")} — Report Card
+    </div>
+  </div>
+
+  <!-- Student Info Bar -->
+  <div style="display:flex;justify-content:space-between;margin-bottom:28px;padding:20px;background:#F9FAFB;border-radius:12px;border:1px solid #F3F4F6;">
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">Student</div>
+      <div style="font-size:16px;font-weight:700;color:${school.secondaryColor};">${esc(data.student?.firstName || "")} ${esc(data.student?.lastName || "")}</div>
+    </div>
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">Grade</div>
+      <div style="font-size:14px;font-weight:600;color:${school.secondaryColor};">${esc(data.grade || "N/A")}</div>
+    </div>
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">Student #</div>
+      <div style="font-size:14px;font-weight:600;color:${school.secondaryColor};">${esc(data.student?.studentNumber || "N/A")}</div>
+    </div>
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">Class</div>
+      <div style="font-size:14px;font-weight:600;color:${school.secondaryColor};">${esc(data.className || "N/A")}</div>
+    </div>
+  </div>
+
+  <!-- Attendance Table -->
+  <div style="margin-bottom:28px;">
+    <h2 style="font-size:13px;font-weight:700;color:${school.accentColor};margin-bottom:10px;text-transform:uppercase;letter-spacing:1.5px;">Attendance</h2>
+    <table style="width:100%;border-collapse:collapse;border:1px solid #E5E7EB;border-radius:8px;overflow:hidden;">
+      <thead>
+        <tr style="background:${school.accentColor};">
+          <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1px;width:140px;"></th>
+          ${gradeLabels.map((l) => `<th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1px;">${l}</th>`).join("")}
+          <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1px;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${attRow("Absent", "absent", "#DC2626")}
+        ${attRow("Late", "late", "#D97706")}
+        ${attRow("Total Days", "total", school.secondaryColor)}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Subject Grades Table -->
+  <div style="margin-bottom:28px;">
+    <h2 style="font-size:13px;font-weight:700;color:${school.accentColor};margin-bottom:10px;text-transform:uppercase;letter-spacing:1.5px;">Subject Results</h2>
+    <table style="width:100%;border-collapse:collapse;border:1px solid #E5E7EB;border-radius:8px;overflow:hidden;">
+      <thead>
+        <tr style="background:${school.accentColor};">
+          <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1px;">Subject</th>
+          ${gradeLabels.map((l) => `<th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1px;">${l}</th>`).join("")}
+          <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1px;">Final</th>
+          <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1px;">%</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${subjectRows || `<tr><td colspan="7" style="padding:40px;text-align:center;color:#9CA3AF;font-size:13px;">No results available</td></tr>`}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- GPA Row -->
+  <div style="display:flex;gap:0;margin-bottom:28px;border:1px solid #E5E7EB;border-radius:8px;overflow:hidden;">
+    <div style="flex:1;padding:14px 16px;background:${school.accentColor};color:#fff;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;">GPA</div>
+    ${quarterlyGPAs.map((gpa: number) => `
+      <div style="flex:1;padding:14px 16px;text-align:center;border-left:1px solid #E5E7EB;">
+        <div style="font-size:18px;font-weight:800;color:${school.secondaryColor};">${gpa.toFixed(2)}</div>
+      </div>`).join("")}
+    <div style="flex:1;padding:14px 16px;text-align:center;border-left:1px solid #E5E7EB;background:${school.accentColor}11;">
+      <div style="font-size:18px;font-weight:800;color:${school.accentColor};">${data.finalGPA?.toFixed(2) || "0.00"}</div>
+    </div>
+  </div>
+
+  <!-- Grade Scale -->
+  <div style="margin-bottom:28px;padding:16px 20px;background:#F9FAFB;border-radius:8px;border:1px solid #F3F4F6;">
+    <div style="font-size:12px;font-weight:700;color:${school.secondaryColor};margin-bottom:8px;">Grading Scale</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px 16px;font-size:11px;color:#6B7280;">
+      <span><strong style="color:#059669;">A</strong> 90–100</span>
+      <span><strong style="color:#059669;">A-</strong> 80–89</span>
+      <span><strong style="color:#D97706;">B+</strong> 75–79</span>
+      <span><strong style="color:#D97706;">B</strong> 70–74</span>
+      <span><strong style="color:#D97706;">B-</strong> 65–69</span>
+      <span><strong style="color:#EA580C;">C+</strong> 60–64</span>
+      <span><strong style="color:#EA580C;">C</strong> 55–59</span>
+      <span><strong style="color:#EA580C;">C-</strong> 50–54</span>
+      <span><strong style="color:#DC2626;">D+</strong> 45–49</span>
+      <span><strong style="color:#DC2626;">D</strong> 40–44</span>
+      <span><strong style="color:#DC2626;">D-</strong> 35–39</span>
+      <span><strong style="color:#DC2626;">F</strong> 0–34</span>
+    </div>
+  </div>
+
+  <!-- Signature Lines -->
+  <div style="display:flex;justify-content:space-between;margin-top:48px;padding-top:24px;border-top:1px solid #E5E7EB;">
+    <div style="width:28%;">
+      <div style="border-top:2px solid ${school.secondaryColor};padding-top:8px;margin-top:48px;">
+        <p style="font-size:11px;color:#6B7280;">Homeroom Teacher</p>
+        <div style="font-size:10px;color:#9CA3AF;margin-top:2px;">Date: _______________</div>
+      </div>
+    </div>
+    <div style="width:28%;">
+      <div style="border-top:2px solid ${school.secondaryColor};padding-top:8px;margin-top:48px;">
+        <p style="font-size:11px;color:#6B7280;">${esc(school.principalTitle || "Principal")}${school.principalName ? ` — ${esc(school.principalName)}` : ""}</p>
+        <div style="font-size:10px;color:#9CA3AF;margin-top:2px;">Date: _______________</div>
+      </div>
+    </div>
+    <div style="width:28%;">
+      <div style="border-top:2px solid ${school.secondaryColor};padding-top:8px;margin-top:48px;">
+        <p style="font-size:11px;color:#6B7280;">Parent/Guardian</p>
+        <div style="font-size:10px;color:#9CA3AF;margin-top:2px;">Date: _______________</div>
+      </div>
+    </div>
+  </div>
 
   ${docFooter(school)}
 </div>

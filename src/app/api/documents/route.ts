@@ -174,16 +174,36 @@ export async function POST(request: NextRequest) {
           );
         }
 
+        // Get student enrolment for grade/class info
+        const enrolment = await db.enrolment.findFirst({
+          where: { studentId, academicYearId: year.id, status: "ACTIVE" },
+          include: { grade: { select: { name: true } }, class: { select: { name: true } } },
+        });
+
+        // Attendance records
         const attendanceRecords = await db.attendanceRecord.findMany({
           where: {
             studentId,
-            attendance: {
-              class: {
-                academicYearId: year.id,
-              },
-            },
+            attendance: { class: { academicYearId: year.id } },
+          },
+          include: {
+            attendance: { select: { date: true } },
           },
         });
+
+        // Group attendance by quarter (term) based on attendance date
+        const quarterlyAttendance = [0, 0, 0, 0];
+        const quarterlyPresent = [0, 0, 0, 0];
+        const quarterlyAbsent = [0, 0, 0, 0];
+        const quarterlyLate = [0, 0, 0, 0];
+        for (const record of attendanceRecords) {
+          const month = new Date(record.attendance.date).getMonth();
+          const q = month < 3 ? 0 : month < 6 ? 1 : month < 9 ? 2 : 3;
+          quarterlyAttendance[q]++;
+          if (record.status === "PRESENT") quarterlyPresent[q]++;
+          else if (record.status === "ABSENT") quarterlyAbsent[q]++;
+          else if (record.status === "LATE") quarterlyLate[q]++;
+        }
 
         const attendanceSummary = {
           total: attendanceRecords.length,
@@ -191,8 +211,15 @@ export async function POST(request: NextRequest) {
           absent: attendanceRecords.filter((r) => r.status === "ABSENT").length,
           late: attendanceRecords.filter((r) => r.status === "LATE").length,
           excused: attendanceRecords.filter((r) => r.status === "EXCUSED").length,
+          quarterly: [
+            { total: quarterlyAttendance[0], present: quarterlyPresent[0], absent: quarterlyAbsent[0], late: quarterlyLate[0] },
+            { total: quarterlyAttendance[1], present: quarterlyPresent[1], absent: quarterlyAbsent[1], late: quarterlyLate[1] },
+            { total: quarterlyAttendance[2], present: quarterlyPresent[2], absent: quarterlyAbsent[2], late: quarterlyLate[2] },
+            { total: quarterlyAttendance[3], present: quarterlyPresent[3], absent: quarterlyAbsent[3], late: quarterlyLate[3] },
+          ],
         };
 
+        // Assessment results with quarterly breakdown
         const results = await db.assessmentResult.findMany({
           where: {
             studentId,
@@ -207,34 +234,95 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        const subjectMap = new Map<string, { marks: number[]; totalMarks: number[] }>();
+        // Group by subject, then by quarter
+        const subjectQuarterMap = new Map<string, { quarters: Map<number, { marks: number[]; total: number[] }>; allMarks: number[]; allTotal: number[] }>();
         for (const result of results) {
           const subjectName = result.assessment.subject.name;
-          if (!subjectMap.has(subjectName)) {
-            subjectMap.set(subjectName, { marks: [], totalMarks: [] });
+          if (!subjectQuarterMap.has(subjectName)) {
+            subjectQuarterMap.set(subjectName, { quarters: new Map(), allMarks: [], allTotal: [] });
           }
-          const data = subjectMap.get(subjectName)!;
-          data.marks.push(result.marks);
-          data.totalMarks.push(result.assessment.totalMarks);
+          const subjectData = subjectQuarterMap.get(subjectName)!;
+          subjectData.allMarks.push(result.marks);
+          subjectData.allTotal.push(result.assessment.totalMarks);
+
+          // Determine quarter from assessment date
+          let q = 0;
+          if (result.assessment.date) {
+            const month = new Date(result.assessment.date).getMonth();
+            q = month < 3 ? 0 : month < 6 ? 1 : month < 9 ? 2 : 3;
+          } else {
+            // Fallback: distribute results evenly across quarters
+            const idx = subjectData.allMarks.length - 1;
+            q = Math.min(idx % 4, 3);
+          }
+          if (!subjectData.quarters.has(q)) {
+            subjectData.quarters.set(q, { marks: [], total: [] });
+          }
+          const qData = subjectData.quarters.get(q)!;
+          qData.marks.push(result.marks);
+          qData.total.push(result.assessment.totalMarks);
         }
 
-        const academicResults = Array.from(subjectMap.entries()).map(([name, data]) => {
-          const totalMarks = data.marks.reduce((a, b) => a + b, 0);
-          const totalPossible = data.totalMarks.reduce((a, b) => a + b, 0);
-          const average = totalPossible > 0 ? (totalMarks / totalPossible) * 100 : 0;
+        // Build academic results with quarterly breakdown
+        const academicResults = Array.from(subjectQuarterMap.entries()).map(([name, data]) => {
+          const calcGrade = (pct: number) => {
+            if (pct >= 90) return "A";
+            if (pct >= 80) return "A-";
+            if (pct >= 75) return "B+";
+            if (pct >= 70) return "B";
+            if (pct >= 65) return "B-";
+            if (pct >= 60) return "C+";
+            if (pct >= 55) return "C";
+            if (pct >= 50) return "C-";
+            if (pct >= 45) return "D+";
+            if (pct >= 40) return "D";
+            if (pct >= 35) return "D-";
+            return "F";
+          };
+
+          const quarterlyGrades = [0, 1, 2, 3].map((q) => {
+            const qd = data.quarters.get(q);
+            if (!qd || qd.marks.length === 0) return null;
+            const m = qd.marks.reduce((a, b) => a + b, 0);
+            const t = qd.total.reduce((a, b) => a + b, 0);
+            const pct = t > 0 ? Math.round((m / t) * 100 * 100) / 100 : 0;
+            return { percentage: pct, grade: calcGrade(pct) };
+          });
+
+          const totalM = data.allMarks.reduce((a, b) => a + b, 0);
+          const totalT = data.allTotal.reduce((a, b) => a + b, 0);
+          const finalPct = totalT > 0 ? Math.round((totalM / totalT) * 100 * 100) / 100 : 0;
+
           return {
             subject: name,
-            average: Math.round(average * 100) / 100,
+            quarterlyGrades,
+            finalPercentage: finalPct,
+            finalGrade: calcGrade(finalPct),
           };
         });
 
+        // Calculate GPA per quarter and final
+        const calcGPA = (grades: (string | null)[]) => {
+          const gpMap: Record<string, number> = { "A+": 4.0, "A": 4.0, "A-": 3.7, "B+": 3.3, "B": 3.0, "B-": 2.7, "C+": 2.3, "C": 2.0, "C-": 1.7, "D+": 1.3, "D": 1.0, "D-": 0.7, "F": 0.0 };
+          const valid = grades.filter((g): g is string => g !== null && gpMap[g] !== undefined);
+          if (valid.length === 0) return 0;
+          return Math.round((valid.reduce((sum, g) => sum + gpMap[g], 0) / valid.length) * 100) / 100;
+        };
+
+        const quarterlyGPAs = [0, 1, 2, 3].map((q) =>
+          calcGPA(academicResults.map((r) => r.quarterlyGrades[q]?.grade || null))
+        );
+        const finalGPA = calcGPA(academicResults.map((r) => r.finalGrade));
+
         const overallAverage =
           academicResults.length > 0
-            ? academicResults.reduce((sum, r) => sum + r.average, 0) / academicResults.length
+            ? academicResults.reduce((sum, r) => sum + r.finalPercentage, 0) / academicResults.length
             : 0;
 
         documentData = {
           student,
+          grade: enrolment?.grade?.name || "N/A",
+          className: enrolment?.class?.name || null,
           academicYear: year,
           attendance: attendanceSummary,
           attendanceRate:
@@ -242,6 +330,8 @@ export async function POST(request: NextRequest) {
               ? Math.round((attendanceSummary.present / attendanceSummary.total) * 100 * 100) / 100
               : 0,
           academicResults,
+          quarterlyGPAs,
+          finalGPA,
           overallAverage: Math.round(overallAverage * 100) / 100,
           generatedAt: new Date().toISOString(),
         };
