@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
             where: { user: { status: "ACTIVE" } },
             select: { email: true },
           });
-          recipients.push(...parents.map((p) => p.email).filter(Boolean));
+          recipients.push(...parents.map((p) => p.email).filter((e): e is string => Boolean(e)));
         }
         if (target === "ALL" || target === "TEACHERS") {
           const teachers = await db.staff.findMany({

@@ -255,7 +255,7 @@ function InvoicesTab({ setError, setSuccess }: { setError: (s: string) => void; 
   const handleExportInvoices = () => {
     const rows = invoices.map((inv) => ({
       "Invoice Number": inv.invoiceNumber,
-      "Student": inv.studentName,
+      "Student": `${inv.student.firstName} ${inv.student.lastName}`,
       "Total Amount": inv.totalAmount,
       "Paid": inv.totalPaid,
       "Balance": inv.balance,

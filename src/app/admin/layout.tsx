@@ -22,6 +22,7 @@ import {
   FileText,
   ShoppingBag,
   Award,
+  MessageSquare,
 } from "lucide-react";
 import { ROLE_LABELS } from "@/lib/auth/rbac";
 
@@ -127,6 +128,11 @@ const NAV_ITEMS = [
     icon: Megaphone,
   },
   {
+    label: "Messages",
+    href: "/admin/messages",
+    icon: MessageSquare,
+  },
+  {
     label: "Analytics",
     href: "/admin/analytics",
     icon: LayoutDashboard,
@@ -147,6 +153,87 @@ const NAV_ITEMS = [
     icon: FileText,
   },
 ];
+
+// ─── Notification Bell Component ────────────────────────
+function NotificationBell() {
+  const [open, setOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch("/api/notifications");
+      const data = await res.json();
+      setUnreadCount(data.unreadCount || 0);
+      setNotifications(data.notifications || []);
+    } catch {}
+  };
+
+  const toggle = async () => {
+    if (!open) {
+      setLoading(true);
+      await fetchNotifications();
+      setLoading(false);
+    }
+    setOpen(!open);
+  };
+
+  const markAllRead = async () => {
+    try {
+      await fetch("/api/notifications", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ markAllRead: true }),
+      });
+      setUnreadCount(0);
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    } catch {}
+  };
+
+  return (
+    <div className="relative">
+      <button onClick={toggle} className="relative p-2 hover:bg-portland-light rounded-xl">
+        <Bell className="w-5 h-5 text-portland-dark" />
+        {unreadCount > 0 && (
+          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-portland-red text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
+            {unreadCount > 99 ? "99+" : unreadCount}
+          </span>
+        )}
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-xl border z-50 max-h-[70vh] overflow-hidden">
+            <div className="p-4 border-b flex items-center justify-between">
+              <h3 className="font-semibold text-portland-dark text-sm">Notifications</h3>
+              {unreadCount > 0 && (
+                <button onClick={markAllRead} className="text-xs text-portland-red hover:underline">Mark all read</button>
+              )}
+            </div>
+            <div className="overflow-y-auto max-h-[50vh]">
+              {loading ? (
+                <div className="p-8 text-center text-sm text-portland-gray">Loading...</div>
+              ) : notifications.length === 0 ? (
+                <div className="p-8 text-center text-sm text-portland-gray">No notifications</div>
+              ) : (
+                notifications.slice(0, 20).map((n) => (
+                  <div key={n.id} className={`p-4 border-b last:border-0 ${n.read ? "" : "bg-portland-red/5"}`}>
+                    <p className="text-sm font-medium text-portland-dark">{n.title}</p>
+                    <p className="text-xs text-portland-gray mt-0.5">{n.message}</p>
+                    <p className="text-[10px] text-portland-gray/50 mt-1">
+                      {new Date(n.createdAt).toLocaleDateString("en-ZA")} {new Date(n.createdAt).toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" })}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export default function AdminLayout({
   children,
@@ -256,10 +343,7 @@ export default function AdminLayout({
             </div>
 
             <div className="flex items-center gap-3">
-              <button className="relative p-2 hover:bg-portland-light rounded-xl">
-                <Bell className="w-5 h-5 text-portland-dark" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-portland-red rounded-full" />
-              </button>
+              <NotificationBell />
               <Link href="/admin/profile" className="flex items-center gap-2">
                 <div className="w-8 h-8 bg-portland-red/10 rounded-full flex items-center justify-center">
                   <span className="text-portland-red text-sm font-semibold">

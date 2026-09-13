@@ -13,6 +13,7 @@ import {
   Menu,
   Bell,
   User,
+  MessageSquare,
 } from "lucide-react";
 import { ROLE_LABELS } from "@/lib/auth/rbac";
 
@@ -21,6 +22,7 @@ const NAV_ITEMS = [
   { label: "My Classes", href: "/teacher/classes", icon: BookOpen },
   { label: "Attendance", href: "/teacher/attendance", icon: ClipboardCheck },
   { label: "Results", href: "/teacher/results", icon: Users },
+  { label: "Messages", href: "/teacher/messages", icon: MessageSquare },
 ];
 
 export default function TeacherLayout({ children }: { children: React.ReactNode }) {

@@ -106,7 +106,7 @@ export default function AuditLogPage() {
       <PageHeader
         title="Audit Log"
         description={`Track all system activity · ${total.toLocaleString()} entries`}
-        actions={
+        action={
           <Button variant="outline" onClick={fetchLogs} icon={<RefreshCw className="w-4 h-4" />}>
             Refresh
           </Button>

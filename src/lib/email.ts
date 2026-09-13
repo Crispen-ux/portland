@@ -288,6 +288,8 @@ export async function overdueInvoiceReminderEmail({ studentName, invoiceNumber, 
 }
 
 // ─── Password Reset Email ───────────────────────────────
+
+export async function passwordResetEmail({ name, resetUrl }: { name?: string; resetUrl: string }) {
   const school = await getSchool();
 
   const content = `
