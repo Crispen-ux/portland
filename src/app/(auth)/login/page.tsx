@@ -31,13 +31,9 @@ function LoginForm() {
       if (result?.error) {
         setError("Invalid email or password. Please try again.");
       } else {
-        // Use the callbackUrl if present (from middleware redirect), otherwise go to dashboard router
-        if (callbackUrl && callbackUrl !== "/admin") {
-          router.push(callbackUrl);
-        } else {
-          router.push("/api/auth/dashboard");
-        }
-        router.refresh();
+        // Use callbackUrl if present (from middleware redirect), otherwise default to /admin
+        // Use window.location.href to force full reload so session cookie is available
+        window.location.href = callbackUrl || "/admin";
       }
     } catch {
       setError("Something went wrong. Please try again.");
