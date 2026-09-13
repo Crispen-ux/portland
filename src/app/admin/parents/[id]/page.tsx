@@ -232,7 +232,7 @@ export default function Parent360Page({ params }: { params: Promise<{ id: string
 // ─── Overview Tab ──────────────────────────────────────
 
 function OverviewTab({ data }: { data: ProfileData }) {
-  const { parent, children, finance } = data;
+  const { parent, children, finance, documentCount } = data;
   const fmt = (n: number) => `R${n.toLocaleString("en-ZA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   return (
