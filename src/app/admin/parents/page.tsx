@@ -6,7 +6,8 @@ import {
   Table, TableHeader, TableBody, TableRow, TableCell,
   EmptyState, LoadingState, ConfirmModal, useToast,
 } from "@/components/ui";
-import { Plus, Search, Users, Edit, Trash2, X, AlertCircle, CheckCircle, Phone, Mail } from "lucide-react";
+import { Plus, Search, Users, Edit, Trash2, X, AlertCircle, CheckCircle, Phone, Mail, Eye } from "lucide-react";
+import Link from "next/link";
 
 interface Parent {
   id: string;
@@ -136,6 +137,7 @@ export default function ParentsPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
+                      <Link href={`/admin/parents/${p.id}`} className="p-2 hover:bg-portland-light rounded-lg"><Eye className="w-4 h-4 text-portland-gray" /></Link>
                       <button onClick={() => setEditing(p)} className="p-2 hover:bg-portland-light rounded-lg"><Edit className="w-4 h-4 text-portland-gray" /></button>
                       <button onClick={() => setConfirmDelete(p.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-red-500" /></button>
                     </div>
