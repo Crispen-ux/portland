@@ -156,11 +156,11 @@ export default function DocumentsPage() {
   useEffect(() => {
     const init = async () => {
       setLoading(true);
-      await Promise.all([fetchStudents(), fetchAcademicYears(), fetchDocuments(), fetchClasses()]);
+      await Promise.all([fetchStudents(), fetchAcademicYears(), fetchClasses()]);
       setLoading(false);
     };
     init();
-  }, [fetchStudents, fetchAcademicYears, fetchDocuments, fetchClasses]);
+  }, [fetchStudents, fetchAcademicYears, fetchClasses]);
 
   useEffect(() => {
     fetchDocuments();
