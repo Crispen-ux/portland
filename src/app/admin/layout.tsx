@@ -67,6 +67,11 @@ const NAV_ITEMS = [
     icon: Award,
   },
   {
+    label: "Assignments",
+    href: "/admin/teacher-assignments",
+    icon: BookOpen,
+  },
+  {
     label: "Classes",
     href: "/admin/classes",
     icon: BookOpen,
