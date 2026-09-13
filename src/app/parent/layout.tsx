@@ -14,6 +14,7 @@ import {
   Menu,
   Bell,
   User,
+  ShoppingBag,
 } from "lucide-react";
 import { ROLE_LABELS } from "@/lib/auth/rbac";
 
@@ -23,6 +24,7 @@ const NAV_ITEMS = [
   { label: "Attendance", href: "/parent/attendance", icon: ClipboardCheck },
   { label: "Results", href: "/parent/results", icon: BookOpen },
   { label: "Invoices", href: "/parent/invoices", icon: DollarSign },
+  { label: "Shop", href: "/parent/shop", icon: ShoppingBag },
 ];
 
 export default function ParentLayout({ children }: { children: React.ReactNode }) {

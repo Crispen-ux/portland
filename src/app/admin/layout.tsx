@@ -20,6 +20,7 @@ import {
   Search,
   User,
   FileText,
+  ShoppingBag,
 } from "lucide-react";
 import { ROLE_LABELS } from "@/lib/auth/rbac";
 
@@ -98,6 +99,11 @@ const NAV_ITEMS = [
     label: "Documents",
     href: "/admin/documents",
     icon: FileText,
+  },
+  {
+    label: "Catalogue",
+    href: "/admin/catalogue",
+    icon: ShoppingBag,
   },
   {
     label: "Admissions",

@@ -28,6 +28,7 @@ model User {
   auditLogs     AuditLog[]
   invitations   Invitation[]
   passwordResets PasswordResetToken[]
+  productOrders ProductOrder[]
 
   @@index([email])
   @@index([role])
@@ -220,6 +221,7 @@ model Student {
   invoices      Invoice[]
   recurringInvoices RecurringInvoice[]
   documents     Document[]
+  productOrders ProductOrder[]
 
   @@index([studentNumber])
 }
@@ -602,4 +604,60 @@ model Document {
 
   @@index([type])
   @@index([studentId])
+}
+
+// ─── Product Catalogue ─────────────────────────────────
+
+model Product {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  category      String   // "UNIFORM", "STATIONERY", "BOOKS", "SPORTS", "EXTRACURRICULAR", "OTHER"
+  price         Decimal  @db.Decimal(10, 2)
+  stock         Int      @default(0)
+  imageUrl      String?
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  orderItems    OrderItem[]
+
+  @@index([category])
+  @@index([active])
+}
+
+model ProductOrder {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  studentId     String?
+  student       Student? @relation(fields: [studentId], references: [id])
+  status        OrderStatus @default(PENDING)
+  totalAmount   Decimal  @db.Decimal(10, 2)
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  items         OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model OrderItem {
+  id            String   @id @default(cuid())
+  orderId       String
+  order         ProductOrder @relation(fields: [orderId], references: [id])
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id])
+  quantity      Int      @default(1)
+  unitPrice     Decimal  @db.Decimal(10, 2)
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
 }
