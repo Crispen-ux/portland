@@ -54,7 +54,7 @@ export default function HeroSection() {
           {/* Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 animate-fade-up delay-500">
             <Link href="/admissions" className="btn-primary text-base !py-4 !px-8 group">
-              Begin Their Journey
+              Register Now
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <a
