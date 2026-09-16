@@ -74,6 +74,14 @@ export default function SchoolFeesPage() {
               Portland Schools provides quality CAPS education at fees that respect
               your family&apos;s budget. Every learner receives a free school uniform.
             </p>
+            <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <Link href="/admissions" className="btn-primary">
+                Register Now
+              </Link>
+              <a href="#fee-schedule" className="btn-secondary">
+                View Fee Schedule
+              </a>
+            </div>
           </div>
         </div>
       </section>

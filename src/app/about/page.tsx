@@ -1,6 +1,7 @@
 "use client";
 
 import { useInView } from "@/lib/useInView";
+import Link from "next/link";
 import { VALUES } from "@/lib/constants";
 import {
   Eye,
@@ -48,6 +49,14 @@ export default function AboutPage() {
             <p className="text-xl text-white/70">
               A place to learn. A place to grow. A place to belong.
             </p>
+            <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <Link href="/admissions" className="btn-primary">
+                Register Now
+              </Link>
+              <a href="#values" className="btn-secondary">
+                Learn More
+              </a>
+            </div>
           </div>
         </div>
       </section>

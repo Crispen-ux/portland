@@ -73,6 +73,14 @@ export default function ContactPage() {
               We&apos;d love to hear from you. Get in touch to learn about admissions,
               fees, or to book a school visit.
             </p>
+            <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <Link href="/admissions" className="btn-primary">
+                Register Now
+              </Link>
+              <a href="#contact-form" className="btn-secondary">
+                Send a Message
+              </a>
+            </div>
           </div>
         </div>
       </section>

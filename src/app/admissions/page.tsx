@@ -99,7 +99,7 @@ function AdmissionsContent() {
                 href="#enquiry-form"
                 className="btn-primary"
               >
-                Start an Enquiry
+                Register Now
               </a>
               <a
                 href={SITE.whatsappLink}

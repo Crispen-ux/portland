@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useInView } from "@/lib/useInView";
 import { SPORTS, ACTIVITIES } from "@/lib/constants";
 import {
@@ -49,6 +50,14 @@ export default function AcademicsPage() {
             <p className="text-xl text-white/60">
               CAPS Curriculum | English-Medium | Grade RR–11
             </p>
+            <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <Link href="/admissions" className="btn-primary">
+                Register Now
+              </Link>
+              <a href="#programs" className="btn-secondary">
+                Our Programs
+              </a>
+            </div>
           </div>
         </div>
       </section>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { useInView } from "@/lib/useInView";
 import { PHOTOS, CATEGORIES, type Category, type Photo } from "@/lib/photos";
 import { X, ChevronLeft, ChevronRight, ChevronRightIcon } from "lucide-react";
@@ -76,6 +77,11 @@ export default function PhotosPage() {
             <p className="text-lg sm:text-xl text-white/60 max-w-lg leading-relaxed">
               A glimpse into learning, growing and making memories at Portland Schools.
             </p>
+            <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <Link href="/admissions" className="btn-primary">
+                Register Now
+              </Link>
+            </div>
           </div>
         </div>
       </section>
