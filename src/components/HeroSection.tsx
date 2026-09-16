@@ -23,12 +23,10 @@ export default function HeroSection() {
 
           {/* Main heading */}
           <h1 className="text-display text-white mb-8 animate-fade-up delay-100">
-            Where Every
-            <br />
-            Child Is{" "}
+            We believe in your{" "}
             <span className="relative inline-block">
               <span className="text-white">
-                Known.
+                child
               </span>
               <span className="absolute -bottom-2 left-0 w-full h-[3px] bg-gradient-to-r from-white to-transparent rounded-full" />
             </span>
