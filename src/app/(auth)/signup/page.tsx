@@ -86,7 +86,7 @@ function SignupForm() {
       <div className="w-full max-w-[420px]">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-14 h-14 bg-[#C41E3A] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#C41E3A]/20">
+          <div className="w-14 h-14 bg-[#D10000] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#D10000]/20">
             <GraduationCap className="w-7 h-7 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-[#1A1A1A]">Create Account</h1>
@@ -128,7 +128,7 @@ function SignupForm() {
                   onChange={(e) => setName(e.target.value)}
                   required
                   placeholder="Enter your full name"
-                  className="w-full px-3.5 py-2.5 text-sm border border-[#D1D5DB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C41E3A]/20 focus:border-[#C41E3A] transition-colors placeholder:text-[#9CA3AF]"
+                  className="w-full px-3.5 py-2.5 text-sm border border-[#D1D5DB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D10000]/20 focus:border-[#D10000] transition-colors placeholder:text-[#9CA3AF]"
                 />
               </div>
               <div>
@@ -139,7 +139,7 @@ function SignupForm() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="At least 8 characters"
-                  className="w-full px-3.5 py-2.5 text-sm border border-[#D1D5DB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C41E3A]/20 focus:border-[#C41E3A] transition-colors placeholder:text-[#9CA3AF]"
+                  className="w-full px-3.5 py-2.5 text-sm border border-[#D1D5DB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D10000]/20 focus:border-[#D10000] transition-colors placeholder:text-[#9CA3AF]"
                 />
               </div>
               <div>
@@ -150,13 +150,13 @@ function SignupForm() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                   placeholder="Repeat your password"
-                  className="w-full px-3.5 py-2.5 text-sm border border-[#D1D5DB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C41E3A]/20 focus:border-[#C41E3A] transition-colors placeholder:text-[#9CA3AF]"
+                  className="w-full px-3.5 py-2.5 text-sm border border-[#D1D5DB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D10000]/20 focus:border-[#D10000] transition-colors placeholder:text-[#9CA3AF]"
                 />
               </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#C41E3A] hover:bg-[#A01830] text-white font-semibold py-2.5 px-4 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm mt-2"
+                className="w-full bg-[#D10000] hover:bg-[#A70000] text-white font-semibold py-2.5 px-4 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm mt-2"
               >
                 {loading ? "Creating account..." : "Create Account"}
               </button>
@@ -170,7 +170,7 @@ function SignupForm() {
 
         {/* Back link */}
         <p className="text-center text-xs text-[#9CA3AF] mt-6">
-          <a href="/login" className="hover:text-[#C41E3A] transition-colors">
+          <a href="/login" className="hover:text-[#D10000] transition-colors">
             &larr; Back to sign in
           </a>
         </p>

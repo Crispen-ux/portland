@@ -55,7 +55,7 @@ const FONTS = [
 ];
 
 const COLORS = [
-  { value: "#C41E3A", label: "Portland Red" },
+  { value: "#D10000", label: "Portland Red" },
   { value: "#1E40AF", label: "Blue" },
   { value: "#059669", label: "Green" },
   { value: "#7C3AED", label: "Purple" },

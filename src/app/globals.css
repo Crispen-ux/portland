@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-portland-red: #C41E3A;
-  --color-portland-red-dark: #A01830;
+  --color-portland-red: #D10000;
+  --color-portland-red-dark: #A70000;
   --color-portland-red-light: #E8344F;
   --color-portland-white: #FFFFFF;
   --color-portland-cream: #FDF6F0;
@@ -40,14 +40,14 @@ body {
 
 /* Focus visible styles */
 *:focus-visible {
-  outline: 2px solid #C41E3A;
+  outline: 2px solid #D10000;
   outline-offset: 2px;
   border-radius: 4px;
 }
 
 button:focus-visible,
 a:focus-visible {
-  outline: 2px solid #C41E3A;
+  outline: 2px solid #D10000;
   outline-offset: 2px;
 }
 
@@ -141,7 +141,7 @@ a:focus-visible {
 
 /* Premium text effects */
 .text-gradient {
-  background: linear-gradient(135deg, #C41E3A, #E8344F);
+  background: linear-gradient(135deg, #D10000, #E8344F);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -158,7 +158,7 @@ a:focus-visible {
 
 /* Premium button styles */
 .btn-primary {
-  background: #C41E3A;
+  background: #D10000;
   color: white;
   padding: 14px 32px;
   border-radius: 8px;
@@ -173,7 +173,7 @@ a:focus-visible {
 }
 
 .btn-primary:hover {
-  background: #A01830;
+  background: #A70000;
   transform: translateY(-1px);
   box-shadow: 0 4px 20px rgba(196, 30, 58, 0.3);
 }
@@ -202,8 +202,8 @@ a:focus-visible {
 
 .btn-outline {
   background: transparent;
-  border: 1.5px solid #C41E3A;
-  color: #C41E3A;
+  border: 1.5px solid #D10000;
+  color: #D10000;
   padding: 13px 30px;
   border-radius: 8px;
   font-weight: 600;
@@ -217,7 +217,7 @@ a:focus-visible {
 }
 
 .btn-outline:hover {
-  background: #C41E3A;
+  background: #D10000;
   color: white;
   transform: translateY(-1px);
   box-shadow: 0 4px 20px rgba(196, 30, 58, 0.25);

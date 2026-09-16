@@ -43,7 +43,7 @@ async function getSchool(): Promise<SchoolBranding> {
       phone: "+27 82 815 4388",
       email: "info@portlandschools.co.za",
       logoUrl: null,
-      accentColor: "#C41E3A",
+      accentColor: "#D10000",
       secondaryColor: "#1A1A1A",
       emailFooter: "Portland Group of Schools · 188 Commissioner Street, Johannesburg",
       emailSignature: "Kind regards,\nPortland Group of Schools",

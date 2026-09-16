@@ -35,7 +35,7 @@ function ForgotPasswordForm() {
     <div className="min-h-screen flex items-center justify-center bg-[#F8F7F4] px-4">
       <div className="w-full max-w-[420px]">
         <div className="text-center mb-8">
-          <div className="w-14 h-14 bg-[#C41E3A] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#C41E3A]/20">
+          <div className="w-14 h-14 bg-[#D10000] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#D10000]/20">
             <GraduationCap className="w-7 h-7 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-[#1A1A1A]">Reset Password</h1>
@@ -66,13 +66,13 @@ function ForgotPasswordForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="your@email.com"
-                className="w-full px-3.5 py-2.5 text-sm border border-[#D1D5DB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C41E3A]/20 focus:border-[#C41E3A] transition-colors placeholder:text-[#9CA3AF]"
+                className="w-full px-3.5 py-2.5 text-sm border border-[#D1D5DB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D10000]/20 focus:border-[#D10000] transition-colors placeholder:text-[#9CA3AF]"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#C41E3A] hover:bg-[#A01830] text-white font-semibold py-2.5 px-4 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+              className="w-full bg-[#D10000] hover:bg-[#A70000] text-white font-semibold py-2.5 px-4 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
             >
               {loading ? "Sending..." : "Send Reset Link"}
             </button>
@@ -80,7 +80,7 @@ function ForgotPasswordForm() {
         </div>
 
         <p className="text-center text-xs text-[#9CA3AF] mt-6">
-          <a href="/login" className="hover:text-[#C41E3A] transition-colors inline-flex items-center gap-1">
+          <a href="/login" className="hover:text-[#D10000] transition-colors inline-flex items-center gap-1">
             <ArrowLeft className="w-3 h-3" /> Back to sign in
           </a>
         </p>

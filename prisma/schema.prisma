@@ -85,7 +85,7 @@ model School {
   active          Boolean  @default(true)
 
   // Branding
-  accentColor     String   @default("#C41E3A")
+  accentColor     String   @default("#D10000")
   secondaryColor  String   @default("#1A1A1A")
   fontFamily      String   @default("Inter, system-ui, sans-serif")
 
