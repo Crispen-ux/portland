@@ -55,7 +55,7 @@ export default function SchoolFeesPage() {
       {/* Hero */}
       <section
         ref={heroRef}
-        className="min-h-[100vh] flex items-center bg-[#D10000] text-white"
+        className="hero-section min-h-[100vh] flex items-center bg-[#D10000] text-white"
       >
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div
@@ -64,13 +64,13 @@ export default function SchoolFeesPage() {
             }`}
           >
             <div className="inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <GraduationCap className="w-4 h-4 text-portland-red-light" />
+              <GraduationCap className="w-4 h-4 text-white" />
               Transparent &amp; Affordable
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
               School Fees
             </h1>
-            <p className="text-lg sm:text-xl text-portland-mid max-w-2xl leading-relaxed">
+            <p className="text-lg sm:text-xl text-white/80 max-w-2xl leading-relaxed">
               Portland Schools provides quality CAPS education at fees that respect
               your family&apos;s budget. Every learner receives a free school uniform.
             </p>

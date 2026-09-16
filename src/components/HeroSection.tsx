@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react";
 
 export default function HeroSection() {
   return (
-    <section className="relative min-h-[100vh] flex items-center overflow-hidden bg-[#D10000]">
+    <section className="hero-section relative min-h-[100vh] flex items-center overflow-hidden bg-[#D10000]">
       {/* Decorative accent */}
       <div className="absolute top-0 right-0 w-1/3 h-full bg-white/8" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
