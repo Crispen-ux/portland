@@ -71,7 +71,7 @@ function AdmissionsContent() {
       {/* Hero */}
       <section
         ref={heroRef}
-        className="relative min-h-[100vh] flex items-center overflow-hidden bg-portland-red"
+        className="relative min-h-[100vh] flex items-center overflow-hidden bg-[#D10000]"
       >
         {/* Decorative accents */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/8 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />

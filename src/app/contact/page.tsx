@@ -54,7 +54,7 @@ export default function ContactPage() {
       {/* Hero */}
       <section
         ref={heroRef}
-        className="min-h-[100vh] flex items-center bg-portland-red text-white"
+        className="min-h-[100vh] flex items-center bg-[#D10000] text-white"
       >
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div

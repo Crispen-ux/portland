@@ -53,7 +53,7 @@ export default function PhotosPage() {
       {/* Hero */}
       <section
         ref={heroRef}
-        className="relative min-h-[100vh] flex items-center overflow-hidden bg-portland-red"
+        className="relative min-h-[100vh] flex items-center overflow-hidden bg-[#D10000]"
       >
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-white/8 rounded-full blur-3xl -translate-y-1/2" />
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-white/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
