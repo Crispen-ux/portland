@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useInView } from "@/lib/useInView";
 import { PHOTOS, CATEGORIES, type Category, type Photo } from "@/lib/photos";
 import { X, ChevronLeft, ChevronRight, ChevronRightIcon } from "lucide-react";
-import Link from "next/link";
 
 export default function PhotosPage() {
   const [heroRef, heroInView] = useInView(0.1);
