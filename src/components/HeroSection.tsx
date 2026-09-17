@@ -33,14 +33,14 @@ export default function HeroSection() {
           </h1>
 
           {/* Supporting text */}
-          <p className="text-lg sm:text-xl text-white/90 max-w-lg mb-12 leading-relaxed animate-fade-up delay-200">
+          <p className="text-lg sm:text-xl text-white max-w-lg mb-12 leading-relaxed animate-fade-up delay-200">
             {SITE.subtitle} We&apos;re committed to helping them become
             everything they&apos;re capable of becoming.
           </p>
 
           {/* School info line */}
           <div className="animate-fade-up delay-300 mb-6">
-            <p className="text-white/80 text-sm uppercase tracking-widest font-medium">
+            <p className="text-white text-sm uppercase tracking-widest font-medium">
               {SITE.grades} · {SITE.curriculum}
             </p>
           </div>
