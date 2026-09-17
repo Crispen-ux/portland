@@ -38,6 +38,21 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Safari compatibility */
+@supports (-webkit-touch-callout: none) {
+  .backdrop-blur-sm { -webkit-backdrop-filter: blur(4px); }
+  .backdrop-blur-md { -webkit-backdrop-filter: blur(12px); }
+  .backdrop-blur-lg { -webkit-backdrop-filter: blur(16px); }
+  .backdrop-blur-xl { -webkit-backdrop-filter: blur(24px); }
+}
+
+/* Gradient text cross-browser */
+.text-gradient {
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 /* Focus visible styles */
 *:focus-visible {
   outline: 2px solid #D10000;
