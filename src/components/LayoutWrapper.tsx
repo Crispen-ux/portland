@@ -7,6 +7,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import ChatBot from "@/components/ChatBot";
 import ScrollProgress from "@/components/ScrollProgress";
 import ExitPopup from "@/components/ExitPopup";
+import EntryPopup from "@/components/EntryPopup";
 
 const AUTH_ROUTES = ["/login", "/signup", "/forgot-password", "/reset-password"];
 const PORTAL_ROUTES = ["/admin", "/teacher", "/parent", "/student"];
@@ -35,6 +36,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       </main>
       <Footer />
       <WhatsAppButton />
+      <EntryPopup />
       <ExitPopup />
       <ChatBot />
     </>
