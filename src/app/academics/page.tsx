@@ -54,9 +54,9 @@ export default function AcademicsPage() {
               <Link href="/admissions" className="btn-primary">
                 Register Now
               </Link>
-              <a href="#programs" className="btn-secondary">
+              <Link href="/programmes" className="btn-secondary">
                 Our Programs
-              </a>
+              </Link>
             </div>
           </div>
         </div>
