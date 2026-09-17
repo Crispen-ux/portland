@@ -70,7 +70,7 @@ export default function SchoolFeesPage() {
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
               School Fees
             </h1>
-            <p className="text-lg sm:text-xl text-white/80 max-w-2xl leading-relaxed">
+            <p className="text-lg sm:text-xl text-white max-w-2xl leading-relaxed">
               Portland Schools provides quality CAPS education at fees that respect
               your family&apos;s budget. Every learner receives a free school uniform.
             </p>

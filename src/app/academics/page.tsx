@@ -38,7 +38,7 @@ export default function AcademicsPage() {
               heroInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <span className="text-eyebrow text-white/80 tracking-[0.2em] mb-4 block">
+            <span className="text-eyebrow text-white tracking-[0.2em] mb-4 block">
               Academics & School Life
             </span>
             <h1 className="text-display text-white mb-6">
@@ -47,7 +47,7 @@ export default function AcademicsPage() {
                 Preparing for Tomorrow.
               </span>
             </h1>
-            <p className="text-xl text-white/60">
+            <p className="text-xl text-white">
               CAPS Curriculum | English-Medium | Grade RR–11
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4">

@@ -69,7 +69,7 @@ export default function ContactPage() {
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
               Contact Us
             </h1>
-            <p className="text-lg sm:text-xl text-white/80 max-w-2xl leading-relaxed">
+            <p className="text-lg sm:text-xl text-white max-w-2xl leading-relaxed">
               We&apos;d love to hear from you. Get in touch to learn about admissions,
               fees, or to book a school visit.
             </p>

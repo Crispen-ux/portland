@@ -73,7 +73,7 @@ export default function ProgrammesPage() {
               heroInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <span className="text-eyebrow text-white/80 tracking-[0.2em] mb-4 block">
+            <span className="text-eyebrow text-white tracking-[0.2em] mb-4 block">
               Academic Programmes
             </span>
             <h1 className="text-display text-white mb-6">
@@ -82,7 +82,7 @@ export default function ProgrammesPage() {
                 Inspire
               </span>
             </h1>
-            <p className="text-xl text-white/70 mb-8">
+            <p className="text-xl text-white mb-8">
               Quality CAPS education from Grade RR through Grade 11, delivered in English with dedicated teachers and a holistic approach.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">

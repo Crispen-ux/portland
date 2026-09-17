@@ -39,14 +39,14 @@ export default function AboutPage() {
               heroInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <span className="text-eyebrow text-white/80 tracking-[0.2em] mb-4 block">
+            <span className="text-eyebrow text-white tracking-[0.2em] mb-4 block">
               About Us
             </span>
             <h1 className="text-display text-white mb-6">
               About{" "}
               <span className="text-white">Portland</span>
             </h1>
-            <p className="text-xl text-white/70">
+            <p className="text-xl text-white">
               A place to learn. A place to grow. A place to belong.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4">

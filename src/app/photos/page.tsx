@@ -64,7 +64,7 @@ export default function PhotosPage() {
               heroInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <span className="text-eyebrow text-white/80 tracking-[0.2em] mb-4 block">
+            <span className="text-eyebrow text-white tracking-[0.2em] mb-4 block">
               Photo Gallery
             </span>
             <h1 className="text-display text-white mb-6">
@@ -73,7 +73,7 @@ export default function PhotosPage() {
                 Portland
               </span>
             </h1>
-            <p className="text-lg sm:text-xl text-white/60 max-w-lg leading-relaxed">
+            <p className="text-lg sm:text-xl text-white max-w-lg leading-relaxed">
               A glimpse into learning, growing and making memories at Portland Schools.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4">

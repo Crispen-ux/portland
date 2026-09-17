@@ -83,14 +83,14 @@ function AdmissionsContent() {
               heroInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <span className="text-eyebrow text-white/80 tracking-[0.2em] mb-4 block">
+            <span className="text-eyebrow text-white tracking-[0.2em] mb-4 block">
               Admissions Open
             </span>
             <h1 className="text-display text-white mb-6">
               Start Your Child&apos;s Journey at{" "}
               <span className="text-white">Portland</span>
             </h1>
-            <p className="text-xl text-white/70 mb-8">
+            <p className="text-xl text-white mb-8">
               Interested in joining Portland Schools? Tell us a little about your
               child and our team will help you with the next steps.
             </p>
